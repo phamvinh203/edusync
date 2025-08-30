@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:edusync/blocs/auth/auth_bloc.dart';
+import 'package:edusync/repositories/auth_repository.dart';
 import 'screens/auth/login_screen.dart';
 
 void main() {
@@ -10,11 +13,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Auth UI',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: LoginScreen(),
+    return RepositoryProvider(
+      create: (_) => AuthRepository(),
+      child: BlocProvider(
+        create: (context) => AuthBloc(repository: context.read<AuthRepository>()),
+        child: MaterialApp(
+          title: 'Auth UI',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(primarySwatch: Colors.blue),
+          home: const LoginScreen(),
+        ),
+      ),
     );
   }
 }

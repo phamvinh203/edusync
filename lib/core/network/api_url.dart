@@ -6,7 +6,6 @@ class ApiUrl {
   static const login = 'auth/login';
   static const register = 'auth/register';
   static const logout = 'auth/logout';
-  static const profile = 'auth/me';
   static const refreshToken = 'auth/refresh-token';
 
 }
