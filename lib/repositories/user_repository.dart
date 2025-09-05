@@ -21,6 +21,39 @@ class UserRepository {
     }
   }
 
+  /// Cập nhật thông tin hồ sơ người dùng
+  /// Gửi các trường không-null lên server, endpoint: users/me/update
+  /// Trả về MeResponse (fetch lại dữ liệu sau cập nhật)
+  Future<MeResponse> updateProfile({
+    String? username,
+    String? phone,
+    String? studentClass,
+    String? address,
+    DateTime? dateOfBirth,
+    String? gender,
+    String? email,
+  }) async {
+    try {
+      final Map<String, dynamic> data = {};
+      if (username != null) data['username'] = username;
+      if (phone != null) data['phone'] = phone;
+      if (studentClass != null) data['class'] = studentClass; // backend dùng key 'class'
+      if (address != null) data['address'] = address;
+      if (dateOfBirth != null) {
+        // ISO-8601 để backend parse dễ dàng
+        data['dateOfBirth'] = dateOfBirth.toIso8601String();
+      }
+      if (gender != null) data['gender'] = gender;
+      if (email != null) data['email'] = email;
+
+      final Response resp = await client.put(ApiUrl.updateUserProfile, data: data);
+      return MeResponse.fromMap(resp.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
   /// Upload avatar bằng multipart/form-data tới endpoint `users/me/avatar`
   /// Trả về URL avatar mới (server trả về trong data.avatarUrl)
   Future<String> updateAvatarFromPath(String filePath) async {

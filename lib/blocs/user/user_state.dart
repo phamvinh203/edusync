@@ -1,7 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:edusync/models/users_model.dart';
 
-enum UserStatus { initial, loading, loaded, failure, logoutSuccess, logoutFailure }
+enum UserStatus {
+  initial,
+  loading,
+  loaded,
+  failure,
+  logoutSuccess,
+  logoutFailure,
+}
 
 class UserState extends Equatable {
   final UserStatus status;
@@ -9,6 +16,8 @@ class UserState extends Equatable {
   final UserProfile? profile; // có thể null
   final String? errorMessage;
   final bool isUploadingAvatar;
+  final bool isUpdatingProfile;
+  final String? successMessage;
 
   const UserState({
     this.status = UserStatus.initial,
@@ -16,6 +25,8 @@ class UserState extends Equatable {
     this.profile,
     this.errorMessage,
     this.isUploadingAvatar = false,
+    this.isUpdatingProfile = false,
+    this.successMessage,
   });
 
   UserState copyWith({
@@ -24,12 +35,16 @@ class UserState extends Equatable {
     UserProfile? profile,
     String? errorMessage,
     bool? isUploadingAvatar,
+    bool? isUpdatingProfile,
+    String? successMessage,
   }) => UserState(
     status: status ?? this.status,
     auth: auth ?? this.auth,
     profile: profile ?? this.profile,
     errorMessage: errorMessage,
     isUploadingAvatar: isUploadingAvatar ?? this.isUploadingAvatar,
+    isUpdatingProfile: isUpdatingProfile ?? this.isUpdatingProfile,
+    successMessage: successMessage ?? this.successMessage,
   );
 
   @override
@@ -39,5 +54,7 @@ class UserState extends Equatable {
     profile,
     errorMessage,
     isUploadingAvatar,
+    isUpdatingProfile,
+    successMessage,
   ];
 }

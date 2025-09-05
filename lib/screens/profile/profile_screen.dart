@@ -1,3 +1,4 @@
+import 'package:edusync/screens/profile/user_info_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/user/user_bloc.dart';
@@ -256,12 +257,12 @@ class ProfileScreen extends StatelessWidget {
                         Icons.person_outline,
                         'Thông tin cá nhân',
                         () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const StudentInfoScreen(),
-                          //   ),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const UserInfoScreen(),
+                            ),
+                          );
                         },
                       ),
                       _buildMenuItem(
@@ -334,90 +335,90 @@ class ProfileScreen extends StatelessWidget {
                       //     );
                       //   },
                       // ),
-                      const SizedBox(height: 16),
+                    ]),
 
-                      _buildMenuSection(context, 'Hỗ trợ', [
-                        _buildMenuItem(Icons.help_outline, 'Hỗ trợ', () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const StudentSupportScreen(),
-                          //   ),
-                          // );
-                        }),
-                        _buildMenuItem(Icons.info_outline, 'Về ứng dụng', () {
-                          // _showAppInfo(context);
-                        }),
-                        _buildMenuItem(Icons.feedback_outlined, 'Phản hồi', () {
-                          // _showFeedbackDialog(context);
-                        }),
-                      ]),
+                    const SizedBox(height: 16),
+                    _buildMenuSection(context, 'Hỗ trợ', [
+                      _buildMenuItem(Icons.help_outline, 'Hỗ trợ', () {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => const StudentSupportScreen(),
+                        //   ),
+                        // );
+                      }),
+                      _buildMenuItem(Icons.info_outline, 'Về ứng dụng', () {
+                        // _showAppInfo(context);
+                      }),
+                      _buildMenuItem(Icons.feedback_outlined, 'Phản hồi', () {
+                        // _showFeedbackDialog(context);
+                      }),
+                    ]),
 
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            // Xác nhận trước khi đăng xuất
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder:
-                                  (ctx) => AlertDialog(
-                                    title: const Text('Đăng xuất'),
-                                    content: const Text(
-                                      'Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed:
-                                            () => Navigator.of(ctx).pop(false),
-                                        child: const Text('Huỷ'),
-                                      ),
-                                      FilledButton(
-                                        onPressed:
-                                            () => Navigator.of(ctx).pop(true),
-                                        child: const Text('Đăng xuất'),
-                                      ),
-                                    ],
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          // Xác nhận trước khi đăng xuất
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (ctx) => AlertDialog(
+                                  title: const Text('Đăng xuất'),
+                                  content: const Text(
+                                    'Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?',
                                   ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.of(ctx).pop(false),
+                                      child: const Text('Huỷ'),
+                                    ),
+                                    FilledButton(
+                                      onPressed:
+                                          () => Navigator.of(ctx).pop(true),
+                                      child: const Text('Đăng xuất'),
+                                    ),
+                                  ],
+                                ),
+                          );
+                          if (confirm == true && context.mounted) {
+                            // Gửi sự kiện logout tới AuthBloc
+                            context.read<AuthBloc>().add(
+                              const AuthLogoutRequested(),
                             );
-                            if (confirm == true && context.mounted) {
-                              // Gửi sự kiện logout tới AuthBloc
-                              context.read<AuthBloc>().add(
-                                const AuthLogoutRequested(),
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[50],
-                            foregroundColor: Colors.red,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                color: Colors.red.withValues(alpha: 0.3),
-                              ),
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[50],
+                          foregroundColor: Colors.red,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: Colors.red.withValues(alpha: 0.3),
                             ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.logout, color: Colors.red[600]),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Đăng xuất',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.red[600],
-                                ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.logout, color: Colors.red[600]),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Đăng xuất',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red[600],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ]),
+                    ),
                   ],
                 ),
               );
