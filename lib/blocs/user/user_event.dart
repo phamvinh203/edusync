@@ -10,3 +10,11 @@ abstract class UserEvent extends Equatable {
 class UserMeRequested extends UserEvent {
   const UserMeRequested();
 }
+
+class UserAvatarUpdateRequested extends UserEvent {
+  final String filePath;
+  const UserAvatarUpdateRequested(this.filePath);
+
+  @override
+  List<Object?> get props => [filePath];
+}

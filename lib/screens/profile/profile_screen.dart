@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/user/user_bloc.dart';
 import 'package:edusync/blocs/user/user_event.dart';
 import 'package:edusync/blocs/user/user_state.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -46,9 +47,9 @@ class ProfileScreen extends StatelessWidget {
             }
 
             final displayName =
-                (state.auth?.username.isNotEmpty == true)
+                (((state.auth?.username))?.isNotEmpty == true)
                     ? state.auth!.username
-                    : ((state.profile?.username?.isNotEmpty == true)
+                    : ((((state.profile?.username))?.isNotEmpty == true)
                         ? state.profile!.username!
                         : 'Người dùng');
             final avatarUrl = state.profile?.avatar ?? '';
@@ -71,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
                           Theme.of(context).colorScheme.primary,
                           Theme.of(
                             context,
-                          ).colorScheme.primary.withOpacity(0.8),
+                          ).colorScheme.primary.withValues(alpha: 0.8),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -80,27 +81,98 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.white,
-                          backgroundImage:
-                              avatarUrl.isNotEmpty
-                                  ? NetworkImage(avatarUrl)
-                                  : null,
-                          child:
-                              avatarUrl.isEmpty
-                                  ? Text(
-                                    displayName.isNotEmpty
-                                        ? displayName[0].toUpperCase()
-                                        : '?',
-                                    style: TextStyle(
-                                      fontSize: 36,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                        GestureDetector(
+                          onTap:
+                              state.isUploadingAvatar
+                                  ? null
+                                  : () async {
+                                    final picker = ImagePicker();
+                                    final picked = await picker.pickImage(
+                                      source: ImageSource.gallery,
+                                      maxWidth: 1024,
+                                      maxHeight: 1024,
+                                      imageQuality: 85,
+                                    );
+                                    if (picked != null) {
+                                      // Gửi sự kiện cập nhật avatar
+                                      if (context.mounted) {
+                                        context.read<UserBloc>().add(
+                                          UserAvatarUpdateRequested(
+                                            picked.path,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                          child: Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.white,
+                                backgroundImage:
+                                    avatarUrl.isNotEmpty
+                                        ? NetworkImage(avatarUrl)
+                                        : null,
+                                child:
+                                    avatarUrl.isEmpty
+                                        ? Text(
+                                          displayName.isNotEmpty
+                                              ? displayName[0].toUpperCase()
+                                              : '?',
+                                          style: TextStyle(
+                                            fontSize: 36,
+                                            fontWeight: FontWeight.bold,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                          ),
+                                        )
+                                        : null,
+                              ),
+                              if (state.isUploadingAvatar)
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      shape: BoxShape.circle,
                                     ),
-                                  )
-                                  : null,
+                                    child: const Center(
+                                      child: SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(6),
+                                child: Icon(
+                                  Icons.edit,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -115,8 +187,11 @@ class ProfileScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           classText,
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(color: Colors.white.withOpacity(0.9)),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyLarge?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -131,7 +206,7 @@ class ProfileScreen extends StatelessWidget {
                             Container(
                               width: 1,
                               height: 40,
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withValues(alpha: 0.3),
                             ),
                             Expanded(
                               child: _buildStatItem('6', 'Môn học\nđang theo'),
@@ -139,7 +214,7 @@ class ProfileScreen extends StatelessWidget {
                             Container(
                               width: 1,
                               height: 40,
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withValues(alpha: 0.3),
                             ),
                             Expanded(
                               child: _buildStatItem('8.5', 'Điểm TB\nhọc kỳ'),
