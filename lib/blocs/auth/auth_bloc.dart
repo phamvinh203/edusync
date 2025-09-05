@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/auth/auth_event.dart';
 import 'package:edusync/blocs/auth/auth_state.dart';
 import 'package:edusync/repositories/auth_repository.dart';

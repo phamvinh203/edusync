@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/repositories/auth_repository.dart';
+import 'package:edusync/blocs/user/user_bloc.dart';
+import 'package:edusync/repositories/user_repository.dart';
 import 'screens/auth/login_screen.dart';
 
 void main() {
@@ -13,12 +15,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => AuthRepository(),
-      child: BlocProvider(
-        create: (context) => AuthBloc(repository: context.read<AuthRepository>()),
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(create: (_) => AuthRepository()),
+        RepositoryProvider(create: (_) => UserRepository()),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create:
+                (context) =>
+                    AuthBloc(repository: context.read<AuthRepository>()),
+          ),
+          BlocProvider(
+            create:
+                (context) =>
+                    UserBloc(repository: context.read<UserRepository>()),
+          ),
+        ],
         child: MaterialApp(
-          title: 'Auth UI',
+          title: 'EduSync',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(primarySwatch: Colors.blue),
           home: const LoginScreen(),

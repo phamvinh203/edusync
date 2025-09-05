@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/blocs/auth/auth_event.dart';
 import 'package:edusync/blocs/auth/auth_state.dart';
-import 'package:edusync/screens/home/home_screen.dart';
+import 'package:edusync/screens/main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,17 +37,14 @@ class _LoginScreenState extends State<LoginScreen> {
       listener: (context, state) {
         if (state.status == AuthStatus.failure) {
           final msg = state.errorMessage ?? 'Đăng nhập thất bại';
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(msg)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(msg)));
         }
         if (state.status == AuthStatus.authenticated) {
-          final username = state.user?.username ?? 'Bạn';
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (_) => HomeScreen(username: username),
-            ),
+            MaterialPageRoute(builder: (_) => const MainScreen()),
           );
         }
       },
@@ -177,7 +174,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                           });
                                         },
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         activeColor: const Color(0xFF8E54E9),
                                       ),
@@ -201,7 +200,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   child: const Text(
                                     'Quên mật khẩu?',
-                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -218,17 +219,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         builder: (context, state) {
                           final isLoading = state.status == AuthStatus.loading;
                           return ElevatedButton(
-                            onPressed: isLoading
-                                ? null
-                                : () {
-                                    context.read<AuthBloc>().add(
-                                          AuthLoginRequested(
-                                            email: _emailController.text.trim(),
-                                            password: _passwordController.text,
-                                            rememberMe: _rememberMe,
-                                          ),
-                                        );
-                                  },
+                            onPressed:
+                                isLoading
+                                    ? null
+                                    : () {
+                                      context.read<AuthBloc>().add(
+                                        AuthLoginRequested(
+                                          email: _emailController.text.trim(),
+                                          password: _passwordController.text,
+                                          rememberMe: _rememberMe,
+                                        ),
+                                      );
+                                    },
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor: const Color(0xFF4776E6),
@@ -239,23 +241,24 @@ class _LoginScreenState extends State<LoginScreen> {
                               elevation: 8,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
-                            child: isLoading
-                                ? const SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
+                            child:
+                                isLoading
+                                    ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                    : const Text(
+                                      'Đăng nhập',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.0,
+                                      ),
                                     ),
-                                  )
-                                : const Text(
-                                    'Đăng nhập',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.0,
-                                    ),
-                                  ),
                           );
                         },
                       ),
@@ -320,17 +323,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             const Text(
                               'Chưa có tài khoản? ',
-                              style: TextStyle(color: Colors.white, fontSize: 16),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
                             GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => BlocProvider.value(
-                                      value: context.read<AuthBloc>(),
-                                      child: const SignupScreen(),
-                                    ),
+                                    builder:
+                                        (_) => BlocProvider.value(
+                                          value: context.read<AuthBloc>(),
+                                          child: const SignupScreen(),
+                                        ),
                                   ),
                                 );
                               },
@@ -359,4 +366,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
