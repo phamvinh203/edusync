@@ -81,4 +81,13 @@ class UserRepository {
     } catch (_) {}
     return e.message ?? 'Lỗi gọi thông tin người dùng';
   }
+
+  Future<void> logout() async {
+    try {
+      await client.post(ApiUrl.logout);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
 }

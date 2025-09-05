@@ -18,3 +18,7 @@ class UserAvatarUpdateRequested extends UserEvent {
   @override
   List<Object?> get props => [filePath];
 }
+
+class UserLogoutRequested extends UserEvent {
+  const UserLogoutRequested();
+}

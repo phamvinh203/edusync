@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:edusync/models/users_model.dart';
 
-enum UserStatus { initial, loading, loaded, failure }
+enum UserStatus { initial, loading, loaded, failure, logoutSuccess, logoutFailure }
 
 class UserState extends Equatable {
   final UserStatus status;

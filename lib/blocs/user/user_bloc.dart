@@ -60,4 +60,22 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       );
     }
   }
+
+  Future<void> _onLogoutRequested(
+    UserLogoutRequested event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(state.copyWith(status: UserStatus.loading, errorMessage: null));
+    try {
+      await repository.logout();
+      emit(state.copyWith(status: UserStatus.logoutSuccess));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: UserStatus.logoutFailure,
+          errorMessage: e.toString().replaceFirst('Exception: ', ''),
+        ),
+      );
+    }
+  }
 }
