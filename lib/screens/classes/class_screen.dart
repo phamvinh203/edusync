@@ -4,6 +4,12 @@ import 'package:edusync/blocs/user/user_bloc.dart';
 import 'package:edusync/blocs/user/user_state.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/blocs/auth/auth_state.dart';
+import 'package:edusync/blocs/class/class_bloc.dart';
+import 'package:edusync/blocs/class/class_event.dart';
+import 'package:edusync/screens/classes/create_class_screen.dart';
+import 'package:edusync/screens/classes/school_subject_tab.dart';
+import 'package:edusync/screens/classes/tutor_class_tab.dart';
+import 'package:edusync/models/class_model.dart';
 
 class ClassScreen extends StatefulWidget {
   const ClassScreen({super.key});
@@ -54,9 +60,33 @@ class _ClassScreenState extends State<ClassScreen>
                   // Chỉ hiển thị nút tạo lớp học cho giáo viên
                   if (userRole.toLowerCase() == 'teacher')
                     IconButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (!mounted) return;
-                        _showCreateClassDialog(context);
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CreateClassScreen(),
+                          ),
+                        );
+                        // Nếu tạo lớp thành công, cập nhật danh sách
+                        if (result is ClassModel && mounted) {
+                          // Refresh danh sách lớp học từ server
+                          context.read<ClassBloc>().add(RefreshClassesEvent());
+
+                          // Chuyển sang tab "Lớp gia sư" để hiển thị lớp vừa tạo
+                          _tabController.animateTo(1);
+
+                          // Hiển thị thông báo thành công
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Đã tạo lớp "${result.nameClass}" thành công!',
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
                       },
                       icon: const Icon(Icons.add),
                       tooltip: 'Tạo lớp học mới',
@@ -170,98 +200,22 @@ class _ClassScreenState extends State<ClassScreen>
                         ],
                       ),
                     ),
+
+                    // TabBarView - Nội dung các tab
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: const [
+                          SchoolSubjectTab(), // Tab môn học trường
+                          TutorClassTab(), // Tab lớp gia sư
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
             );
           },
-        );
-      },
-    );
-  }
-
-  // Dialog tạo lớp học mới cho giáo viên
-  void _showCreateClassDialog(BuildContext context) {
-    final TextEditingController classNameController = TextEditingController();
-    final TextEditingController subjectController = TextEditingController();
-    final TextEditingController descriptionController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Tạo lớp học mới'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: classNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tên lớp học',
-                    hintText: 'Nhập tên lớp học',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: subjectController,
-                  decoration: const InputDecoration(
-                    labelText: 'Môn học',
-                    hintText: 'Nhập môn học',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: descriptionController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Mô tả',
-                    hintText: 'Nhập mô tả về lớp học',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // TODO: Implement tạo lớp học logic
-                final className = classNameController.text.trim();
-                final subject = subjectController.text.trim();
-                final description = descriptionController.text.trim();
-
-                if (className.isNotEmpty && subject.isNotEmpty) {
-                  // Gọi API tạo lớp học ở đây
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Đã tạo lớp học: $className - $subject${description.isNotEmpty ? " ($description)" : ""}',
-                      ),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Vui lòng nhập đầy đủ thông tin bắt buộc'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: const Text('Tạo lớp'),
-            ),
-          ],
         );
       },
     );
