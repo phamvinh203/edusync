@@ -21,7 +21,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   late final TextEditingController _schoolCtrl;
   late final TextEditingController _addressCtrl;
   DateTime? _dob;
-  String? _gender; // male|female|other
+  String? _gender; 
 
   @override
   void initState() {
@@ -205,7 +205,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                           fillColor: const Color(0xFFF5F5F5),
                           prefixIcon: const Icon(
                             Icons.cake_outlined,
-                            color: Color(0xFF8E54E9),
+                            color: Color(0xFF1976D2),
                           ),
                         ),
                         child: Text(
@@ -251,7 +251,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         fillColor: const Color(0xFFF5F5F5),
                         prefixIcon: const Icon(
                           Icons.wc_outlined,
-                          color: Color(0xFF8E54E9),
+                          color: Color(0xFF1976D2),
                         ),
                       ),
                     ),

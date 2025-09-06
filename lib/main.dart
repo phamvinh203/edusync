@@ -36,7 +36,10 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'EduSync',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(primarySwatch: Colors.blue),
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue[200]!),
+            useMaterial3: true,
+          ),
           home: const LoginScreen(),
         ),
       ),

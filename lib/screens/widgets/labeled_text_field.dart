@@ -40,7 +40,7 @@ class LabeledTextField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hintText,
             prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, color: const Color(0xFF8E54E9))
+                ? Icon(prefixIcon, color: const Color(0xFF1976D2))
                 : null,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

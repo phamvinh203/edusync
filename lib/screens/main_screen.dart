@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:edusync/screens/home/home_screen.dart';
-import 'package:edusync/screens/classes/class_scren.dart';
+import 'package:edusync/screens/classes/class_screen.dart';
 import 'package:edusync/screens/exercises/exercis_screen.dart';
 import 'package:edusync/screens/profile/profile_screen.dart';
 
@@ -25,7 +25,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Colors.blue; 
+    final primaryColor = Colors.blue;
 
     return Scaffold(
       body: _pages[_selectedIndex],
@@ -33,10 +33,7 @@ class _MainScreenState extends State<MainScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
-            BoxShadow(
-              blurRadius: 20,
-              color: Colors.black.withOpacity(.1),
-            ),
+            BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(.1)),
           ],
         ),
         child: SafeArea(

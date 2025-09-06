@@ -34,24 +34,24 @@ class ProfileScreen extends StatelessWidget {
       child: Scaffold(
         body: SafeArea(
           child: BlocBuilder<UserBloc, UserState>(
-            builder: (context, state) {
-              if (state.status == UserStatus.initial) {
+            builder: (context, userState) {
+              if (userState.status == UserStatus.initial) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   context.read<UserBloc>().add(const UserMeRequested());
                 });
               }
 
-              if (state.status == UserStatus.loading) {
+              if (userState.status == UserStatus.loading) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              if (state.status == UserStatus.failure) {
+              if (userState.status == UserStatus.failure) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        state.errorMessage ??
+                        userState.errorMessage ??
                             'Không thể tải thông tin người dùng',
                       ),
                       const SizedBox(height: 12),
@@ -67,366 +67,409 @@ class ProfileScreen extends StatelessWidget {
                 );
               }
 
-              final displayName =
-                  (((state.auth?.username))?.isNotEmpty == true)
-                      ? state.auth!.username
-                      : ((((state.profile?.username))?.isNotEmpty == true)
-                          ? state.profile!.username!
-                          : 'Người dùng');
-              final avatarUrl = state.profile?.avatar ?? '';
-              final classText =
-                  (state.profile?.userClass != null &&
-                          state.profile!.userClass!.isNotEmpty)
-                      ? 'Lớp ${state.profile!.userClass} • Học sinh'
-                      : 'Học sinh';
+              return BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, authState) {
+                  final displayName =
+                      (((userState.auth?.username))?.isNotEmpty == true)
+                          ? userState.auth!.username
+                          : ((((userState.profile?.username))?.isNotEmpty ==
+                                  true)
+                              ? userState.profile!.username!
+                              : 'Người dùng');
+                  final avatarUrl = userState.profile?.avatar ?? '';
 
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Theme.of(context).colorScheme.primary,
-                            Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.8),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap:
-                                state.isUploadingAvatar
-                                    ? null
-                                    : () async {
-                                      final picker = ImagePicker();
-                                      final picked = await picker.pickImage(
-                                        source: ImageSource.gallery,
-                                        maxWidth: 1024,
-                                        maxHeight: 1024,
-                                        imageQuality: 85,
-                                      );
-                                      if (picked != null) {
-                                        // Gửi sự kiện cập nhật avatar
-                                        if (context.mounted) {
-                                          context.read<UserBloc>().add(
-                                            UserAvatarUpdateRequested(
-                                              picked.path,
-                                            ),
+                  // Lấy role từ AuthBloc và hiển thị theo role
+                  final userRole = authState.user?.role ?? '';
+                  final roleDisplayText = _getRoleDisplayText(userRole);
+                  final classText =
+                      (userState.profile?.userClass != null &&
+                              userState.profile!.userClass!.isNotEmpty)
+                          ? 'Lớp ${userState.profile!.userClass} • $roleDisplayText'
+                          : roleDisplayText;
+
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Theme.of(context).colorScheme.primary,
+                                Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.8),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                onTap:
+                                    userState.isUploadingAvatar
+                                        ? null
+                                        : () async {
+                                          final picker = ImagePicker();
+                                          final picked = await picker.pickImage(
+                                            source: ImageSource.gallery,
+                                            maxWidth: 1024,
+                                            maxHeight: 1024,
+                                            imageQuality: 85,
                                           );
-                                        }
-                                      }
-                                    },
-                            child: Stack(
-                              alignment: Alignment.bottomRight,
-                              children: [
-                                CircleAvatar(
-                                  radius: 50,
-                                  backgroundColor: Colors.white,
-                                  backgroundImage:
-                                      avatarUrl.isNotEmpty
-                                          ? NetworkImage(avatarUrl)
-                                          : null,
-                                  child:
-                                      avatarUrl.isEmpty
-                                          ? Text(
-                                            displayName.isNotEmpty
-                                                ? displayName[0].toUpperCase()
-                                                : '?',
-                                            style: TextStyle(
-                                              fontSize: 36,
-                                              fontWeight: FontWeight.bold,
-                                              color:
-                                                  Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary,
+                                          if (picked != null) {
+                                            // Gửi sự kiện cập nhật avatar
+                                            if (context.mounted) {
+                                              context.read<UserBloc>().add(
+                                                UserAvatarUpdateRequested(
+                                                  picked.path,
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        },
+                                child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 50,
+                                      backgroundColor: Colors.white,
+                                      backgroundImage:
+                                          avatarUrl.isNotEmpty
+                                              ? NetworkImage(avatarUrl)
+                                              : null,
+                                      child:
+                                          avatarUrl.isEmpty
+                                              ? Text(
+                                                displayName.isNotEmpty
+                                                    ? displayName[0]
+                                                        .toUpperCase()
+                                                    : '?',
+                                                style: TextStyle(
+                                                  fontSize: 36,
+                                                  fontWeight: FontWeight.bold,
+                                                  color:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.primary,
+                                                ),
+                                              )
+                                              : null,
+                                    ),
+                                    if (userState.isUploadingAvatar)
+                                      Positioned.fill(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.15,
                                             ),
-                                          )
-                                          : null,
-                                ),
-                                if (state.isUploadingAvatar)
-                                  Positioned.fill(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.15,
-                                        ),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Center(
-                                        child: SizedBox(
-                                          height: 24,
-                                          width: 24,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2.5,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Center(
+                                            child: SizedBox(
+                                              height: 24,
+                                              width: 24,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2.5,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                      padding: const EdgeInsets.all(6),
+                                      child: Icon(
+                                        Icons.edit,
+                                        size: 18,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                displayName,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineSmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                classText,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Expanded(
+                                    child: _buildStatItem(
+                                      '15',
+                                      'Bài tập\nhoàn thành',
                                     ),
                                   ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        blurRadius: 4,
-                                      ),
-                                    ],
+                                  Container(
+                                    width: 1,
+                                    height: 40,
+                                    color: Colors.white.withValues(alpha: 0.3),
                                   ),
-                                  padding: const EdgeInsets.all(6),
-                                  child: Icon(
-                                    Icons.edit,
-                                    size: 18,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                  Expanded(
+                                    child: _buildStatItem(
+                                      '6',
+                                      'Môn học\nđang theo',
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 40,
+                                    color: Colors.white.withValues(alpha: 0.3),
+                                  ),
+                                  Expanded(
+                                    child: _buildStatItem(
+                                      '8.5',
+                                      'Điểm TB\nhọc kỳ',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+                        // Menu Items
+                        _buildMenuSection(context, 'Tài khoản', [
+                          _buildMenuItem(
+                            Icons.person_outline,
+                            'Thông tin cá nhân',
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const UserInfoScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildMenuItem(
+                            Icons.school_outlined,
+                            'Thông tin học tập',
+                            () {
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: (context) => const StudentAcademicScreen(),
+                              //   ),
+                              // );
+                            },
+                          ),
+                          _buildMenuItem(Icons.payment, 'Quản lý học phí', () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const StudentFeeManagementScreen(),
+                            //   ),
+                            // );
+                          }),
+                          _buildMenuItem(
+                            Icons.lock_outline,
+                            'Đổi mật khẩu',
+                            () {
+                              // _showChangePasswordDialog(context);
+                            },
+                          ),
+                        ]),
+
+                        const SizedBox(height: 16),
+                        _buildMenuSection(context, 'Cài đặt', [
+                          _buildMenuItem(Icons.settings_outlined, 'Cài đặt', () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const StudentSettingsScreen(),
+                            //   ),
+                            // );
+                          }),
+                          _buildMenuItem(Icons.palette_outlined, 'Giao diện', () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const ThemeSettingsScreen(),
+                            //   ),
+                            // );
+                          }),
+                          _buildMenuItem(
+                            Icons.notifications_outlined,
+                            'Thông báo',
+                            () {
+                              // _showNotificationSettings(context);
+                            },
+                          ),
+                          _buildMenuItem(
+                            Icons.language_outlined,
+                            'Ngôn ngữ',
+                            () {
+                              // _showLanguageSettings(context);
+                            },
+                          ),
+
+                          // Consumer<ThemeProvider>(
+                          //   builder: (context, themeProvider, child) {
+                          //     return _buildMenuItem(
+                          //       themeProvider.isDarkMode
+                          //           ? Icons.light_mode_outlined
+                          //           : Icons.dark_mode_outlined,
+                          //       'Chế độ tối',
+                          //       () {},
+                          //       trailing: Switch(
+                          //         value: themeProvider.isDarkMode,
+                          //         onChanged: (value) => themeProvider.toggleTheme(),
+                          //         activeColor: Theme.of(context).colorScheme.primary,
+                          //       ),
+                          //     );
+                          //   },
+                          // ),
+                        ]),
+
+                        const SizedBox(height: 16),
+                        _buildMenuSection(context, 'Hỗ trợ', [
+                          _buildMenuItem(Icons.help_outline, 'Hỗ trợ', () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const StudentSupportScreen(),
+                            //   ),
+                            // );
+                          }),
+                          _buildMenuItem(Icons.info_outline, 'Về ứng dụng', () {
+                            // _showAppInfo(context);
+                          }),
+                          _buildMenuItem(
+                            Icons.feedback_outlined,
+                            'Phản hồi',
+                            () {
+                              // _showFeedbackDialog(context);
+                            },
+                          ),
+                        ]),
+
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              // Xác nhận trước khi đăng xuất
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (ctx) => AlertDialog(
+                                      title: const Text('Đăng xuất'),
+                                      content: const Text(
+                                        'Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.of(ctx).pop(false),
+                                          child: const Text('Huỷ'),
+                                        ),
+                                        FilledButton(
+                                          onPressed:
+                                              () => Navigator.of(ctx).pop(true),
+                                          child: const Text('Đăng xuất'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                              if (confirm == true && context.mounted) {
+                                // Gửi sự kiện logout tới AuthBloc
+                                context.read<AuthBloc>().add(
+                                  const AuthLogoutRequested(),
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red[50],
+                              foregroundColor: Colors.red,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: Colors.red.withValues(alpha: 0.3),
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.logout, color: Colors.red[600]),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Đăng xuất',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.red[600],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            displayName,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            classText,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyLarge?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(
-                                child: _buildStatItem(
-                                  '15',
-                                  'Bài tập\nhoàn thành',
-                                ),
-                              ),
-                              Container(
-                                width: 1,
-                                height: 40,
-                                color: Colors.white.withValues(alpha: 0.3),
-                              ),
-                              Expanded(
-                                child: _buildStatItem(
-                                  '6',
-                                  'Môn học\nđang theo',
-                                ),
-                              ),
-                              Container(
-                                width: 1,
-                                height: 40,
-                                color: Colors.white.withValues(alpha: 0.3),
-                              ),
-                              Expanded(
-                                child: _buildStatItem('8.5', 'Điểm TB\nhọc kỳ'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-                    // Menu Items
-                    _buildMenuSection(context, 'Tài khoản', [
-                      _buildMenuItem(
-                        Icons.person_outline,
-                        'Thông tin cá nhân',
-                        () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const UserInfoScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildMenuItem(
-                        Icons.school_outlined,
-                        'Thông tin học tập',
-                        () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const StudentAcademicScreen(),
-                          //   ),
-                          // );
-                        },
-                      ),
-                      _buildMenuItem(Icons.payment, 'Quản lý học phí', () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const StudentFeeManagementScreen(),
-                        //   ),
-                        // );
-                      }),
-                      _buildMenuItem(Icons.lock_outline, 'Đổi mật khẩu', () {
-                        // _showChangePasswordDialog(context);
-                      }),
-                    ]),
-
-                    const SizedBox(height: 16),
-                    _buildMenuSection(context, 'Cài đặt', [
-                      _buildMenuItem(Icons.settings_outlined, 'Cài đặt', () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const StudentSettingsScreen(),
-                        //   ),
-                        // );
-                      }),
-                      _buildMenuItem(Icons.palette_outlined, 'Giao diện', () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const ThemeSettingsScreen(),
-                        //   ),
-                        // );
-                      }),
-                      _buildMenuItem(
-                        Icons.notifications_outlined,
-                        'Thông báo',
-                        () {
-                          // _showNotificationSettings(context);
-                        },
-                      ),
-                      _buildMenuItem(Icons.language_outlined, 'Ngôn ngữ', () {
-                        // _showLanguageSettings(context);
-                      }),
-
-                      // Consumer<ThemeProvider>(
-                      //   builder: (context, themeProvider, child) {
-                      //     return _buildMenuItem(
-                      //       themeProvider.isDarkMode
-                      //           ? Icons.light_mode_outlined
-                      //           : Icons.dark_mode_outlined,
-                      //       'Chế độ tối',
-                      //       () {},
-                      //       trailing: Switch(
-                      //         value: themeProvider.isDarkMode,
-                      //         onChanged: (value) => themeProvider.toggleTheme(),
-                      //         activeColor: Theme.of(context).colorScheme.primary,
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-                    ]),
-
-                    const SizedBox(height: 16),
-                    _buildMenuSection(context, 'Hỗ trợ', [
-                      _buildMenuItem(Icons.help_outline, 'Hỗ trợ', () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const StudentSupportScreen(),
-                        //   ),
-                        // );
-                      }),
-                      _buildMenuItem(Icons.info_outline, 'Về ứng dụng', () {
-                        // _showAppInfo(context);
-                      }),
-                      _buildMenuItem(Icons.feedback_outlined, 'Phản hồi', () {
-                        // _showFeedbackDialog(context);
-                      }),
-                    ]),
-
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          // Xác nhận trước khi đăng xuất
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder:
-                                (ctx) => AlertDialog(
-                                  title: const Text('Đăng xuất'),
-                                  content: const Text(
-                                    'Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.of(ctx).pop(false),
-                                      child: const Text('Huỷ'),
-                                    ),
-                                    FilledButton(
-                                      onPressed:
-                                          () => Navigator.of(ctx).pop(true),
-                                      child: const Text('Đăng xuất'),
-                                    ),
-                                  ],
-                                ),
-                          );
-                          if (confirm == true && context.mounted) {
-                            // Gửi sự kiện logout tới AuthBloc
-                            context.read<AuthBloc>().add(
-                              const AuthLogoutRequested(),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red[50],
-                          foregroundColor: Colors.red,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: Colors.red.withValues(alpha: 0.3),
-                            ),
-                          ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.logout, color: Colors.red[600]),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Đăng xuất',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.red[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           ),
         ),
       ),
     );
+  }
+
+  // Helper method để chuyển đổi role thành text hiển thị
+  String _getRoleDisplayText(String role) {
+    switch (role.toLowerCase()) {
+      case 'teacher':
+        return 'Giáo viên';
+      case 'student':
+        return 'Học sinh';
+      case 'admin':
+        return 'Quản trị viên';
+      default:
+        return 'Người dùng';
+    }
   }
 
   Widget _buildStatItem(String value, String label) {
