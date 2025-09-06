@@ -75,9 +75,9 @@ class ProfileScreen extends StatelessWidget {
                           : 'Người dùng');
               final avatarUrl = state.profile?.avatar ?? '';
               final classText =
-                  (state.profile?.studentClass != null &&
-                          state.profile!.studentClass!.isNotEmpty)
-                      ? 'Lớp ${state.profile!.studentClass} • Học sinh'
+                  (state.profile?.userClass != null &&
+                          state.profile!.userClass!.isNotEmpty)
+                      ? 'Lớp ${state.profile!.userClass} • Học sinh'
                       : 'Học sinh';
 
               return SingleChildScrollView(

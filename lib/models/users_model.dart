@@ -21,7 +21,8 @@ class UserProfile {
   final String? email;
   final String? username;
   final String? phone;
-  final String? studentClass; // tránh trùng keyword 'class'
+  final String? userClass;
+  final String? userSchool;
   final String? address;
   final String? avatar; // URL ảnh
   final DateTime? dateOfBirth;
@@ -33,7 +34,8 @@ class UserProfile {
     this.email,
     this.username,
     this.phone,
-    this.studentClass,
+    this.userClass,
+    this.userSchool,
     this.address,
     this.avatar,
     this.dateOfBirth,
@@ -46,7 +48,8 @@ class UserProfile {
     email: (map['email'] ?? '').toString(),
     username: (map['username'] ?? '').toString(),
     phone: (map['phone'] ?? '').toString(),
-    studentClass: (map['class'] ?? '').toString(),
+    userClass: (map['userClass'] ?? '').toString(),
+    userSchool: (map['userSchool'] ?? '').toString(),
     address: (map['address'] ?? '').toString(),
     avatar:
         (map['avatar'] ?? '').toString().isEmpty

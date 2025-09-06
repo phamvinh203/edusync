@@ -28,6 +28,7 @@ class UserRepository {
     String? username,
     String? phone,
     String? studentClass,
+    String? studentSchool,
     String? address,
     DateTime? dateOfBirth,
     String? gender,
@@ -37,7 +38,10 @@ class UserRepository {
       final Map<String, dynamic> data = {};
       if (username != null) data['username'] = username;
       if (phone != null) data['phone'] = phone;
-      if (studentClass != null) data['class'] = studentClass; // backend dùng key 'class'
+      if (studentClass != null)
+        data['userClass'] = studentClass; // backend dùng key 'userClass'
+      if (studentSchool != null)
+        data['userSchool'] = studentSchool; // backend dùng key 'userSchool'
       if (address != null) data['address'] = address;
       if (dateOfBirth != null) {
         // ISO-8601 để backend parse dễ dàng
@@ -46,7 +50,10 @@ class UserRepository {
       if (gender != null) data['gender'] = gender;
       if (email != null) data['email'] = email;
 
-      final Response resp = await client.put(ApiUrl.updateUserProfile, data: data);
+      final Response resp = await client.put(
+        ApiUrl.updateUserProfile,
+        data: data,
+      );
       return MeResponse.fromMap(resp.data as Map<String, dynamic>);
     } on DioException catch (e) {
       final msg = _extractMessage(e);

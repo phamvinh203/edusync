@@ -26,7 +26,8 @@ class UserLogoutRequested extends UserEvent {
 class UserUpdateProfileRequested extends UserEvent {
   final String? username;
   final String? phone;
-  final String? studentClass;
+  final String? userClass;
+  final String? userSchool;
   final String? address;
   final DateTime? dateOfBirth;
   final String? gender;
@@ -35,7 +36,8 @@ class UserUpdateProfileRequested extends UserEvent {
   const UserUpdateProfileRequested({
     this.username,
     this.phone,
-    this.studentClass,
+    this.userClass,
+    this.userSchool,
     this.address,
     this.dateOfBirth,
     this.gender,
@@ -44,12 +46,13 @@ class UserUpdateProfileRequested extends UserEvent {
 
   @override
   List<Object?> get props => [
-        username,
-        phone,
-        studentClass,
-        address,
-        dateOfBirth,
-        gender,
-        email,
-      ];
+    username,
+    phone,
+    userClass,
+    userSchool,
+    address,
+    dateOfBirth,
+    gender,
+    email,
+  ];
 }
