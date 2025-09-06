@@ -65,6 +65,19 @@ class ClassRepository {
     }
   }
 
+  /// Lấy chi tiết lớp học theo ID
+  Future<ClassDetailsResponse> getClassDetails(String classId) async {
+    try {
+      final Response resp = await client.get(
+        '${ApiUrl.getClassDetails}/$classId',
+      );
+      return ClassDetailsResponse.fromMap(resp.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
   String _extractMessage(DioException e) {
     if (e.response?.data is Map<String, dynamic>) {
       return e.response?.data['message'] ?? 'Có lỗi xảy ra';

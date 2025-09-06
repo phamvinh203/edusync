@@ -9,12 +9,11 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
   List<ClassModel> _classes = [];
 
   ClassBloc({ClassRepository? classRepository})
-      : _classRepository = classRepository ?? ClassRepository(),
-        super(ClassInitial()) {
-    
+    : _classRepository = classRepository ?? ClassRepository(),
+      super(ClassInitial()) {
     // Debug: In ra để kiểm tra ClassBloc được khởi tạo
     print('ClassBloc initialized');
-    
+
     // Xử lý sự kiện load danh sách lớp học
     on<LoadClassesEvent>((event, emit) async {
       print('LoadClassesEvent triggered');

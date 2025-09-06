@@ -123,3 +123,20 @@ class CreateClassResponse {
   static CreateClassResponse fromJson(String source) =>
       CreateClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
 }
+
+// Response cho API lấy chi tiết lớp học
+class ClassDetailsResponse {
+  final String message;
+  final ClassModel data;
+
+  const ClassDetailsResponse({required this.message, required this.data});
+
+  factory ClassDetailsResponse.fromMap(Map<String, dynamic> map) =>
+      ClassDetailsResponse(
+        message: (map['message'] ?? '').toString(),
+        data: ClassModel.fromMap(map['data'] as Map<String, dynamic>),
+      );
+
+  static ClassDetailsResponse fromJson(String source) =>
+      ClassDetailsResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
+}

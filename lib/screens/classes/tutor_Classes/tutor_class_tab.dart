@@ -4,6 +4,7 @@ import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_state.dart';
 import 'package:edusync/blocs/class/class_event.dart';
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/screens/classes/tutor_Classes/class_detail_screen.dart';
 
 class TutorClassTab extends StatefulWidget {
   const TutorClassTab({super.key});
@@ -108,8 +109,17 @@ class _TutorClassTabState extends State<TutorClassTab> {
       elevation: 2,
       child: InkWell(
         onTap: () {
-          // TODO: Điều hướng đến chi tiết lớp học
-          _showClassDetails(classItem);
+          // Điều hướng đến màn hình chi tiết lớp học
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => ClassDetailScreen(
+                    classId: classItem.id ?? '',
+                    className: classItem.nameClass,
+                  ),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(8),
         child: Padding(
@@ -251,138 +261,5 @@ class _TutorClassTabState extends State<TutorClassTab> {
     if (diff < 7) return '$diff ngày trước';
 
     return '${date.day}/${date.month}/${date.year}';
-  }
-
-  void _showClassDetails(ClassModel classItem) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              children: [
-                // Handle bar
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-
-                // Header
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Chi tiết lớp học',
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Divider(),
-
-                // Content
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Tên lớp
-                        _buildDetailRow('Tên lớp', classItem.nameClass),
-                        _buildDetailRow('Môn học', classItem.subject),
-
-                        if (classItem.description != null)
-                          _buildDetailRow('Mô tả', classItem.description!),
-
-                        if (classItem.location != null)
-                          _buildDetailRow('Địa điểm', classItem.location!),
-
-                        _buildDetailRow(
-                          'Số học sinh',
-                          '${classItem.students.length}/${classItem.maxStudents ?? 0}',
-                        ),
-
-                        // Lịch học
-                        if (classItem.schedule.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          Text(
-                            'Lịch học',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          ...classItem.schedule.map(
-                            (s) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.schedule,
-                                    size: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${s.dayOfWeek}: ${s.startTime} - ${s.endTime}',
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 16, color: Colors.black87),
-          ),
-        ],
-      ),
-    );
   }
 }

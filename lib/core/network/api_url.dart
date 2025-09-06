@@ -16,4 +16,5 @@ class ApiUrl {
   // Class endpoints
   static const createClass = 'classes/createclass';
   static const getListClasses = 'classes/getallclasses';
+  static const getClassDetails = 'classes/getclass'; // xem chi tiết lớp học
 }
