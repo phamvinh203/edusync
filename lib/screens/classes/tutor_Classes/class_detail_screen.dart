@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/models/users_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
+import 'package:edusync/screens/classes/tutor_Classes/pending_students_screen.dart';
 
 class ClassDetailScreen extends StatefulWidget {
   final String classId;
@@ -19,13 +21,20 @@ class ClassDetailScreen extends StatefulWidget {
 class _ClassDetailScreenState extends State<ClassDetailScreen> {
   final ClassRepository _classRepository = ClassRepository();
   ClassModel? _classDetails;
+  ClassStudentsResponse? _classStudents;
   bool _isLoading = true;
+  bool _isLoadingStudents = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
     _loadClassDetails();
+  }
+
+  // Method để refresh data từ màn hình khác
+  Future<void> refreshClassData() async {
+    await _loadClassDetails();
   }
 
   Future<void> _loadClassDetails() async {
@@ -42,6 +51,8 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
           _classDetails = response.data;
           _isLoading = false;
         });
+        // Tải danh sách học sinh sau khi tải xong thông tin lớp
+        _loadClassStudents();
       }
     } catch (e) {
       if (mounted) {
@@ -49,6 +60,31 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
           _error = e.toString().replaceFirst('Exception: ', '');
           _isLoading = false;
         });
+      }
+    }
+  }
+
+  Future<void> _loadClassStudents() async {
+    try {
+      setState(() {
+        _isLoadingStudents = true;
+      });
+
+      final response = await _classRepository.getClassStudents(widget.classId);
+
+      if (mounted) {
+        setState(() {
+          _classStudents = response;
+          _isLoadingStudents = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingStudents = false;
+        });
+        // Không hiển thị lỗi cho việc tải học sinh, chỉ log
+        print('Lỗi tải danh sách học sinh: $e');
       }
     }
   }
@@ -185,7 +221,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
               _buildInfoChip(
                 icon: Icons.people,
                 text:
-                    '${_classDetails!.students.length}/${_classDetails!.maxStudents ?? 0}',
+                    '${_classStudents?.students.length ?? _classDetails!.students.length}/${_classDetails!.maxStudents ?? 0}',
               ),
               const SizedBox(width: 12),
               _buildInfoChip(
@@ -275,7 +311,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
               icon: Icons.people,
               label: 'Số lượng học sinh',
               value:
-                  '${_classDetails!.students.length}/${_classDetails!.maxStudents ?? 0} học sinh',
+                  '${_classStudents?.students.length ?? _classDetails!.students.length}/${_classDetails!.maxStudents ?? 0} học sinh',
             ),
             const Divider(),
 
@@ -413,7 +449,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '${_classDetails!.students.length}/${_classDetails!.maxStudents ?? 0}',
+                    '${_classStudents?.students.length ?? _classDetails!.students.length}/${_classDetails!.maxStudents ?? 0}',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Colors.blue[700],
@@ -424,7 +460,8 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
             ),
             const SizedBox(height: 16),
 
-            if (_classDetails!.students.isEmpty)
+            if ((_classStudents?.students.isEmpty ?? true) &&
+                _classDetails!.students.isEmpty)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -447,8 +484,91 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                   ],
                 ),
               )
+            else if (_isLoadingStudents)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else if (_classStudents != null &&
+                _classStudents!.students.isNotEmpty)
+              // Hiển thị danh sách học sinh từ API với thông tin chi tiết
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _classStudents!.students.length,
+                itemBuilder: (context, index) {
+                  final student = _classStudents!.students[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading:
+                          student.avatar != null && student.avatar!.isNotEmpty
+                              ? CircleAvatar(
+                                backgroundImage: NetworkImage(student.avatar!),
+                                onBackgroundImageError: (
+                                  exception,
+                                  stackTrace,
+                                ) {
+                                  // Nếu không tải được ảnh, hiển thị avatar mặc định
+                                },
+                              )
+                              : CircleAvatar(
+                                backgroundColor: Colors.blue[100],
+                                child: Text(
+                                  student.username != null &&
+                                          student.username!.isNotEmpty
+                                      ? student.username![0].toUpperCase()
+                                      : '?',
+                                  style: TextStyle(
+                                    color: Colors.blue[700],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                      title: Text(
+                        student.username ?? 'Không có tên',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle:
+                          student.email != null && student.email!.isNotEmpty
+                              ? Text(student.email!)
+                              : Text('ID: ${student.id ?? ''}'),
+                      trailing: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Học sinh',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        // TODO: Xem thông tin chi tiết học sinh
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Xem thông tin ${student.username ?? 'học sinh'}',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              )
             else
-              // TODO: Hiển thị danh sách học sinh khi có data
+              // Hiển thị danh sách học sinh cơ bản nếu không có thông tin chi tiết
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -468,7 +588,6 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                     ),
                     title: Text('Học sinh ${index + 1}'),
                     subtitle: Text('ID: $studentId'),
-                    // TODO: Thêm thông tin chi tiết học sinh từ API
                   );
                 },
               ),
@@ -528,15 +647,28 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.people_alt),
-                  title: const Text('Quản lý học sinh'),
-                  onTap: () {
+                  title: const Text('Học sinh chờ duyệt'),
+                  onTap: () async {
                     Navigator.pop(context);
-                    // TODO: Navigate to manage students screen
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Tính năng đang phát triển'),
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => PendingStudentsScreen(
+                              classId: widget.classId,
+                              className: widget.className,
+                              onStudentApproved: () {
+                                // Callback khi có học sinh được duyệt
+                                refreshClassData();
+                              },
+                            ),
                       ),
                     );
+
+                    // Nếu có thay đổi, refresh lại data
+                    if (result == true) {
+                      refreshClassData();
+                    }
                   },
                 ),
                 ListTile(
@@ -585,15 +717,9 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                 child: const Text('Hủy'),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context);
-                  // TODO: Implement delete class functionality
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Tính năng đang phát triển'),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
+                  await _deleteClass();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
@@ -604,5 +730,53 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
             ],
           ),
     );
+  }
+
+  /// Xóa lớp học
+  Future<void> _deleteClass() async {
+    try {
+      // Hiển thị loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Gọi API xóa lớp học
+      final response = await _classRepository.deleteClass(widget.classId);
+
+      // Đóng loading dialog
+      if (mounted) Navigator.pop(context);
+
+      // Hiển thị thông báo thành công với thông tin lớp học đã xóa
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${response.message}\nLớp: ${response.data.nameClass} - ${response.data.subject}',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+
+        // Quay lại màn hình trước với kết quả true để refresh danh sách
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      // Đóng loading dialog nếu có lỗi
+      if (mounted) Navigator.pop(context);
+
+      // Hiển thị thông báo lỗi
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi khi xóa lớp học: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }

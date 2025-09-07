@@ -140,3 +140,20 @@ class ClassDetailsResponse {
   static ClassDetailsResponse fromJson(String source) =>
       ClassDetailsResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
 }
+
+// Response cho API xóa lớp học
+class DeleteClassResponse {
+  final String message;
+  final ClassModel data;
+
+  const DeleteClassResponse({required this.message, required this.data});
+
+  factory DeleteClassResponse.fromMap(Map<String, dynamic> map) =>
+      DeleteClassResponse(
+        message: (map['message'] ?? '').toString(),
+        data: ClassModel.fromMap(map['data'] as Map<String, dynamic>),
+      );
+
+  static DeleteClassResponse fromJson(String source) =>
+      DeleteClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
+}

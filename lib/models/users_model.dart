@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 // Model cho profile người dùng và response /users/me
 // Tuân thủ cấu trúc JSON đã mô tả trong đề bài
 
@@ -97,4 +99,114 @@ class MeResponse {
     message: (map['message'] ?? '').toString(),
     data: MeData.fromMap(map['data'] as Map<String, dynamic>? ?? {}),
   );
+}
+
+// Response cho API lấy danh sách học sinh trong lớp
+class ClassStudentsResponse {
+  final String message;
+  final UserProfile teacher;
+  final List<UserProfile> students;
+
+  const ClassStudentsResponse({
+    required this.message,
+    required this.teacher,
+    required this.students,
+  });
+
+  factory ClassStudentsResponse.fromMap(Map<String, dynamic> map) =>
+      ClassStudentsResponse(
+        message: map['message']?.toString() ?? '',
+        teacher: UserProfile.fromMap(map['teacher'] as Map<String, dynamic>),
+        students:
+            (map['students'] as List<dynamic>? ?? [])
+                .map((x) => UserProfile.fromMap(x as Map<String, dynamic>))
+                .toList(),
+      );
+
+  static ClassStudentsResponse fromJson(String source) =>
+      ClassStudentsResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
+}
+
+// Response cho API lấy danh sách học sinh chờ duyệt
+class PendingStudentsResponse {
+  final String message;
+  final List<UserProfile> data;
+  final int totalPending;
+
+  const PendingStudentsResponse({
+    required this.message,
+    required this.data,
+    required this.totalPending,
+  });
+
+  factory PendingStudentsResponse.fromMap(Map<String, dynamic> map) =>
+      PendingStudentsResponse(
+        message: map['message']?.toString() ?? '',
+        data:
+            (map['data'] as List<dynamic>? ?? [])
+                .map((x) => UserProfile.fromMap(x as Map<String, dynamic>))
+                .toList(),
+        totalPending: map['totalPending'] as int? ?? 0,
+      );
+
+  static PendingStudentsResponse fromJson(String source) =>
+      PendingStudentsResponse.fromMap(
+        jsonDecode(source) as Map<String, dynamic>,
+      );
+}
+
+// Data cho response approve student
+class ApproveStudentData {
+  final List<UserProfile> students;
+  final List<UserProfile> pendingStudents;
+  final int totalStudents;
+  final int totalPending;
+
+  const ApproveStudentData({
+    required this.students,
+    required this.pendingStudents,
+    required this.totalStudents,
+    required this.totalPending,
+  });
+
+  factory ApproveStudentData.fromMap(Map<String, dynamic> map) =>
+      ApproveStudentData(
+        students:
+            (map['students'] as List<dynamic>? ?? [])
+                .map((x) => UserProfile.fromMap(x as Map<String, dynamic>))
+                .toList(),
+        pendingStudents:
+            (map['pendingStudents'] as List<dynamic>? ?? [])
+                .map((x) => UserProfile.fromMap(x as Map<String, dynamic>))
+                .toList(),
+        totalStudents: map['totalStudents'] as int? ?? 0,
+        totalPending: map['totalPending'] as int? ?? 0,
+      );
+}
+
+// Response cho API approve student
+class ApproveStudentResponse {
+  final String message;
+  final UserProfile approvedStudent;
+  final ApproveStudentData data;
+
+  const ApproveStudentResponse({
+    required this.message,
+    required this.approvedStudent,
+    required this.data,
+  });
+
+  factory ApproveStudentResponse.fromMap(Map<String, dynamic> map) =>
+      ApproveStudentResponse(
+        message: map['message']?.toString() ?? '',
+        approvedStudent: UserProfile.fromMap(
+          map['approvedStudent'] as Map<String, dynamic>,
+        ),
+        data: ApproveStudentData.fromMap(map['data'] as Map<String, dynamic>),
+      );
+
+  static ApproveStudentResponse fromJson(String source) =>
+      ApproveStudentResponse.fromMap(
+        jsonDecode(source) as Map<String, dynamic>,
+      );
 }

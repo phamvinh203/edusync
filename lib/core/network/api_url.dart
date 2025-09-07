@@ -16,5 +16,12 @@ class ApiUrl {
   // Class endpoints
   static const createClass = 'classes/createclass';
   static const getListClasses = 'classes/getallclasses';
-  static const getClassDetails = 'classes/getclass'; // xem chi tiết lớp học
+  static const getClassDetails = 'classes/getclass';
+  // xóa lớp học
+  static const deleteClass = 'classes/deleteclass/:id';
+  static const getStudentClass = 'classes/getStudentsByClass/:classId';
+  static const getPendingStudentClass =
+      'classes/:classId/getPendingStudentsByClass';
+  static const postApproveStudent =
+      'classes/:classId/approveStudent/:studentId';
 }

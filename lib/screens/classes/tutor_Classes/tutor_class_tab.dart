@@ -108,9 +108,9 @@ class _TutorClassTabState extends State<TutorClassTab> {
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           // Điều hướng đến màn hình chi tiết lớp học
-          Navigator.push(
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder:
@@ -120,6 +120,11 @@ class _TutorClassTabState extends State<TutorClassTab> {
                   ),
             ),
           );
+
+          // Nếu có thay đổi (xóa lớp thành công), refresh lại danh sách
+          if (result == true && mounted) {
+            context.read<ClassBloc>().add(RefreshClassesEvent());
+          }
         },
         borderRadius: BorderRadius.circular(8),
         child: Padding(
