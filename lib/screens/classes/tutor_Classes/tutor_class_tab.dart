@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_state.dart';
 import 'package:edusync/blocs/class/class_event.dart';
+import 'package:edusync/blocs/auth/auth_bloc.dart';
+import 'package:edusync/blocs/auth/auth_state.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/screens/classes/tutor_Classes/class_detail_screen.dart';
 
@@ -23,87 +25,97 @@ class _TutorClassTabState extends State<TutorClassTab> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ClassBloc, ClassState>(
-      builder: (context, state) {
-        if (state is ClassLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        final userRole = authState.user?.role ?? '';
 
-        if (state is ClassError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                const SizedBox(height: 16),
-                Text(
-                  state.message,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<ClassBloc>().add(LoadClassesEvent());
-                  },
-                  child: const Text('Thử lại'),
-                ),
-              ],
-            ),
-          );
-        }
+        return BlocBuilder<ClassBloc, ClassState>(
+          builder: (context, state) {
+            if (state is ClassLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-        // Lấy danh sách lớp học từ state
-        List<ClassModel> classes = [];
-        if (state is ClassLoaded) {
-          classes = state.classes;
-        } else if (state is ClassCreateSuccess) {
-          classes = state.allClasses;
-        }
-
-        if (classes.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.class_outlined, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'Chưa có lớp gia sư nào',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
+            if (state is ClassError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                    const SizedBox(height: 16),
+                    Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16, color: Colors.red),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<ClassBloc>().add(LoadClassesEvent());
+                      },
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Tạo lớp gia sư đầu tiên của bạn',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-          );
-        }
+              );
+            }
 
-        return RefreshIndicator(
-          onRefresh: () async {
-            context.read<ClassBloc>().add(RefreshClassesEvent());
+            // Lấy danh sách lớp học từ state
+            List<ClassModel> classes = [];
+            if (state is ClassLoaded) {
+              classes = state.classes;
+            } else if (state is ClassCreateSuccess) {
+              classes = state.allClasses;
+            }
+
+            if (classes.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.class_outlined,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Chưa có lớp gia sư nào',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Tạo lớp gia sư đầu tiên của bạn',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<ClassBloc>().add(RefreshClassesEvent());
+              },
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: classes.length,
+                itemBuilder: (context, index) {
+                  final classItem = classes[index];
+                  return _buildClassCard(classItem, userRole);
+                },
+              ),
+            );
           },
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: classes.length,
-            itemBuilder: (context, index) {
-              final classItem = classes[index];
-              return _buildClassCard(classItem);
-            },
-          ),
         );
       },
     );
   }
 
-  Widget _buildClassCard(ClassModel classItem) {
+  Widget _buildClassCard(ClassModel classItem, String userRole) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -117,6 +129,7 @@ class _TutorClassTabState extends State<TutorClassTab> {
                   (context) => ClassDetailScreen(
                     classId: classItem.id ?? '',
                     className: classItem.nameClass,
+                    userRole: userRole,
                   ),
             ),
           );
@@ -156,6 +169,29 @@ class _TutorClassTabState extends State<TutorClassTab> {
                             color: Colors.blue[600],
                           ),
                         ),
+                        // Hiển thị tên giáo viên
+                        if (classItem.teacherName != null &&
+                            classItem.teacherName!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.person,
+                                size: 14,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'GV: ${classItem.teacherName}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),

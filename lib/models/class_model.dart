@@ -35,6 +35,7 @@ class ClassModel {
   final String subject;
   final String? description;
   final String? teacherId;
+  final String? teacherName; // Thêm tên giáo viên
   final List<Schedule> schedule;
   final String? location;
   final int? maxStudents;
@@ -51,6 +52,7 @@ class ClassModel {
     required this.subject,
     this.description,
     this.teacherId,
+    this.teacherName,
     this.schedule = const [],
     this.location,
     this.maxStudents,
@@ -67,7 +69,8 @@ class ClassModel {
     nameClass: (map['nameClass'] ?? '').toString(),
     subject: (map['subject'] ?? '').toString(),
     description: map['description']?.toString(),
-    teacherId: map['teacherId']?.toString(),
+    teacherId: _getTeacherId(map),
+    teacherName: _getTeacherName(map),
     schedule:
         (map['schedule'] as List<dynamic>?)
             ?.map((x) => Schedule.fromMap(x as Map<String, dynamic>))
@@ -96,6 +99,57 @@ class ClassModel {
             ? DateTime.tryParse(map['updatedAt'].toString())
             : null,
   );
+
+  /// Hàm helper để lấy teacherId từ nhiều định dạng khác nhau
+  static String? _getTeacherId(Map<String, dynamic> map) {
+    if (map['teacherId'] is Map<String, dynamic>) {
+      final teacherObj = map['teacherId'] as Map<String, dynamic>;
+      return teacherObj['_id']?.toString();
+    }
+    return map['teacherId']?.toString();
+  }
+
+  /// Hàm helper để lấy tên giáo viên từ nhiều nguồn khác nhau
+  static String? _getTeacherName(Map<String, dynamic> map) {
+    // Trường hợp teacherId là object có username (như API trả về)
+    if (map['teacherId'] is Map<String, dynamic>) {
+      final teacherObj = map['teacherId'] as Map<String, dynamic>;
+      if (teacherObj['username'] != null &&
+          teacherObj['username'].toString().isNotEmpty) {
+        return teacherObj['username'].toString();
+      }
+      if (teacherObj['name'] != null &&
+          teacherObj['name'].toString().isNotEmpty) {
+        return teacherObj['name'].toString();
+      }
+    }
+
+    // Thử trường teacherName trực tiếp
+    if (map['teacherName'] != null &&
+        map['teacherName'].toString().isNotEmpty) {
+      return map['teacherName'].toString();
+    }
+
+    // Thử trường teacher object
+    if (map['teacher'] is Map<String, dynamic>) {
+      final teacher = map['teacher'] as Map<String, dynamic>;
+      if (teacher['username'] != null &&
+          teacher['username'].toString().isNotEmpty) {
+        return teacher['username'].toString();
+      }
+      if (teacher['name'] != null && teacher['name'].toString().isNotEmpty) {
+        return teacher['name'].toString();
+      }
+    }
+
+    // Fallback cuối cùng
+    if (map['createdByName'] != null &&
+        map['createdByName'].toString().isNotEmpty) {
+      return map['createdByName'].toString();
+    }
+
+    return null;
+  }
 
   Map<String, dynamic> toMap() => {
     'nameClass': nameClass,

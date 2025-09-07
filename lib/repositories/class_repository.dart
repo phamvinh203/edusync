@@ -132,6 +132,18 @@ class ClassRepository {
     }
   }
 
+  /// Đăng ký tham gia lớp học (dành cho student)
+  Future<JoinClassResponse> joinClass(String classId) async {
+    try {
+      final url = ApiUrl.joinClassStudent.replaceAll(':id', classId);
+      final Response resp = await client.post(url);
+      return JoinClassResponse.fromMap(resp.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
   String _extractMessage(DioException e) {
     if (e.response?.data is Map<String, dynamic>) {
       return e.response?.data['message'] ?? 'Có lỗi xảy ra';

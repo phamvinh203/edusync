@@ -210,3 +210,51 @@ class ApproveStudentResponse {
         jsonDecode(source) as Map<String, dynamic>,
       );
 }
+
+// Model cho response đăng ký lớp học
+class JoinClassData {
+  final String classId;
+  final String className;
+  final String subject;
+  final String teacherId;
+  final String status;
+  final DateTime registeredAt;
+  final int position;
+
+  const JoinClassData({
+    required this.classId,
+    required this.className,
+    required this.subject,
+    required this.teacherId,
+    required this.status,
+    required this.registeredAt,
+    required this.position,
+  });
+
+  factory JoinClassData.fromMap(Map<String, dynamic> map) => JoinClassData(
+    classId: map['classId']?.toString() ?? '',
+    className: map['className']?.toString() ?? '',
+    subject: map['subject']?.toString() ?? '',
+    teacherId: map['teacherId']?.toString() ?? '',
+    status: map['status']?.toString() ?? '',
+    registeredAt: DateTime.parse(map['registeredAt']?.toString() ?? ''),
+    position: map['position'] as int? ?? 0,
+  );
+}
+
+// Response cho API đăng ký lớp học
+class JoinClassResponse {
+  final String message;
+  final JoinClassData data;
+
+  const JoinClassResponse({required this.message, required this.data});
+
+  factory JoinClassResponse.fromMap(Map<String, dynamic> map) =>
+      JoinClassResponse(
+        message: map['message']?.toString() ?? '',
+        data: JoinClassData.fromMap(map['data'] as Map<String, dynamic>),
+      );
+
+  static JoinClassResponse fromJson(String source) =>
+      JoinClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
+}

@@ -19,6 +19,8 @@ class ApiUrl {
   static const getClassDetails = 'classes/getclass';
   // xóa lớp học
   static const deleteClass = 'classes/deleteclass/:id';
+  // join class
+  static const joinClassStudent = 'classes/joinclass/:id';
   static const getStudentClass = 'classes/getStudentsByClass/:classId';
   static const getPendingStudentClass =
       'classes/:classId/getPendingStudentsByClass';
