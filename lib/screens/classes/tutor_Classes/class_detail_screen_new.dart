@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
+import 'package:edusync/blocs/auth/auth_state.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
@@ -454,8 +455,8 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
     if (widget.userRole?.toLowerCase() != 'student' || _classDetails == null)
       return;
 
-    final authBloc = context.read<AuthBloc>();
-    final currentUserId = authBloc.state.user?.id;
+    final authState = context.read<AuthBloc>().state;
+    final currentUserId = authState.user?.id;
 
     if (currentUserId == null) return;
 
