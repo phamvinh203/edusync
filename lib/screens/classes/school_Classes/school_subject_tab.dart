@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
 
-class SchoolSubjectTab extends StatelessWidget {
+class SchoolSubjectTab extends StatefulWidget {
   const SchoolSubjectTab({super.key});
 
   @override
+  State<SchoolSubjectTab> createState() => _SchoolSubjectTabState();
+}
+
+class _SchoolSubjectTabState extends State<SchoolSubjectTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true; // Giữ state khi chuyển tab
+
+  @override
   Widget build(BuildContext context) {
+    super.build(
+      context,
+    ); // Quan trọng: phải gọi super.build cho AutomaticKeepAliveClientMixin
+
     return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

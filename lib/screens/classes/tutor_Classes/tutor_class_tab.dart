@@ -15,16 +15,26 @@ class TutorClassTab extends StatefulWidget {
   State<TutorClassTab> createState() => _TutorClassTabState();
 }
 
-class _TutorClassTabState extends State<TutorClassTab> {
+class _TutorClassTabState extends State<TutorClassTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true; // Giữ state khi chuyển tab
+
   @override
   void initState() {
     super.initState();
-    // Load danh sách lớp học khi khởi tạo
-    context.read<ClassBloc>().add(LoadClassesEvent());
+    // Chỉ load data nếu chưa có data hoặc là lần đầu
+    final currentState = context.read<ClassBloc>().state;
+    if (currentState is! ClassLoaded && currentState is! ClassCreateSuccess) {
+      context.read<ClassBloc>().add(LoadClassesEvent());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(
+      context,
+    ); // Quan trọng: phải gọi super.build cho AutomaticKeepAliveClientMixin
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         final userRole = authState.user?.role ?? '';

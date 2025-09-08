@@ -231,9 +231,17 @@ class _ClassScreenState extends State<ClassScreen>
                         Expanded(
                           child: TabBarView(
                             controller: _tabController,
-                            children: const [
-                              SchoolSubjectTab(), // Tab môn học trường
-                              TutorClassTab(), // Tab lớp gia sư
+                            children: [
+                              // Tab môn học trường với PageStorageKey
+                              Container(
+                                key: const PageStorageKey('school_tab'),
+                                child: const SchoolSubjectTab(),
+                              ),
+                              // Tab lớp gia sư với PageStorageKey
+                              Container(
+                                key: const PageStorageKey('tutor_tab'),
+                                child: const TutorClassTab(),
+                              ),
                             ],
                           ),
                         ),
