@@ -48,3 +48,10 @@ class ClassJoinError extends ClassState {
 
   ClassJoinError(this.message);
 }
+
+// State khi load danh sách lớp đang chờ phê duyệt thành công
+class PendingClassesLoaded extends ClassState {
+  final List<ClassModel> pendingClasses;
+
+  PendingClassesLoaded(this.pendingClasses);
+}

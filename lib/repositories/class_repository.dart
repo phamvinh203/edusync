@@ -139,16 +139,15 @@ class ClassRepository {
 
   /// Đăng ký tham gia lớp học (dành cho student)
   Future<JoinClassResponse> joinClass(String classId) async {
-  try {
-    final url = ApiUrl.joinClassStudent.replaceAll(':id', classId);
-    final Response resp = await client.post(url);
-    return JoinClassResponse.fromMap(resp.data as Map<String, dynamic>);
-
-  } on DioException catch (e) {
-    final msg = _extractMessage(e);
-    throw Exception(msg);
+    try {
+      final url = ApiUrl.joinClassStudent.replaceAll(':id', classId);
+      final Response resp = await client.post(url);
+      return JoinClassResponse.fromMap(resp.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
   }
-}
 
   /// Lấy số lượng lớp gia sư mà học sinh đã đăng ký
   Future<int> getMyRegisteredClassesCount() async {
@@ -158,6 +157,22 @@ class ClassRepository {
       return responseData['totalClasses'] is int
           ? responseData['totalClasses']
           : 0;
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
+  /// Lấy danh sách lớp học mà học sinh đã đăng ký và đang chờ phê duyệt
+  Future<List<ClassModel>> getMyPendingClasses() async {
+    try {
+      final Response resp = await client.get(ApiUrl.getMyPendingClasses);
+      final responseData = resp.data as Map<String, dynamic>;
+      final raw = responseData['data'] ?? [];
+
+      return (raw as List)
+          .map((json) => ClassModel.fromMap(json as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       final msg = _extractMessage(e);
       throw Exception(msg);

@@ -100,7 +100,7 @@ class RegisterClassDialog extends StatelessWidget {
                 isRegistering
                     ? null
                     : () {
-                      Navigator.pop(context);
+                      // Không đóng Navigator.pop(context) ở đây, mà để callback đăng ký xử lý
                       onRegister(); // gọi callback thực hiện đăng ký
                     },
             icon:

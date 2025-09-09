@@ -1,4 +1,5 @@
 import 'package:edusync/screens/classes/tutor_Classes/widgets/available_class_card.dart';
+import 'package:edusync/screens/classes/tutor_Classes/widgets/pending_class_card.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/show_register_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -142,7 +143,7 @@ class _TutorClassTabState extends State<TutorClassTab>
                             Expanded(
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                                  
+                                  _showPendingClassesBottomSheet(context);
                                 },
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.orange,
@@ -264,7 +265,7 @@ class _TutorClassTabState extends State<TutorClassTab>
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: () {
-                                // _showAvailableClassesBottomSheet(context, classes);
+                                _showPendingClassesBottomSheet(context);
                               },
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.orange,
@@ -510,9 +511,12 @@ class _TutorClassTabState extends State<TutorClassTab>
     BuildContext context,
     List<ClassModel> classes,
   ) {
+    // Không tải lại danh sách lớp đã đăng ký khi mở bottom sheet
+    // để tránh làm mất dữ liệu hiện tại
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, 
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
@@ -580,7 +584,6 @@ class _TutorClassTabState extends State<TutorClassTab>
                           );
                         }
 
-
                         final allClasses = snapshot.data ?? [];
                         final availableClasses =
                             allClasses.where((classItem) {
@@ -614,7 +617,7 @@ class _TutorClassTabState extends State<TutorClassTab>
                         }
 
                         return ListView.builder(
-                          controller: scrollController, 
+                          controller: scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: allClasses.length,
                           itemBuilder: (context, index) {
@@ -624,19 +627,76 @@ class _TutorClassTabState extends State<TutorClassTab>
                               onRegister: (classItem, color) {
                                 showDialog(
                                   context: context,
-                                  builder: (context) {
-                                    return RegisterClassDialog(
-                                      classItem: classItem,
-                                      subjectColor: color,
-                                      isRegistering: false,
-                                      isRegistered: false,
-                                      onRegister: () {
-                                        Navigator.pop(context); 
-                                        // Gửi sự kiện đăng ký lớp
-                                        context.read<ClassBloc>().add(
-                                          JoinClassEvent(classItem.id ?? ''),
-                                        );
+                                  builder: (dialogContext) {
+                                    return BlocListener<ClassBloc, ClassState>(
+                                      listener: (context, state) {
+                                        // Xử lý các trạng thái đăng ký lớp
+                                        if (state is ClassJoinSuccess) {
+                                          Navigator.pop(
+                                            dialogContext,
+                                          ); // Chỉ đóng dialog đăng ký
+
+                                          // Hiển thị thông báo thành công
+                                          ScaffoldMessenger.of(
+                                            bottomSheetContext,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Đăng ký lớp thành công! Vui lòng chờ giáo viên duyệt.',
+                                              ),
+                                              backgroundColor: Colors.green,
+                                              duration: Duration(seconds: 4),
+                                            ),
+                                          );
+
+                                          // Tải lại danh sách lớp học trong bottom sheet
+                                          // Sử dụng setState để rebuild bottom sheet mà không đóng nó
+                                          setState(() {});
+
+                                          // Cập nhật danh sách lớp đã đăng ký trong tab chính
+                                          // Không cần gọi GetRegisteredClassesEvent() ở đây
+                                          // vì lớp đang ở trạng thái chờ duyệt
+                                          // context.read<ClassBloc>().add(
+                                          //   GetRegisteredClassesEvent(),
+                                          // );
+                                        } else if (state is ClassError) {
+                                          Navigator.pop(dialogContext);
+                                          ScaffoldMessenger.of(
+                                            bottomSheetContext,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Lỗi: ${state.message}',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        } else if (state is ClassJoinError) {
+                                          Navigator.pop(dialogContext);
+                                          ScaffoldMessenger.of(
+                                            bottomSheetContext,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Lỗi: ${state.message}',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
                                       },
+                                      child: RegisterClassDialog(
+                                        classItem: classItem,
+                                        subjectColor: color,
+                                        isRegistering: false,
+                                        isRegistered: false,
+                                        onRegister: () {
+                                          // Gửi sự kiện đăng ký lớp
+                                          context.read<ClassBloc>().add(
+                                            JoinClassEvent(classItem.id ?? ''),
+                                          );
+                                        },
+                                      ),
                                     );
                                   },
                                 );
@@ -656,4 +716,122 @@ class _TutorClassTabState extends State<TutorClassTab>
     );
   }
 
+  // Thêm hàm hiển thị danh sách lớp đang chờ duyệt
+  void _showPendingClassesBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext bottomSheetContext) {
+        // Sử dụng FutureBuilder trực tiếp thay vì BlocBuilder để không ảnh hưởng
+        // đến trạng thái của tab chính
+        return DraggableScrollableSheet(
+          expand: false,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // Header của bottom sheet
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.pending_actions, color: Colors.orange),
+                        SizedBox(width: 8),
+                        Text(
+                          'Danh sách lớp đang chờ duyệt',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Danh sách lớp đang chờ duyệt sử dụng FutureBuilder
+                  Expanded(
+                    child: FutureBuilder<List<ClassModel>>(
+                      future: ClassRepository().getMyPendingClasses(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline,
+                                    color: Colors.redAccent,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Không thể tải danh sách lớp đang chờ duyệt: ${snapshot.error}',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
+                        final pendingClasses = snapshot.data ?? [];
+
+                        if (pendingClasses.isEmpty) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.hourglass_empty,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Không có lớp nào đang chờ duyệt',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: pendingClasses.length,
+                          itemBuilder: (context, index) {
+                            final classItem = pendingClasses[index];
+                            return PendingClassCard(classItem: classItem);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }

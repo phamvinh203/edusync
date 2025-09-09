@@ -24,6 +24,10 @@ class ApiUrl {
   static const deleteClass = 'classes/deleteclass/:id';
   // join class
   static const joinClassStudent = 'classes/joinclass/:id';
+  
+  // lớp học học sinh đang chờ duyệt
+  static const getMyPendingClasses = 'classes/my-pending-classes';
+
   static const getStudentClass = 'classes/getStudentsByClass/:classId';
   static const getPendingStudentClass =
       'classes/:classId/getPendingStudentsByClass';

@@ -127,6 +127,22 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       }
     });
 
+    // Xử lý sự kiện load danh sách lớp đang chờ phê duyệt
+    on<GetPendingClassesEvent>((event, emit) async {
+      print('GetPendingClassesEvent triggered');
+      emit(ClassLoading());
+      try {
+        final classes = await _classRepository.getMyPendingClasses();
+        emit(PendingClassesLoaded(classes));
+      } catch (e) {
+        emit(
+          ClassError(
+            'Không thể tải danh sách lớp đang chờ duyệt: ${e.toString()}',
+          ),
+        );
+      }
+    });
+
     // Xử lý sự kiện đăng ký lớp học
     on<JoinClassEvent>((event, emit) async {
       print('JoinClassEvent triggered for classId: ${event.classId}');
@@ -147,4 +163,3 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
     });
   }
 }
-
