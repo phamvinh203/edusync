@@ -7,6 +7,7 @@ import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/blocs/auth/auth_state.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/screens/classes/tutor_Classes/class_detail_screen.dart';
+import 'package:edusync/repositories/class_repository.dart';
 
 class TutorClassTab extends StatefulWidget {
   const TutorClassTab({super.key});
@@ -25,26 +26,33 @@ class _TutorClassTabState extends State<TutorClassTab>
     super.initState();
     // Chỉ load data nếu chưa có data hoặc là lần đầu
     final currentState = context.read<ClassBloc>().state;
-    if (currentState is! ClassLoaded && currentState is! ClassCreateSuccess) {
-      context.read<ClassBloc>().add(LoadClassesEvent());
+    final authState = context.read<AuthBloc>().state;
+    final userRole = authState.user?.role ?? '';
+    // Với học sinh: luôn lấy danh sách lớp đã được duyệt (tránh dùng cache lớp "tất cả")
+    if (userRole.toLowerCase() == 'student') {
+      context.read<ClassBloc>().add(GetRegisteredClassesEvent());
+    } else {
+      // Với role khác: chỉ load khi chưa có dữ liệu
+      if (currentState is! ClassLoaded && currentState is! ClassCreateSuccess) {
+        context.read<ClassBloc>().add(LoadClassesEvent());
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(
-      context,
-    ); // Quan trọng: phải gọi super.build cho AutomaticKeepAliveClientMixin
+    super.build(context);
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         final userRole = authState.user?.role ?? '';
 
         return BlocBuilder<ClassBloc, ClassState>(
           builder: (context, state) {
+            // loading
             if (state is ClassLoading) {
               return const Center(child: CircularProgressIndicator());
             }
-
+            // error
             if (state is ClassError) {
               return Center(
                 child: Column(
@@ -60,7 +68,13 @@ class _TutorClassTabState extends State<TutorClassTab>
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<ClassBloc>().add(LoadClassesEvent());
+                        if (userRole.toLowerCase() == 'student') {
+                          context.read<ClassBloc>().add(
+                            GetRegisteredClassesEvent(),
+                          );
+                        } else {
+                          context.read<ClassBloc>().add(LoadClassesEvent());
+                        }
                       },
                       child: const Text('Thử lại'),
                     ),
@@ -70,6 +84,7 @@ class _TutorClassTabState extends State<TutorClassTab>
             }
 
             // Lấy danh sách lớp học từ state
+            // success
             List<ClassModel> classes = [];
             if (state is ClassLoaded) {
               classes = state.classes;
@@ -77,6 +92,7 @@ class _TutorClassTabState extends State<TutorClassTab>
               classes = state.allClasses;
             }
 
+            // Nếu không có lớp học nào
             if (classes.isEmpty) {
               return Center(
                 child: Column(
@@ -89,7 +105,9 @@ class _TutorClassTabState extends State<TutorClassTab>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Chưa có lớp gia sư nào',
+                      userRole.toLowerCase() == 'student'
+                          ? 'Chưa đăng ký lớp gia sư nào'
+                          : 'Chưa có lớp gia sư nào',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.grey[600],
@@ -98,7 +116,9 @@ class _TutorClassTabState extends State<TutorClassTab>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Tạo lớp gia sư đầu tiên của bạn',
+                      userRole.toLowerCase() == 'student'
+                          ? 'Tìm và đăng ký lớp gia sư'
+                          : 'Tạo lớp gia sư đầu tiên của bạn',
                       style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
@@ -106,17 +126,92 @@ class _TutorClassTabState extends State<TutorClassTab>
               );
             }
 
+            // Hiển thị danh sách lớp học với khả năng refresh
             return RefreshIndicator(
               onRefresh: () async {
-                context.read<ClassBloc>().add(RefreshClassesEvent());
+                if (userRole.toLowerCase() == 'student') {
+                  context.read<ClassBloc>().add(GetRegisteredClassesEvent());
+                } else {
+                  context.read<ClassBloc>().add(RefreshClassesEvent());
+                }
               },
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: classes.length,
-                itemBuilder: (context, index) {
-                  final classItem = classes[index];
-                  return _buildClassCard(classItem, userRole);
-                },
+              child: Column(
+                children: [
+                  // Thêm 2 nút cho student
+                  if (userRole.toLowerCase() == 'student') ...[
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                _showAvailableClassesBottomSheet(
+                                  context,
+                                  classes,
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.all(12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(Icons.search, size: 18),
+                              label: const Text(
+                                'Tìm lớp gia sư',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                // _showAvailableClassesBottomSheet(context, classes);
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.orange,
+                                side: const BorderSide(color: Colors.orange),
+                                padding: const EdgeInsets.all(12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(Icons.pending_actions, size: 18),
+                              label: const Text(
+                                'Đơn đăng ký',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  // Danh sách lớp học
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: classes.length,
+                      itemBuilder: (context, index) {
+                        final classItem = classes[index];
+                        return _buildClassCard(
+                          classItem,
+                          userRole.toLowerCase(),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             );
           },
@@ -146,7 +241,12 @@ class _TutorClassTabState extends State<TutorClassTab>
 
           // Nếu có thay đổi (xóa lớp thành công), refresh lại danh sách
           if (result == true && mounted) {
-            context.read<ClassBloc>().add(RefreshClassesEvent());
+            if (userRole.toLowerCase() == 'student') {
+              // Với học sinh: luôn refresh danh sách lớp đã được duyệt
+              context.read<ClassBloc>().add(GetRegisteredClassesEvent());
+            } else {
+              context.read<ClassBloc>().add(RefreshClassesEvent());
+            }
           }
         },
         borderRadius: BorderRadius.circular(8),
@@ -312,5 +412,106 @@ class _TutorClassTabState extends State<TutorClassTab>
     if (diff < 7) return '$diff ngày trước';
 
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  // Hàm hiển thị bottom sheet với danh sách lớp học available cho student
+  void _showAvailableClassesBottomSheet(
+    BuildContext context,
+    List<ClassModel> classes,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled:
+          true, // Cho phép scroll và mở rộng toàn màn hình nếu cần
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ), // Bo góc trên
+      ),
+      builder: (BuildContext bottomSheetContext) {
+        return DraggableScrollableSheet(
+          expand: false, // Không mở rộng tự động toàn màn hình
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // Header của bottom sheet
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.search, color: Colors.blue),
+                        SizedBox(width: 8),
+                        Text(
+                          'Danh các sách lớp gia sư',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Danh sách tất cả lớp (fetch trực tiếp từ repository cho bottom sheet)
+                  Expanded(
+                    child: FutureBuilder<List<ClassModel>>(
+                      future: ClassRepository().getAllClasses(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline,
+                                    color: Colors.redAccent,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Không thể tải danh sách lớp: ${snapshot.error}',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                        final allClasses = snapshot.data ?? [];
+                        if (allClasses.isEmpty) {
+                          return const Center(child: Text('Không có lớp nào'));
+                        }
+                        return ListView.builder(
+                          controller:
+                              scrollController, // Kết nối scroll với Draggable
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: allClasses.length,
+                          itemBuilder: (context, index) {
+                            final classItem = allClasses[index];
+                            return _buildClassCard(classItem, 'student');
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

@@ -36,3 +36,9 @@ class RefreshClassesEvent extends ClassEvent {}
 
 // Sự kiện reset state
 class ResetClassEvent extends ClassEvent {}
+
+// Sự kiện load số lượng lớp đã đăng ký
+class LoadRegisteredClassesCountEvent extends ClassEvent {}
+
+// Sự kiện load danh sách lớp đã đăng ký của học sinh
+class GetRegisteredClassesEvent extends ClassEvent {}

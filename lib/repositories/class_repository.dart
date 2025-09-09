@@ -144,6 +144,48 @@ class ClassRepository {
     }
   }
 
+  /// Lấy số lượng lớp gia sư mà học sinh đã đăng ký
+  Future<int> getMyRegisteredClassesCount() async {
+    try {
+      final Response resp = await client.get(ApiUrl.getMyRegisteredClasses);
+      final responseData = resp.data as Map<String, dynamic>;
+      return responseData['totalClasses'] is int
+          ? responseData['totalClasses']
+          : 0;
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
+  /// Lấy danh sách lớp học mà học sinh đã đăng ký
+  Future<List<ClassModel>> getMyRegisteredClasses() async {
+    try {
+      final Response resp = await client.get(ApiUrl.getMyRegisteredClasses);
+      final responeData = resp.data as Map<String, dynamic>;
+      final raw = responeData['data'] ?? responeData['classes'] ?? [];
+      // Chỉ giữ các lớp có trạng thái duyệt thành công (approved)
+      final filtered =
+          (raw as List)
+              .where(
+                (e) =>
+                    (e is Map<String, dynamic>) &&
+                    ((e['registrationInfo']
+                                as Map<String, dynamic>?)?['status'])
+                            ?.toString()
+                            .toLowerCase() ==
+                        'approved',
+              )
+              .toList();
+      return filtered
+          .map((json) => ClassModel.fromMap(json as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
   String _extractMessage(DioException e) {
     if (e.response?.data is Map<String, dynamic>) {
       return e.response?.data['message'] ?? 'Có lỗi xảy ra';

@@ -32,6 +32,13 @@ class _ClassScreenState extends State<ClassScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<ClassBloc>().add(LoadClassesEvent());
+
+        // Chỉ load số lượng lớp đã đăng ký nếu là student
+        final authState = context.read<AuthBloc>().state;
+        final userRole = authState.user?.role ?? '';
+        if (userRole.toLowerCase() == 'student') {
+          context.read<ClassBloc>().add(LoadRegisteredClassesCountEvent());
+        }
       }
     });
   }
@@ -63,62 +70,34 @@ class _ClassScreenState extends State<ClassScreen>
 
             return BlocBuilder<ClassBloc, ClassState>(
               builder: (context, classState) {
-                // Lấy số lượng lớp học từ ClassBloc
-                int tutorClassCount = 0;
-                if (classState is ClassLoaded) {
-                  tutorClassCount = classState.classes.length;
-                } else if (classState is ClassCreateSuccess) {
-                  tutorClassCount = classState.allClasses.length;
+                // Lấy số lượng dựa theo role
+                int classCount = 0;
+                String classLabel = '';
+
+                if (userRole.toLowerCase() == 'student') {
+                  // Học sinh: hiển thị số lớp đã đăng ký
+                  if (classState is ClassLoaded) {
+                    classCount = classState.registeredClassesCount;
+                  }
+                  classLabel = 'lớp gia sư';
+                } else if (userRole.toLowerCase() == 'teacher') {
+                  // Giáo viên: hiển thị số lớp đã tạo
+                  if (classState is ClassLoaded) {
+                    classCount = classState.classes.length;
+                  }
+                  classLabel = 'lớp đã tạo';
+                } else {
+                  // Role khác hoặc chưa xác định
+                  classLabel = 'lớp học';
                 }
 
                 return Scaffold(
-                  appBar: AppBar(
-                    title: const Text('Lớp học'),
-                    actions: [
-                      // Chỉ hiển thị nút tạo lớp học cho giáo viên
-                      if (userRole.toLowerCase() == 'teacher')
-                        IconButton(
-                          onPressed: () async {
-                            if (!mounted) return;
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CreateClassScreen(),
-                              ),
-                            );
-                            // Nếu tạo lớp thành công, cập nhật danh sách
-                            if (result is ClassModel && mounted) {
-                              // Refresh danh sách lớp học từ server
-                              context.read<ClassBloc>().add(
-                                RefreshClassesEvent(),
-                              );
-
-                              // Chuyển sang tab "Lớp gia sư" để hiển thị lớp vừa tạo
-                              _tabController.animateTo(1);
-
-                              // Hiển thị thông báo thành công
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Đã tạo lớp "${result.nameClass}" thành công!',
-                                  ),
-                                  backgroundColor: Colors.green,
-                                  duration: const Duration(seconds: 3),
-                                ),
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.add),
-                          tooltip: 'Tạo lớp học mới',
-                        ),
-                    ],
-                  ),
                   body: SafeArea(
                     child: Column(
                       children: [
                         // thông tin lớp học
                         Container(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: Column(
                             children: [
                               const SizedBox(height: 16.0),
@@ -137,46 +116,129 @@ class _ClassScreenState extends State<ClassScreen>
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Stack(
                                   children: [
-                                    Text(
-                                      'Lớp: $userClass',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.headlineSmall?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Trường: $userSchool',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
-                                        color: Colors.white.withOpacity(0.9),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Row(
+                                    // Nội dung thông tin nhanh
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        _buildCardClass(
-                                          '6 môn học',
-                                          Icons.book,
-                                        ), // lớp học trên trường (school_class)
-                                        const SizedBox(width: 12),
-                                        _buildCardClass(
-                                          '$tutorClassCount lớp gia sư', // lớp học gia sư (tutor_class)
-                                          Icons.person,
+                                        Text(
+                                          'Lớp: $userClass',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.headlineSmall?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                        const SizedBox(width: 12),
-                                        _buildCardClass(
-                                          '12 bài tập',
-                                          Icons.assignment,
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Trường: $userSchool',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium?.copyWith(
+                                            color: Colors.white.withOpacity(
+                                              0.9,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Wrap(
+                                          spacing: 12,
+                                          runSpacing: 8,
+                                          children: [
+                                            _buildCardClass(
+                                              '6 môn học',
+                                              Icons.book,
+                                            ), // lớp học trên trường (school_class)
+                                            _buildCardClass(
+                                              '$classCount $classLabel', // số lớp hiển thị theo role
+                                              Icons.person,
+                                            ),
+                                            _buildCardClass(
+                                              '12 bài tập',
+                                              Icons.assignment,
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
+                                    // Nút tạo lớp (chỉ cho giáo viên) ở góc trên bên phải
+                                    if (userRole.toLowerCase() == 'teacher')
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Tooltip(
+                                          message: 'Tạo lớp học mới',
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius:
+                                                  BorderRadius.circular(24),
+                                              onTap: () async {
+                                                if (!mounted) return;
+                                                final result = await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (context) =>
+                                                            const CreateClassScreen(),
+                                                  ),
+                                                );
+                                                // Nếu tạo lớp thành công, cập nhật danh sách
+                                                if (result is ClassModel &&
+                                                    mounted) {
+                                                  // Refresh danh sách lớp học từ server
+                                                  context.read<ClassBloc>().add(
+                                                    RefreshClassesEvent(),
+                                                  );
+
+                                                  // Chỉ refresh số lượng lớp đã đăng ký nếu là student
+                                                  if (userRole.toLowerCase() ==
+                                                      'student') {
+                                                    context.read<ClassBloc>().add(
+                                                      LoadRegisteredClassesCountEvent(),
+                                                    );
+                                                  }
+
+                                                  // Chuyển sang tab "Lớp gia sư" để hiển thị lớp vừa tạo
+                                                  _tabController.animateTo(1);
+
+                                                  // Hiển thị thông báo thành công
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Đã tạo lớp "${result.nameClass}" thành công!',
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.green,
+                                                      duration: const Duration(
+                                                        seconds: 3,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  8,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white24,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.add,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -200,6 +262,10 @@ class _ClassScreenState extends State<ClassScreen>
                                           text: 'Lớp gia sư',
                                           icon: Icon(Icons.person, size: 20),
                                         ),
+                                        // Tab(
+                                        //   text: 'Lớp đã đăng ký',
+                                        //   icon: Icon(Icons.person, size: 20),
+                                        // ),
                                       ],
                                     ),
                                   ),

@@ -11,8 +11,9 @@ class ClassLoading extends ClassState {}
 // State load thành công
 class ClassLoaded extends ClassState {
   final List<ClassModel> classes;
+  final int registeredClassesCount; // Thêm số lượng lớp đã đăng ký
 
-  ClassLoaded(this.classes);
+  ClassLoaded(this.classes, {this.registeredClassesCount = 0});
 }
 
 // State khi tạo lớp học thành công

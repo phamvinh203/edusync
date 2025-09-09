@@ -35,7 +35,7 @@ class ClassModel {
   final String subject;
   final String? description;
   final String? teacherId;
-  final String? teacherName; // Thêm tên giáo viên
+  final String? teacherName; 
   final List<Schedule> schedule;
   final String? location;
   final int? maxStudents;
@@ -211,3 +211,4 @@ class DeleteClassResponse {
   static DeleteClassResponse fromJson(String source) =>
       DeleteClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
 }
+

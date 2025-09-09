@@ -1,6 +1,7 @@
 class ApiUrl {
   static const baseURL = 'http://10.0.2.2:3001/api/';
   // static const baseURL = 'http://localhost:3001/api/';
+  // static const baseURL = 'https://be-edusync.onrender.com';
 
   // Auth endpoints
   static const login = 'auth/login';
@@ -17,6 +18,8 @@ class ApiUrl {
   static const createClass = 'classes/createclass';
   static const getListClasses = 'classes/getallclasses';
   static const getClassDetails = 'classes/getclass';
+  // lớp học học sinh đã đăng ký thành công
+  static const getMyRegisteredClasses = 'classes/my-registered-classes';
   // xóa lớp học
   static const deleteClass = 'classes/deleteclass/:id';
   // join class

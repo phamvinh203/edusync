@@ -7,6 +7,7 @@ import 'package:edusync/models/class_model.dart';
 class ClassBloc extends Bloc<ClassEvent, ClassState> {
   final ClassRepository _classRepository;
   List<ClassModel> _classes = [];
+  int _registeredClassesCount = 0; // Thêm biến lưu số lượng lớp đã đăng ký
 
   ClassBloc({ClassRepository? classRepository})
     : _classRepository = classRepository ?? ClassRepository(),
@@ -22,7 +23,12 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
         // Gọi API lấy danh sách lớp học từ server
         final classes = await _classRepository.getAllClasses();
         _classes = classes;
-        emit(ClassLoaded(_classes));
+        emit(
+          ClassLoaded(
+            _classes,
+            registeredClassesCount: _registeredClassesCount,
+          ),
+        );
       } catch (e) {
         emit(ClassError('Không thể tải danh sách lớp học: ${e.toString()}'));
       }
@@ -60,7 +66,31 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
     on<ClassCreatedEvent>((event, emit) {
       print('ClassCreatedEvent triggered');
       _classes.add(event.newClass);
-      emit(ClassLoaded(List.from(_classes)));
+      emit(
+        ClassLoaded(
+          List.from(_classes),
+          registeredClassesCount: _registeredClassesCount,
+        ),
+      );
+    });
+
+    // Xử lý sự kiện load số lượng lớp đã đăng ký
+    on<LoadRegisteredClassesCountEvent>((event, emit) async {
+      print('LoadRegisteredClassesCountEvent triggered');
+      try {
+        final count = await _classRepository.getMyRegisteredClassesCount();
+        _registeredClassesCount = count;
+        // Cập nhật lại state hiện tại với số lượng mới
+        if (state is ClassLoaded) {
+          final currentState = state as ClassLoaded;
+          emit(
+            ClassLoaded(currentState.classes, registeredClassesCount: count),
+          );
+        }
+      } catch (e) {
+        print('Error loading registered classes count: ${e.toString()}');
+        // Không emit error để không làm gián đoạn UI, chỉ log lỗi
+      }
     });
 
     // Xử lý sự kiện refresh danh sách lớp học
@@ -69,9 +99,31 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       try {
         final classes = await _classRepository.getAllClasses();
         _classes = classes;
-        emit(ClassLoaded(_classes));
+        emit(
+          ClassLoaded(
+            _classes,
+            registeredClassesCount: _registeredClassesCount,
+          ),
+        );
       } catch (e) {
         emit(ClassError('Không thể tải danh sách lớp học: ${e.toString()}'));
+      }
+    });
+
+    // Xử lý sự kiện load danh sách lớp đã đăng ký của học sinh
+    on<GetRegisteredClassesEvent>((event, emit) async {
+      // print('GetRegisteredClassesEvent triggered');
+      emit(ClassLoading());
+      try {
+        final classes = await _classRepository.getMyRegisteredClasses();
+        _classes = classes; // Cập nhật cache
+        emit(
+          ClassLoaded(classes, registeredClassesCount: _registeredClassesCount),
+        );
+      } catch (e) {
+        emit(
+          ClassError('Không thể tải danh sách lớp đã đăng ký: ${e.toString()}'),
+        );
       }
     });
 
