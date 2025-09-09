@@ -17,6 +17,8 @@ class ClassRepository {
     required List<Schedule> schedule,
     String? location,
     int? maxStudents,
+    String? gradeLevel,
+    double? pricePerSession,
   }) async {
     try {
       final data = {
@@ -27,6 +29,9 @@ class ClassRepository {
         'schedule': schedule.map((s) => s.toMap()).toList(),
         if (location != null && location.isNotEmpty) 'location': location,
         if (maxStudents != null) 'maxStudents': maxStudents,
+        if (gradeLevel != null && gradeLevel.isNotEmpty)
+          'gradeLevel': gradeLevel,
+        if (pricePerSession != null) 'pricePerSession': pricePerSession,
       };
 
       final Response resp = await client.post(ApiUrl.createClass, data: data);

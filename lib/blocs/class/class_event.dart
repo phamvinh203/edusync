@@ -42,3 +42,10 @@ class LoadRegisteredClassesCountEvent extends ClassEvent {}
 
 // Sự kiện load danh sách lớp đã đăng ký của học sinh
 class GetRegisteredClassesEvent extends ClassEvent {}
+
+// Sự kiện đăng ký lớp học
+class JoinClassEvent extends ClassEvent {
+  final String classId;
+
+  JoinClassEvent(this.classId);
+}

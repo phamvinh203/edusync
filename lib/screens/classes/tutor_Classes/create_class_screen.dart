@@ -3,6 +3,45 @@ import 'package:flutter/services.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
 
+// Custom formatter cho số tiền
+class CurrencyInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+
+    // Loại bỏ tất cả ký tự không phải số
+    String digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (digitsOnly.isEmpty) {
+      return const TextEditingValue();
+    }
+
+    // Format với dấu chấm phân cách hàng nghìn
+    String formatted = _addThousandsSeparator(digitsOnly);
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+
+  String _addThousandsSeparator(String number) {
+    String result = '';
+    for (int i = 0; i < number.length; i++) {
+      if (i > 0 && (number.length - i) % 3 == 0) {
+        result += '.';
+      }
+      result += number[i];
+    }
+    return result;
+  }
+}
+
 class CreateClassScreen extends StatefulWidget {
   const CreateClassScreen({super.key});
 
@@ -17,6 +56,8 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
   final _maxStudentsController = TextEditingController();
+  final _gradeLevelController = TextEditingController();
+  final _pricePerSessionController = TextEditingController();
 
   final ClassRepository _classRepository = ClassRepository();
 
@@ -30,6 +71,8 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
     _descriptionController.dispose();
     _locationController.dispose();
     _maxStudentsController.dispose();
+    _gradeLevelController.dispose();
+    _pricePerSessionController.dispose();
     super.dispose();
   }
 
@@ -83,6 +126,44 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Vui lòng nhập môn học';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Lớp dạy thêm
+                TextFormField(
+                  controller: _gradeLevelController,
+                  decoration: const InputDecoration(
+                    labelText: 'Lớp dạy thêm',
+                    hintText: 'Ví dụ: Lớp 12, Lớp 10, ...',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.grade),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Giá tiền cho 1 buổi học
+                TextFormField(
+                  controller: _pricePerSessionController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [CurrencyInputFormatter()],
+                  decoration: const InputDecoration(
+                    labelText: 'Giá tiền cho 1 buổi học (VNĐ)',
+                    hintText: 'Ví dụ: 20.000',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.monetization_on),
+                    suffixText: 'VNĐ',
+                  ),
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty) {
+                      // Loại bỏ dấu chấm để kiểm tra số
+                      final cleanValue = value.replaceAll('.', '');
+                      final number = double.tryParse(cleanValue);
+                      if (number == null || number <= 0) {
+                        return 'Vui lòng nhập số tiền hợp lệ';
+                      }
                     }
                     return null;
                   },
@@ -295,6 +376,18 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
               ? null
               : int.tryParse(_maxStudentsController.text.trim());
 
+      final gradeLevel =
+          _gradeLevelController.text.trim().isEmpty
+              ? null
+              : _gradeLevelController.text.trim();
+
+      final pricePerSession =
+          _pricePerSessionController.text.trim().isEmpty
+              ? null
+              : double.tryParse(
+                _pricePerSessionController.text.trim().replaceAll('.', ''),
+              );
+
       final response = await _classRepository.createClass(
         nameClass: _nameController.text.trim(),
         subject: _subjectController.text.trim(),
@@ -308,6 +401,8 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                 ? null
                 : _locationController.text.trim(),
         maxStudents: maxStudents,
+        gradeLevel: gradeLevel,
+        pricePerSession: pricePerSession,
       );
 
       if (mounted) {
@@ -339,6 +434,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
       }
     }
   }
+  
 }
 
 // Dialog để thêm lịch học

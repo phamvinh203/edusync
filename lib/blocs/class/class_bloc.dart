@@ -127,6 +127,18 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       }
     });
 
+    // Xử lý sự kiện đăng ký lớp học
+    on<JoinClassEvent>((event, emit) async {
+      print('JoinClassEvent triggered for classId: ${event.classId}');
+      emit(ClassJoining());
+      try {
+        final response = await _classRepository.joinClass(event.classId);
+        emit(ClassJoinSuccess(response));
+      } catch (e) {
+        emit(ClassJoinError('Không thể đăng ký lớp học: ${e.toString()}'));
+      }
+    });
+
     // Xử lý sự kiện reset
     on<ResetClassEvent>((event, emit) {
       print('ResetClassEvent triggered');

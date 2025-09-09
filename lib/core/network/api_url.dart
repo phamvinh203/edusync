@@ -1,7 +1,7 @@
 class ApiUrl {
   static const baseURL = 'http://10.0.2.2:3001/api/';
   // static const baseURL = 'http://localhost:3001/api/';
-  // static const baseURL = 'https://be-edusync.onrender.com';
+//   static const baseURL = 'https://be-edusync.onrender.com/api/';
 
   // Auth endpoints
   static const login = 'auth/login';

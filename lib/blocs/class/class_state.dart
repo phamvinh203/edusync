@@ -1,4 +1,5 @@
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/models/users_model.dart';
 
 abstract class ClassState {}
 
@@ -29,4 +30,21 @@ class ClassError extends ClassState {
   final String message;
 
   ClassError(this.message);
+}
+
+// State đang đăng ký lớp học
+class ClassJoining extends ClassState {}
+
+// State đăng ký lớp học thành công
+class ClassJoinSuccess extends ClassState {
+  final JoinClassResponse response;
+
+  ClassJoinSuccess(this.response);
+}
+
+// State đăng ký lớp học thất bại
+class ClassJoinError extends ClassState {
+  final String message;
+
+  ClassJoinError(this.message);
 }

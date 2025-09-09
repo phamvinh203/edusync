@@ -39,6 +39,8 @@ class ClassModel {
   final List<Schedule> schedule;
   final String? location;
   final int? maxStudents;
+  final String? gradeLevel; // Lớp dạy thêm (ví dụ: "Lớp 12")
+  final double? pricePerSession; // Giá tiền cho 1 buổi học
   final List<String> pendingStudents;
   final List<String> students;
   final String? createdBy;
@@ -56,6 +58,8 @@ class ClassModel {
     this.schedule = const [],
     this.location,
     this.maxStudents,
+    this.gradeLevel,
+    this.pricePerSession,
     this.pendingStudents = const [],
     this.students = const [],
     this.createdBy,
@@ -78,6 +82,13 @@ class ClassModel {
         [],
     location: map['location']?.toString(),
     maxStudents: map['maxStudents'] is int ? map['maxStudents'] : null,
+    gradeLevel: map['gradeLevel']?.toString(),
+    pricePerSession:
+        map['pricePerSession'] != null
+            ? (map['pricePerSession'] is num
+                ? (map['pricePerSession'] as num).toDouble()
+                : double.tryParse(map['pricePerSession'].toString()))
+            : null,
     pendingStudents:
         (map['pendingStudents'] as List<dynamic>?)
             ?.map((x) => x.toString())
@@ -158,6 +169,8 @@ class ClassModel {
     'schedule': schedule.map((x) => x.toMap()).toList(),
     if (location != null) 'location': location,
     if (maxStudents != null) 'maxStudents': maxStudents,
+    if (gradeLevel != null) 'gradeLevel': gradeLevel,
+    if (pricePerSession != null) 'pricePerSession': pricePerSession,
   };
 }
 
