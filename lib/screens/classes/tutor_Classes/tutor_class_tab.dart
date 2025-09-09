@@ -9,6 +9,7 @@ import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/blocs/auth/auth_state.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/screens/classes/tutor_Classes/class_detail_screen.dart';
+import 'package:edusync/repositories/class_repository.dart';
 
 class TutorClassTab extends StatefulWidget {
   const TutorClassTab({super.key});
@@ -140,7 +141,9 @@ class _TutorClassTabState extends State<TutorClassTab>
                             const SizedBox(width: 12),
                             Expanded(
                               child: OutlinedButton.icon(
-                                onPressed: () {},
+                                onPressed: () {
+                                  
+                                },
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.orange,
                                   side: const BorderSide(color: Colors.orange),
@@ -507,115 +510,150 @@ class _TutorClassTabState extends State<TutorClassTab>
     BuildContext context,
     List<ClassModel> classes,
   ) {
-    // THÊM: Dispatch LoadClassesEvent để BLoC load all classes
-    context.read<ClassBloc>().add(LoadClassesEvent());
-
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
+      isScrollControlled: true, 
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ), // Bo góc trên
       ),
-      builder:
-          (bottomSheetContext) => BlocBuilder<ClassBloc, ClassState>(
-            // SỬA: BlocBuilder thay FutureBuilder
-            builder: (context, state) {
-              if (state is ClassLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is ClassError) {
-                return Center(child: Text('Lỗi: ${state.message}'));
-              }
-
-              List<ClassModel> allClasses = [];
-              if (state is ClassLoaded) {
-                allClasses = state.classes;
-              } else if (state is ClassCreateSuccess) {
-                allClasses = state.allClasses;
-              }
-
-              final availableClasses =
-                  allClasses.where((classItem) {
-                    final currentStudents = classItem.students.length;
-                    final maxStudents = classItem.maxStudents ?? 0;
-                    return currentStudents < maxStudents;
-                  }).toList();
-
-              if (availableClasses.isEmpty) {
-                return const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.school_outlined, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(
-                        'Hiện tại chưa có lớp gia sư nào',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              return DraggableScrollableSheet(
-                expand: false,
-                builder:
-                    (context, scrollController) => Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
+      builder: (BuildContext bottomSheetContext) {
+        return DraggableScrollableSheet(
+          expand: false, // Không mở rộng tự động toàn màn hình
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // Header của bottom sheet
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.search, color: Colors.blue),
+                        SizedBox(width: 8),
+                        Text(
+                          'Danh các sách lớp gia sư',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        children: [
-                          // Header - SỬA: Sửa chính tả
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(16),
-                            child: const Row(
+                      ],
+                    ),
+                  ),
+                  // Danh sách tất cả lớp (fetch trực tiếp từ repository cho bottom sheet)
+                  Expanded(
+                    child: FutureBuilder<List<ClassModel>>(
+                      future: ClassRepository().getAllClasses(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline,
+                                    color: Colors.redAccent,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Không thể tải danh sách lớp: ${snapshot.error}',
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
+
+                        final allClasses = snapshot.data ?? [];
+                        final availableClasses =
+                            allClasses.where((classItem) {
+                              // Lọc các lớp còn chỗ trống
+                              final currentStudents = classItem.students.length;
+                              final maxStudents = classItem.maxStudents ?? 0;
+                              return currentStudents < maxStudents;
+                            }).toList();
+
+                        if (availableClasses.isEmpty) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.search, color: Colors.blue),
-                                SizedBox(width: 8),
+                                Icon(
+                                  Icons.school_outlined,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
                                 Text(
-                                  'Danh sách lớp gia sư',
+                                  'Hiện tại chưa có lớp gia sư nào',
                                   style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.grey,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          Expanded(
-                            child: ListView.builder(
-                              controller: scrollController,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              itemCount: availableClasses.length,
-                              itemBuilder: (context, index) {
-                                final classItem = availableClasses[index];
-                                return AvailableClassCard(
-                                  classItem: classItem,
-                                  onRegister: (item, color) {
-                                    // SỬA: Gọi wrapper thay showDialog trực tiếp
-                                    ShowRegisterDialog.show(
-                                      context,
-                                      item,
-                                      color,
+                          );
+                        }
+
+                        return ListView.builder(
+                          controller: scrollController, 
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: allClasses.length,
+                          itemBuilder: (context, index) {
+                            final classItem = allClasses[index];
+                            return AvailableClassCard(
+                              classItem: classItem,
+                              onRegister: (classItem, color) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return RegisterClassDialog(
+                                      classItem: classItem,
+                                      subjectColor: color,
+                                      isRegistering: false,
+                                      isRegistered: false,
+                                      onRegister: () {
+                                        Navigator.pop(context); 
+                                        // Gửi sự kiện đăng ký lớp
+                                        context.read<ClassBloc>().add(
+                                          JoinClassEvent(classItem.id ?? ''),
+                                        );
+                                      },
                                     );
                                   },
                                 );
                               },
-                            ),
-                          ),
-                        ],
-                      ),
+                            );
+                          },
+                        );
+                      },
                     ),
-              );
-            },
-          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
+
 }

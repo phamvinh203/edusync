@@ -38,9 +38,8 @@ class ClassJoining extends ClassState {}
 // State đăng ký lớp học thành công
 class ClassJoinSuccess extends ClassState {
   final JoinClassResponse response;
-  final bool success;  // THÊM: Dựa trên response.success hoặc true nếu join OK
 
-  ClassJoinSuccess(this.response) : success = response.success ?? true;  
+  ClassJoinSuccess(this.response);
 }
 
 // State đăng ký lớp học thất bại

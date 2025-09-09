@@ -46,7 +46,6 @@ class GetRegisteredClassesEvent extends ClassEvent {}
 // Sự kiện đăng ký lớp học
 class JoinClassEvent extends ClassEvent {
   final String classId;
-  final String? userRole;  // Optional, từ UI (authState.user?.role)
 
-  JoinClassEvent(this.classId, {this.userRole});
+  JoinClassEvent(this.classId);
 }

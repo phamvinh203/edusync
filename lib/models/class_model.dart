@@ -224,4 +224,3 @@ class DeleteClassResponse {
   static DeleteClassResponse fromJson(String source) =>
       DeleteClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
 }
-
