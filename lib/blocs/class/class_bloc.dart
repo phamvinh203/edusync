@@ -129,15 +129,37 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
 
     // Xử lý sự kiện đăng ký lớp học
     on<JoinClassEvent>((event, emit) async {
-      print('JoinClassEvent triggered for classId: ${event.classId}');
-      emit(ClassJoining());
-      try {
-        final response = await _classRepository.joinClass(event.classId);
-        emit(ClassJoinSuccess(response));
-      } catch (e) {
-        emit(ClassJoinError('Không thể đăng ký lớp học: ${e.toString()}'));
+  print('JoinClassEvent triggered for classId: ${event.classId}, role: ${event.userRole ?? "unknown"}');
+  emit(ClassJoining());
+  try {
+    final response = await _classRepository.joinClass(event.classId);
+    emit(ClassJoinSuccess(response));
+
+    // THÊM: Update local cache với updatedClass (students cập nhật)
+    if (response.updatedClass != null) {
+      final index = _classes.indexWhere((c) => c.id == event.classId);
+      if (index != -1) {
+        _classes[index] = response.updatedClass!;
+      } else if (event.userRole?.toLowerCase() == 'student') {
+        _classes.add(response.updatedClass!);  // Thêm vào registered list
       }
-    });
+    }
+
+    // THÊM: Refresh dựa trên role để sync full data
+    final userRole = event.userRole ?? '';
+    if (userRole.toLowerCase() == 'student') {
+      final registeredClasses = await _classRepository.getMyRegisteredClasses();
+      _classes = registeredClasses;
+      _registeredClassesCount = registeredClasses.length;
+    } else {
+      final allClasses = await _classRepository.getAllClasses();
+      _classes = allClasses;
+    }
+    emit(ClassLoaded(_classes, registeredClassesCount: _registeredClassesCount));  // Emit loaded để UI rebuild
+  } catch (e) {
+    emit(ClassJoinError('Không thể đăng ký lớp học: ${e.toString()}'));
+  }
+});
 
     // Xử lý sự kiện reset
     on<ResetClassEvent>((event, emit) {

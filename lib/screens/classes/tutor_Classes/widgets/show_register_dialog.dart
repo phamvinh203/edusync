@@ -1,28 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/models/class_model.dart';
-import 'package:edusync/models/users_model.dart';
 import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_state.dart';
 import 'package:edusync/blocs/class/class_event.dart';
+import 'package:edusync/blocs/auth/auth_bloc.dart';
 
-class RegisterClassDialog extends StatelessWidget {
+class ShowRegisterDialog extends StatelessWidget {
   final ClassModel classItem;
   final Color subjectColor;
   final bool isRegistering;
   final bool isRegistered;
-  final JoinClassData? registrationData;
+  final Object? registrationData; // optional: reserved for future display
   final VoidCallback onRegister;
 
-  const RegisterClassDialog({
+  const ShowRegisterDialog({
     super.key,
     required this.classItem,
     required this.subjectColor,
     required this.isRegistering,
     required this.isRegistered,
-    this.registrationData,
     required this.onRegister,
+    this.registrationData,
   });
+
+  // Static method để gọi từ UI (bottom sheet/tab)
+  static void show(
+    BuildContext context,
+    ClassModel classItem,
+    Color subjectColor,
+  ) {
+    final bloc = context.read<ClassBloc>();
+    final authState = context.read<AuthBloc>().state;
+    final userRole = authState.user?.role ?? '';
+
+    showDialog(
+      context: context,
+      builder:
+          (dialogContext) => BlocListener<ClassBloc, ClassState>(
+            bloc: bloc,
+            listener: (listenerContext, state) {
+              if (state is ClassJoinSuccess && state.success) {
+                // Đóng dialog sau success
+                Navigator.pop(dialogContext);
+                // BLoC đã refresh trong handler, nhưng thêm snackbar
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Đăng ký thành công! Trạng thái: ${state.response.data.status}',
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } else if (state is ClassJoinError) {
+                Navigator.pop(dialogContext);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: BlocBuilder<ClassBloc, ClassState>(
+              bloc: bloc,
+              builder: (context, state) {
+                final isRegistering = state is ClassJoining;
+                final isRegistered = state is ClassJoinSuccess && state.success;
+
+                return ShowRegisterDialog(
+                  classItem: classItem,
+                  subjectColor: subjectColor,
+                  isRegistering: isRegistering,
+                  isRegistered: isRegistered,
+                  // SỬA: Thêm registrationData nếu cần hiển thị status/position
+                  registrationData:
+                      state is ClassJoinSuccess && state.success
+                          ? state.response.data
+                          : null,
+                  onRegister: () {
+                    // Dispatch với userRole
+                    bloc.add(
+                      JoinClassEvent(classItem.id ?? '', userRole: userRole),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,20 +167,24 @@ class RegisterClassDialog extends StatelessWidget {
         ),
         if (!isRegistered)
           ElevatedButton.icon(
-            onPressed: isRegistering ? null : () {
-              Navigator.pop(context);
-              onRegister(); // gọi callback thực hiện đăng ký
-            },
-            icon: isRegistering
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Icon(Icons.person_add),
+            onPressed:
+                isRegistering
+                    ? null
+                    : () {
+                      Navigator.pop(context);
+                      onRegister(); // gọi callback thực hiện đăng ký
+                    },
+            icon:
+                isRegistering
+                    ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                    : const Icon(Icons.person_add),
             label: Text(isRegistering ? 'Đang đăng ký...' : 'Đăng ký'),
             style: ElevatedButton.styleFrom(
               backgroundColor: subjectColor,

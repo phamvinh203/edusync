@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:edusync/models/class_model.dart';
+
 // Model cho profile người dùng và response /users/me
 // Tuân thủ cấu trúc JSON đã mô tả trong đề bài
 
@@ -246,13 +248,18 @@ class JoinClassData {
 class JoinClassResponse {
   final String message;
   final JoinClassData data;
+  final bool success = true;
+  final ClassModel? updatedClass;
 
-  const JoinClassResponse({required this.message, required this.data});
+  const JoinClassResponse({required this.message, required this.data, this.updatedClass});
 
   factory JoinClassResponse.fromMap(Map<String, dynamic> map) =>
       JoinClassResponse(
         message: map['message']?.toString() ?? '',
         data: JoinClassData.fromMap(map['data'] as Map<String, dynamic>),
+        updatedClass: map['updatedClass'] != null 
+            ? ClassModel.fromMap(map['updatedClass'] as Map<String, dynamic>) 
+            : null,  // Nếu API join return 'updatedClass', dùng nó; otherwise từ repository
       );
 
   static JoinClassResponse fromJson(String source) =>

@@ -139,15 +139,26 @@ class ClassRepository {
 
   /// Đăng ký tham gia lớp học (dành cho student)
   Future<JoinClassResponse> joinClass(String classId) async {
-    try {
-      final url = ApiUrl.joinClassStudent.replaceAll(':id', classId);
-      final Response resp = await client.post(url);
-      return JoinClassResponse.fromMap(resp.data as Map<String, dynamic>);
-    } on DioException catch (e) {
-      final msg = _extractMessage(e);
-      throw Exception(msg);
-    }
+  try {
+    final url = ApiUrl.joinClassStudent.replaceAll(':id', classId);
+    final Response resp = await client.post(url);
+    final joinResponse = JoinClassResponse.fromMap(resp.data as Map<String, dynamic>);
+
+    // THÊM: Fetch updated class để sync students/pendingStudents
+    final updatedClassResponse = await getClassDetails(classId);
+    final updatedClass = updatedClassResponse.data;  // ClassModel với students mới
+
+    // Merge: Tạo response mới với updatedClass (vì model đã sửa)
+    return JoinClassResponse(
+      message: joinResponse.message,
+      data: joinResponse.data,
+      updatedClass: updatedClass,
+    );
+  } on DioException catch (e) {
+    final msg = _extractMessage(e);
+    throw Exception(msg);
   }
+}
 
   /// Lấy số lượng lớp gia sư mà học sinh đã đăng ký
   Future<int> getMyRegisteredClassesCount() async {
