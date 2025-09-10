@@ -9,7 +9,6 @@ import 'package:edusync/screens/classes/tutor_Classes/widgets/class_header_card.
 import 'package:edusync/screens/classes/tutor_Classes/widgets/class_detail_section.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/class_schedule_section.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/students_list_widget.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/registration_section.dart';
 
 class ClassDetailScreen extends StatefulWidget {
   final String classId;
@@ -37,8 +36,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
 
   // State cho đăng ký lớp học
   bool _isRegistered = false;
-  bool _isRegistering = false;
-  JoinClassData? _registrationData;
+  
 
   @override
   void initState() {
@@ -209,13 +207,13 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
           isForStudent: true,
         );
       }
-      return RegistrationSection(
-        classDetails: _classDetails!,
-        isRegistered: _isRegistered,
-        isRegistering: _isRegistering,
-        registrationData: _registrationData,
-        onRegister: _showRegistrationDialog,
-      );
+      // return RegistrationSection(
+      //   classDetails: _classDetails!,
+      //   isRegistered: _isRegistered,
+      //   isRegistering: _isRegistering,
+      //   registrationData: _registrationData,
+      //   onRegister: _showRegistrationDialog,
+      // );
     }
 
     return StudentsListWidget(
@@ -335,7 +333,6 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
 
   Future<void> _deleteClass() async {
     try {
-      _showLoadingDialog();
       final response = await _classRepository.deleteClass(widget.classId);
 
       if (mounted) Navigator.pop(context); // Đóng loading
@@ -367,85 +364,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
     }
   }
 
-  void _showRegistrationDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Xác nhận đăng ký'),
-            content: Text(
-              'Bạn có muốn đăng ký tham gia lớp học "${_classDetails!.nameClass}"?\n\nYêu cầu sẽ được gửi đến giáo viên để xét duyệt.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _registerForClass();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Đăng ký'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  Future<void> _registerForClass() async {
-    try {
-      setState(() => _isRegistering = true);
-      _showLoadingDialog();
-
-      final response = await _classRepository.joinClass(widget.classId);
-
-      if (mounted) Navigator.pop(context); // Đóng loading
-
-      if (mounted) {
-        setState(() {
-          _isRegistered = true;
-          _registrationData = response.data;
-          _isRegistering = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.message),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) Navigator.pop(context); // Đóng loading
-
-      if (mounted) {
-        setState(() => _isRegistering = false);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lỗi khi đăng ký: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
-  }
-
-  void _showLoadingDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-  }
-
+  
   void _markStudentAsApproved() {
     setState(() => _isRegistered = true);
   }
@@ -465,28 +384,12 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
     if (isApproved) {
       setState(() {
         _isRegistered = true;
-        _registrationData = JoinClassData(
-          classId: widget.classId,
-          className: widget.className,
-          subject: _classDetails!.subject,
-          teacherId: _classDetails!.teacherId ?? '',
-          status: 'approved',
-          registeredAt: DateTime.now(),
-          position: 0,
-        );
+        
       });
     } else if (isPending) {
       setState(() {
         _isRegistered = true;
-        _registrationData = JoinClassData(
-          classId: widget.classId,
-          className: widget.className,
-          subject: _classDetails!.subject,
-          teacherId: _classDetails!.teacherId ?? '',
-          status: 'pending',
-          registeredAt: DateTime.now(),
-          position: _classDetails!.pendingStudents.indexOf(currentUserId) + 1,
-        );
+        
       });
     }
   }

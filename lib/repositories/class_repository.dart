@@ -207,6 +207,18 @@ class ClassRepository {
     }
   }
 
+  /// Học sinh rời khỏi lớp học
+  Future<LeaveClassResponse> leaveClass(String classId) async {
+    try {
+      final url = ApiUrl.postLeaveClass.replaceAll(':classId', classId);
+      final Response resp = await client.post(url);
+      return LeaveClassResponse.fromMap(resp.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
   String _extractMessage(DioException e) {
     if (e.response?.data is Map<String, dynamic>) {
       return e.response?.data['message'] ?? 'Có lỗi xảy ra';

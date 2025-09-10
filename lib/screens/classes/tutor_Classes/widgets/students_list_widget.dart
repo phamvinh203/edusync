@@ -27,7 +27,7 @@ class StudentsListWidget extends StatelessWidget {
           children: [
             _buildHeader(),
             const SizedBox(height: 16),
-            if (isForStudent) _buildApprovalStatus(),
+            if (isForStudent)
             _buildStudentsList(),
           ],
         ),
@@ -61,35 +61,7 @@ class StudentsListWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildApprovalStatus() {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.green[50],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.green[200]!),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green[600], size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Bạn đã được duyệt vào lớp học này',
-                style: TextStyle(
-                  color: Colors.green[700],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
+  
 
   Widget _buildStudentsList() {
     if ((classStudents?.students.isEmpty ?? true) &&

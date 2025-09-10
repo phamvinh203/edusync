@@ -7,7 +7,7 @@ import 'package:edusync/repositories/class_repository.dart';
 import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_state.dart';
 import 'package:edusync/blocs/class/class_event.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/show_register_dialog.dart';
+import 'package:edusync/screens/classes/tutor_Classes/student/widgets/show_register_dialog.dart';
 
 class AvailableClassesBottomSheet extends StatelessWidget {
   final List<ClassModel> classes;

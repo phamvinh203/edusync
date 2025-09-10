@@ -33,4 +33,6 @@ class ApiUrl {
       'classes/:classId/getPendingStudentsByClass';
   static const postApproveStudent =
       'classes/:classId/approveStudent/:studentId';
+      // học sinh rời khỏi lớp học
+  static const postLeaveClass = 'classes/leave-class/:classId';
 }

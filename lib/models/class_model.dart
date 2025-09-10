@@ -224,3 +224,34 @@ class DeleteClassResponse {
   static DeleteClassResponse fromJson(String source) =>
       DeleteClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
 }
+
+
+// Response cho API học sinh rời khỏi lớp học
+class LeaveClassResponse {
+  final String message;
+  final String classId;
+  final String className;
+  final DateTime? leftAt;
+
+  const LeaveClassResponse({
+    required this.message,
+    required this.classId,
+    required this.className,
+    this.leftAt,
+  });
+
+  factory LeaveClassResponse.fromMap(Map<String, dynamic> map) {
+    final data = map['data'] as Map<String, dynamic>? ?? {};
+    return LeaveClassResponse(
+      message: (map['message'] ?? '').toString(),
+      classId: (data['classId'] ?? data['_id'] ?? '').toString(),
+      className: (data['className'] ?? data['nameClass'] ?? '').toString(),
+      leftAt: data['leftAt'] != null
+          ? DateTime.tryParse(data['leftAt'].toString())
+          : null,
+    );
+  }
+
+  static LeaveClassResponse fromJson(String source) =>
+      LeaveClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
+}
