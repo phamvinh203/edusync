@@ -397,32 +397,32 @@ class _TutorClassTabState extends State<TutorClassTab>
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.green[200]!),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.people, size: 16, color: Colors.green[600]),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${classItem.students.length}/${classItem.maxStudents ?? 0}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.green[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 12,
+                  //     vertical: 6,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.green[50],
+                  //     borderRadius: BorderRadius.circular(16),
+                  //     border: Border.all(color: Colors.green[200]!),
+                  //   ),
+                  //   child: Row(
+                  //     mainAxisSize: MainAxisSize.min,
+                  //     children: [
+                  //       Icon(Icons.people, size: 16, color: Colors.green[600]),
+                  //       const SizedBox(width: 4),
+                  //       Text(
+                  //         '${classItem.students.length}/${classItem.maxStudents ?? 0}',
+                  //         style: TextStyle(
+                  //           fontSize: 12,
+                  //           fontWeight: FontWeight.w600,
+                  //           color: Colors.green[600],
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
 

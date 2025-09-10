@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
-import 'package:edusync/blocs/class/class_bloc.dart';
-import 'package:edusync/blocs/class/class_state.dart';
-import 'package:edusync/blocs/class/class_event.dart';
 
 class RegisterClassDialog extends StatelessWidget {
   final ClassModel classItem;

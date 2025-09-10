@@ -1,3 +1,4 @@
+import 'package:edusync/screens/classes/widgets/quick_info_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/user/user_bloc.dart';
@@ -102,144 +103,50 @@ class _ClassScreenState extends State<ClassScreen>
                             children: [
                               const SizedBox(height: 16.0),
                               // Quick info card
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.blue[400]!,
-                                      Colors.blue[600]!,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    // Nội dung thông tin nhanh
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Lớp: $userClass',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.headlineSmall?.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Trường: $userSchool',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.copyWith(
-                                            color: Colors.white.withOpacity(
-                                              0.9,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Wrap(
-                                          spacing: 12,
-                                          runSpacing: 8,
-                                          children: [
-                                            _buildCardClass(
-                                              '6 môn học',
-                                              Icons.book,
-                                            ), // lớp học trên trường (school_class)
-                                            _buildCardClass(
-                                              '$classCount $classLabel', // số lớp hiển thị theo role
-                                              Icons.person,
-                                            ),
-                                            _buildCardClass(
-                                              '12 bài tập',
-                                              Icons.assignment,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    // Nút tạo lớp (chỉ cho giáo viên) ở góc trên bên phải
-                                    if (userRole.toLowerCase() == 'teacher')
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: Tooltip(
-                                          message: 'Tạo lớp học mới',
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              borderRadius:
-                                                  BorderRadius.circular(24),
-                                              onTap: () async {
-                                                if (!mounted) return;
-                                                final result = await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder:
-                                                        (context) =>
-                                                            const CreateClassScreen(),
-                                                  ),
-                                                );
-                                                // Nếu tạo lớp thành công, cập nhật danh sách
-                                                if (result is ClassModel &&
-                                                    mounted) {
-                                                  // Refresh danh sách lớp học từ server
-                                                  context.read<ClassBloc>().add(
-                                                    RefreshClassesEvent(),
-                                                  );
-
-                                                  // Chỉ refresh số lượng lớp đã đăng ký nếu là student
-                                                  if (userRole.toLowerCase() ==
-                                                      'student') {
-                                                    context.read<ClassBloc>().add(
-                                                      LoadRegisteredClassesCountEvent(),
-                                                    );
-                                                  }
-
-                                                  // Chuyển sang tab "Lớp gia sư" để hiển thị lớp vừa tạo
-                                                  _tabController.animateTo(1);
-
-                                                  // Hiển thị thông báo thành công
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      content: Text(
-                                                        'Đã tạo lớp "${result.nameClass}" thành công!',
-                                                      ),
-                                                      backgroundColor:
-                                                          Colors.green,
-                                                      duration: const Duration(
-                                                        seconds: 3,
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              child: Container(
-                                                padding: const EdgeInsets.all(
-                                                  8,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white24,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: const Icon(
-                                                  Icons.add,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: QuickInfoCard(
+                                  userClass: userClass,
+                                  userSchool: userSchool,
+                                  classCount: classCount,
+                                  classLabel: classLabel,
+                                  userRole: userRole,
+                                  onCreateClass: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                const CreateClassScreen(),
                                       ),
-                                  ],
+                                    );
+
+                                    if (result is ClassModel && mounted) {
+                                      context.read<ClassBloc>().add(
+                                        RefreshClassesEvent(),
+                                      );
+
+                                      if (userRole.toLowerCase() == 'student') {
+                                        context.read<ClassBloc>().add(
+                                          LoadRegisteredClassesCountEvent(),
+                                        );
+                                      }
+
+                                      _tabController.animateTo(1);
+
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Đã tạo lớp "${result.nameClass}" thành công!',
+                                          ),
+                                          backgroundColor: Colors.green,
+                                          duration: const Duration(seconds: 3),
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                               ),
                               const SizedBox(height: 24),
@@ -320,31 +227,6 @@ class _ClassScreenState extends State<ClassScreen>
           },
         );
       },
-    );
-  }
-
-  Widget _buildCardClass(String text, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white, size: 16),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
