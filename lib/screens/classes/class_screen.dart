@@ -9,6 +9,7 @@ import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_event.dart';
 import 'package:edusync/blocs/class/class_state.dart';
 import 'package:edusync/screens/classes/tutor_Classes/create_class_screen.dart';
+import 'package:edusync/screens/schedule/schedule_screen.dart';
 import 'package:edusync/screens/classes/school_Classes/school_subject_tab.dart';
 import 'package:edusync/screens/classes/tutor_Classes/tutor_class_tab.dart';
 import 'package:edusync/models/class_model.dart';
@@ -180,13 +181,14 @@ class _ClassScreenState extends State<ClassScreen>
                                   TextButton.icon(
                                     onPressed: () {
                                       if (!mounted) return;
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //     builder:
-                                      //         (context) => const StudentScheduleScreen(),
-                                      //   ),
-                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  const ScheduleScreen(),
+                                        ),
+                                      );
                                     },
                                     icon: const Icon(
                                       Icons.calendar_today,
