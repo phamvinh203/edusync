@@ -165,6 +165,62 @@ class ExerciseRepository {
     }
   }
 
+  // Lấy danh sách các exerciseId mà học sinh hiện tại đã nộp
+  Future<List<Exercise>> getMySubmittedExercises() async {
+    try {
+      final Response resp = await client.get(ApiUrl.getMySubmissions);
+      final root = resp.data;
+
+      List<dynamic> submissions = [];
+      if (root is Map<String, dynamic>) {
+        final data = root['data'];
+        if (data is Map<String, dynamic>) {
+          final subs = data['submissions'];
+          if (subs is List) submissions = subs;
+        }
+      }
+
+      // Parse submissions -> exercises
+      final exercises = <Exercise>[];
+      for (final item in submissions) {
+        if (item is Map<String, dynamic>) {
+          final exerciseMap = item['exercise'];
+          if (exerciseMap is Map<String, dynamic>) {
+            exercises.add(Exercise.fromMap(exerciseMap));
+          }
+        }
+      }
+      return exercises;
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
+  // Lấy danh sách bài tập mà giáo viên đã tạo (dành cho giáo viên)
+  Future<List<Exercise>> getMyCreatedExercises() async {
+    try {
+      final Response resp = await client.get(ApiUrl.getMyCreatedExercises);
+      final root = resp.data;
+
+      List<dynamic> exercises = [];
+      if (root is Map<String, dynamic>) {
+        final data = root['data'];
+        if (data is Map<String, dynamic>) {
+          final exs = data['exercises'];
+          if (exs is List) exercises = exs;
+        }
+      }
+
+      return exercises
+          .map((e) => Exercise.fromMap(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
   String _extractMessage(DioException e) {
     if (e.response?.data is Map<String, dynamic>) {
       return e.response?.data['message']?.toString() ?? 'Có lỗi xảy ra';

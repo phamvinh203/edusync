@@ -36,6 +36,10 @@ class ApiUrl {
       // học sinh rời khỏi lớp học
   static const postLeaveClass = 'classes/leave-class/:classId';
 
+
+  // lịch học endpoints
+  static const createSchedule = 'classes/schedules';
+
   // exercise endpoints
   // tạo bài tập cho lớp học- giáo viên
   static const createExercise = 'exercises/:classId/create';
@@ -55,5 +59,11 @@ class ApiUrl {
   // chấm điểm bài nộp
   static const gradeSubmission =
       'exercises/:classId/:exerciseId/submissions/:submissionId/grade';
+
+  // danh sách bài tập đã nộp của học sinh
+  static const getMySubmissions = 'exercises/my-submissions/all';
+
+  // danh sách bài tập đã được tạo bởi giáo viên
+  static const getMyCreatedExercises = 'exercises/teacher/overview';
 
 }

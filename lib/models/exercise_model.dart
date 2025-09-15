@@ -201,6 +201,18 @@ class Exercise {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
+  // Teacher-specific fields for overview
+  final int? submissionCount;
+  final int? gradedCount;
+  final int? ungradedCount;
+  final double? gradingProgress;
+  final String? gradingStatus; // ungraded | partially_graded | fully_graded
+  final double? averageGrade;
+  final bool? hasAttachments;
+  final int? questionCount;
+  final bool? isOverdue;
+  final int? daysSinceCreation;
+
   const Exercise({
     this.id,
     required this.title,
@@ -219,6 +231,16 @@ class Exercise {
     this.deleted = false,
     this.createdAt,
     this.updatedAt,
+    this.submissionCount,
+    this.gradedCount,
+    this.ungradedCount,
+    this.gradingProgress,
+    this.gradingStatus,
+    this.averageGrade,
+    this.hasAttachments,
+    this.questionCount,
+    this.isOverdue,
+    this.daysSinceCreation,
   });
 
   factory Exercise.fromMap(Map<String, dynamic> map) => Exercise(
@@ -236,7 +258,10 @@ class Exercise {
             .toList(),
     maxScore: map['maxScore'] is num ? (map['maxScore'] as num).toInt() : null,
     subject: map['subject']?.toString(),
-    classId: ClassRef.fromMap(map['classId'] as Map<String, dynamic>?),
+    classId: ClassRef.fromMap(
+      map['classId'] as Map<String, dynamic>? ??
+          map['class'] as Map<String, dynamic>?,
+    ),
     createdBy: UserRef.fromMap(map['createdBy'] as Map<String, dynamic>?),
     startDate:
         map['startDate'] != null
@@ -256,6 +281,36 @@ class Exercise {
     updatedAt:
         map['updatedAt'] != null
             ? DateTime.tryParse(map['updatedAt'].toString())
+            : null,
+    submissionCount:
+        map['submissionCount'] is num
+            ? (map['submissionCount'] as num).toInt()
+            : null,
+    gradedCount:
+        map['gradedCount'] is num ? (map['gradedCount'] as num).toInt() : null,
+    ungradedCount:
+        map['ungradedCount'] is num
+            ? (map['ungradedCount'] as num).toInt()
+            : null,
+    gradingProgress:
+        map['gradingProgress'] is num
+            ? (map['gradingProgress'] as num).toDouble()
+            : null,
+    gradingStatus: map['gradingStatus']?.toString(),
+    averageGrade:
+        map['averageGrade'] is num
+            ? (map['averageGrade'] as num).toDouble()
+            : null,
+    hasAttachments:
+        map['hasAttachments'] is bool ? map['hasAttachments'] : null,
+    questionCount:
+        map['questionCount'] is num
+            ? (map['questionCount'] as num).toInt()
+            : null,
+    isOverdue: map['isOverdue'] is bool ? map['isOverdue'] : null,
+    daysSinceCreation:
+        map['daysSinceCreation'] is num
+            ? (map['daysSinceCreation'] as num).toInt()
             : null,
   );
 }

@@ -22,7 +22,7 @@ class ExerciseDetailScreen extends StatefulWidget {
     super.key,
     required this.classId,
     required this.exerciseId,
-    required this.role,
+    required this.role, required Exercise exercise,
   });
 
   @override

@@ -246,6 +246,7 @@ class _ExercisesTabState extends State<ExercisesTab>
                     child: ExerciseDetailScreen(
                       classId: widget.classId,
                       exerciseId: id,
+                      exercise: ex, // viết thêm
                       role: widget.role,
                     ),
                   ),
