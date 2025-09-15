@@ -114,18 +114,51 @@ class ExerciseRepository {
       if ((content == null || content.trim().isEmpty) && file == null) {
         throw Exception('Vui lòng nhập nội dung hoặc chọn tệp để nộp.');
       }
-
       final url = ApiUrl.submitExercise
           .replaceAll(':classId', classId)
           .replaceAll(':exerciseId', exerciseId);
-
       final form = FormData.fromMap({
         if (content != null && content.trim().isNotEmpty) 'content': content,
         if (file != null) 'file': file,
       });
-
       final Response resp = await client.post(url, data: form);
       return SubmitExerciseResponse.fromMap(resp.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
+  // Lấy danh sách bài nộp của một bài tập (dành cho giáo viên)
+  Future<List<Submission>> getSubmissions({
+    required String classId,
+    required String exerciseId,
+  }) async {
+    try {
+      final url = ApiUrl.getSubmissions
+          .replaceAll(':classId', classId)
+          .replaceAll(':exerciseId', exerciseId);
+      final Response resp = await client.get(url);
+      final data = resp.data;
+
+      List<dynamic> extractList(dynamic root) {
+        if (root is List) return root;
+        if (root is Map) {
+          final level1 = root['data'] ?? root['submissions'] ?? root['items'];
+          if (level1 is List) return level1;
+          if (level1 is Map) {
+            final level2 =
+                level1['submissions'] ?? level1['items'] ?? level1['data'];
+            if (level2 is List) return level2;
+          }
+        }
+        return const [];
+      }
+
+      final List<dynamic> list = extractList(data);
+      return list
+          .map((e) => Submission.fromMap(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       final msg = _extractMessage(e);
       throw Exception(msg);
@@ -137,5 +170,44 @@ class ExerciseRepository {
       return e.response?.data['message']?.toString() ?? 'Có lỗi xảy ra';
     }
     return e.message ?? 'Có lỗi xảy ra';
+  }
+
+  // Chấm điểm bài nộp (giáo viên)
+  Future<Submission> gradeSubmission({
+    required String classId,
+    required String exerciseId,
+    required String submissionId,
+    required double grade,
+    String? feedback,
+  }) async {
+    try {
+      final url = ApiUrl.gradeSubmission
+          .replaceAll(':classId', classId)
+          .replaceAll(':exerciseId', exerciseId)
+          .replaceAll(':submissionId', submissionId);
+
+      final payload = {
+        'grade': grade,
+        if (feedback != null && feedback.trim().isNotEmpty)
+          'feedback': feedback.trim(),
+      };
+
+      final Response resp = await client.put(url, data: payload);
+      final data = resp.data;
+
+      Map<String, dynamic>? map;
+      if (data is Map<String, dynamic>) {
+        if (data['data'] is Map<String, dynamic>) {
+          map = data['data'] as Map<String, dynamic>;
+        } else {
+          map = data;
+        }
+      }
+      if (map == null) throw Exception('Dữ liệu chấm điểm không hợp lệ');
+      return Submission.fromMap(map);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
   }
 }

@@ -56,3 +56,13 @@ class ExerciseSubmitSuccess extends ExerciseState {
   @override
   List<Object?> get props => [response];
 }
+
+class ExerciseSubmissionsLoading extends ExerciseState {}
+
+class ExerciseSubmissionsLoaded extends ExerciseState {
+  final List<Submission> submissions;
+  const ExerciseSubmissionsLoaded(this.submissions);
+
+  @override
+  List<Object?> get props => [submissions];
+}

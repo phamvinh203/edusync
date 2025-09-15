@@ -114,27 +114,37 @@ class Question {
 class Submission {
   final String? id;
   final String? studentId; // id tham chiếu (simple)
+  final UserRef? student; // thông tin học sinh (khi gọi list submissions)
   final DateTime? submittedAt;
   final String? content;
   final String? fileUrl;
   final List<int>? answers;
   final double? grade;
   final String? feedback;
+  final bool isLate;
+  final bool hasGrade;
 
   const Submission({
     this.id,
     this.studentId,
+    this.student,
     this.submittedAt,
     this.content,
     this.fileUrl,
     this.answers,
     this.grade,
     this.feedback,
+    this.isLate = false,
+    this.hasGrade = false,
   });
 
   factory Submission.fromMap(Map<String, dynamic> map) => Submission(
     id: map['_id']?.toString(),
     studentId: _extractStudentId(map),
+    student:
+        map['student'] is Map<String, dynamic>
+            ? UserRef.fromMap(map['student'] as Map<String, dynamic>)
+            : null,
     submittedAt:
         map['submittedAt'] != null
             ? DateTime.tryParse(map['submittedAt'].toString())
@@ -152,6 +162,8 @@ class Submission {
                 : double.tryParse(map['grade'].toString()))
             : null,
     feedback: map['feedback']?.toString(),
+    isLate: map['isLate'] == true,
+    hasGrade: map['hasGrade'] == true,
   );
 
   static String? _extractStudentId(Map<String, dynamic> map) {

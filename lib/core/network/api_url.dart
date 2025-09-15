@@ -49,4 +49,11 @@ class ApiUrl {
   // nộp bài tập - học sinh
   static const submitExercise = 'exercises/:classId/:exerciseId/student_Submit';
 
+  // danh sách học sinh đã nộp bài tập
+  static const getSubmissions = 'exercises/:classId/:exerciseId/submissions';
+
+  // chấm điểm bài nộp
+  static const gradeSubmission =
+      'exercises/:classId/:exerciseId/submissions/:submissionId/grade';
+
 }

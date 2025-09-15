@@ -169,7 +169,9 @@ class _ExercisesTabState extends State<ExercisesTab>
                                 key: const ValueKey('list'),
                                 onRefresh: _refresh,
                                 child: ListView.builder(
-                                  key: PageStorageKey('exercises_${widget.classId}'),
+                                  key: PageStorageKey(
+                                    'exercises_${widget.classId}',
+                                  ),
                                   itemCount: items.length,
                                   padding: const EdgeInsets.fromLTRB(
                                     12,

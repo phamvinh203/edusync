@@ -69,5 +69,18 @@ class ExerciseBloc extends Bloc<ExerciseEvent, ExerciseState> {
         emit(ExerciseError(e.toString()));
       }
     });
+
+    on<LoadExerciseSubmissionsEvent>((event, emit) async {
+      emit(ExerciseSubmissionsLoading());
+      try {
+        final subs = await _repo.getSubmissions(
+          classId: event.classId,
+          exerciseId: event.exerciseId,
+        );
+        emit(ExerciseSubmissionsLoaded(subs));
+      } catch (e) {
+        emit(ExerciseError(e.toString()));
+      }
+    });
   }
 }

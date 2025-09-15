@@ -67,3 +67,16 @@ class SubmitExerciseRequested extends ExerciseEvent {
   @override
   List<Object?> get props => [classId, exerciseId, content, file];
 }
+
+class LoadExerciseSubmissionsEvent extends ExerciseEvent {
+  final String classId;
+  final String exerciseId;
+
+  const LoadExerciseSubmissionsEvent({
+    required this.classId,
+    required this.exerciseId,
+  });
+
+  @override
+  List<Object?> get props => [classId, exerciseId];
+}
