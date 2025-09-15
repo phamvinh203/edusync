@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:edusync/core/network/api_url.dart';
 import 'package:edusync/core/network/dio_api.dart';
-import 'package:edusync/models/schedule_response_model.dart';
+import 'package:edusync/models/schedule_model.dart';
 
 class ScheduleRepository {
   final DioClient client;
@@ -24,13 +24,13 @@ class ScheduleRepository {
       if (e.response != null) {
         final errorData = e.response!.data;
         String errorMessage = 'Unknown error';
-        
+
         if (errorData is Map<String, dynamic> && errorData['message'] != null) {
           errorMessage = errorData['message'];
         } else if (errorData is String) {
           errorMessage = errorData;
         }
-        
+
         throw Exception('Error ${e.response!.statusCode}: $errorMessage');
       } else {
         throw Exception('Network error: ${e.message ?? 'Connection failed'}');

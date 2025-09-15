@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:edusync/models/schedule_response_model.dart';
+import 'package:edusync/models/schedule_model.dart';
 import 'package:edusync/repositories/schedule_repository.dart';
 
 class ScheduleScreen extends StatefulWidget {
@@ -87,7 +87,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
                   _events[eventDate] ??= [];
                   _events[eventDate]!.add(
-                    ScheduleEvent(classSchedule: classSchedule, schedule: schedule),
+                    ScheduleEvent(
+                      classSchedule: classSchedule,
+                      schedule: schedule,
+                    ),
                   );
                 }
               }
@@ -429,7 +432,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             leading: CircleAvatar(
               backgroundColor: _getSubjectColor(event.classSchedule.subject),
               child: Text(
-                event.classSchedule.subject.isNotEmpty 
+                event.classSchedule.subject.isNotEmpty
                     ? event.classSchedule.subject.substring(0, 1).toUpperCase()
                     : '?',
                 style: const TextStyle(
