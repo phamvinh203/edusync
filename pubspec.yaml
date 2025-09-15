@@ -48,6 +48,9 @@ dependencies:
   mime: ^1.0.5
   http_parser: ^4.0.2
 
+  path_provider: ^2.1.2
+  open_filex: ^4.3.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

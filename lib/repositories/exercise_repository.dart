@@ -74,6 +74,64 @@ class ExerciseRepository {
     }
   }
 
+  Future<Exercise> getExerciseDetails({
+    required String classId,
+    required String exerciseId,
+  }) async {
+    try {
+      final url = ApiUrl.getExerciseDetails
+          .replaceAll(':classId', classId)
+          .replaceAll(':exerciseId', exerciseId);
+      final Response resp = await client.get(url);
+      final data = resp.data;
+      Map<String, dynamic>? map;
+      if (data is Map<String, dynamic>) {
+        if (data['data'] is Map<String, dynamic>) {
+          map = data['data'] as Map<String, dynamic>;
+        } else if (data['exercise'] is Map<String, dynamic>) {
+          map = data['exercise'] as Map<String, dynamic>;
+        } else {
+          map = data;
+        }
+      }
+      if (map == null) {
+        throw Exception('Dữ liệu bài tập không hợp lệ');
+      }
+      return Exercise.fromMap(map);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
+  Future<SubmitExerciseResponse> submitExercise({
+    required String classId,
+    required String exerciseId,
+    String? content,
+    MultipartFile? file,
+  }) async {
+    try {
+      if ((content == null || content.trim().isEmpty) && file == null) {
+        throw Exception('Vui lòng nhập nội dung hoặc chọn tệp để nộp.');
+      }
+
+      final url = ApiUrl.submitExercise
+          .replaceAll(':classId', classId)
+          .replaceAll(':exerciseId', exerciseId);
+
+      final form = FormData.fromMap({
+        if (content != null && content.trim().isNotEmpty) 'content': content,
+        if (file != null) 'file': file,
+      });
+
+      final Response resp = await client.post(url, data: form);
+      return SubmitExerciseResponse.fromMap(resp.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
   String _extractMessage(DioException e) {
     if (e.response?.data is Map<String, dynamic>) {
       return e.response?.data['message']?.toString() ?? 'Có lỗi xảy ra';

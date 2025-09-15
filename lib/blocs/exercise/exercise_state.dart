@@ -36,3 +36,23 @@ class ExercisesLoaded extends ExerciseState {
   @override
   List<Object?> get props => [items];
 }
+
+class ExerciseDetailLoading extends ExerciseState {}
+
+class ExerciseDetailLoaded extends ExerciseState {
+  final Exercise exercise;
+  const ExerciseDetailLoaded(this.exercise);
+
+  @override
+  List<Object?> get props => [exercise];
+}
+
+class ExerciseSubmitting extends ExerciseState {}
+
+class ExerciseSubmitSuccess extends ExerciseState {
+  final SubmitExerciseResponse response;
+  const ExerciseSubmitSuccess(this.response);
+
+  @override
+  List<Object?> get props => [response];
+}

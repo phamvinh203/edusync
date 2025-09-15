@@ -5,15 +5,18 @@ import 'package:edusync/blocs/exercise/exercise_event.dart';
 import 'package:edusync/blocs/exercise/exercise_state.dart';
 import 'package:edusync/models/exercise_model.dart';
 import 'package:edusync/screens/exercises/teacher/create_exercise_screen.dart';
+import 'package:edusync/screens/exercises/exercise_detail_screen.dart';
 
 class ExercisesTab extends StatefulWidget {
   final String classId;
   final bool isTeacher;
+  final String role; // Thêm thuộc tính role
 
   const ExercisesTab({
     super.key,
     required this.classId,
     this.isTeacher = false,
+    required this.role,
   });
 
   @override
@@ -21,8 +24,13 @@ class ExercisesTab extends StatefulWidget {
 }
 
 class _ExercisesTabState extends State<ExercisesTab>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late AnimationController _animController;
+  // Cache the list so it persists across navigation
+  List<Exercise> _cachedItems = const [];
+
+  @override
+  bool get wantKeepAlive => true; // keep this tab alive across tab switches
 
   @override
   void initState() {
@@ -33,9 +41,17 @@ class _ExercisesTabState extends State<ExercisesTab>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<ExerciseBloc>().add(
-        LoadExercisesByClassEvent(widget.classId),
-      );
+      final bloc = context.read<ExerciseBloc>();
+      final current = bloc.state;
+      // If bloc already has list, prime the cache and skip re-fetch
+      if (current is ExercisesLoaded && current.items.isNotEmpty) {
+        _cachedItems = current.items;
+        return;
+      }
+      // Only fetch if cache is empty and bloc has not loaded yet
+      if (_cachedItems.isEmpty) {
+        bloc.add(LoadExercisesByClassEvent(widget.classId));
+      }
     });
   }
 
@@ -54,23 +70,37 @@ class _ExercisesTabState extends State<ExercisesTab>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // required by AutomaticKeepAliveClientMixin
     return SizedBox.expand(
       child: Stack(
         children: [
           Column(
             children: [
               Expanded(
-                child: BlocBuilder<ExerciseBloc, ExerciseState>(
+                child: BlocConsumer<ExerciseBloc, ExerciseState>(
+                  listenWhen: (prev, curr) => curr is ExercisesLoaded,
+                  listener: (context, state) {
+                    if (state is ExercisesLoaded) {
+                      _cachedItems = state.items;
+                    }
+                  },
+                  buildWhen: (prev, curr) {
+                    // Only rebuild the list UI when list is loading or loaded
+                    return curr is ExercisesLoading ||
+                        curr is ExercisesLoaded ||
+                        curr is ExerciseError;
+                  },
                   builder: (context, state) {
-                    if (state is ExercisesLoading) {
+                    // Show loading only if we have no cache
+                    if (state is ExercisesLoading && _cachedItems.isEmpty) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    if (state is ExerciseError) {
+                    if (state is ExerciseError && _cachedItems.isEmpty) {
                       return Center(child: Text(state.message));
                     }
 
                     final items =
-                        state is ExercisesLoaded ? state.items : <Exercise>[];
+                        state is ExercisesLoaded ? state.items : _cachedItems;
 
                     return AnimatedSwitcher(
                       duration: const Duration(milliseconds: 400),
@@ -139,6 +169,7 @@ class _ExercisesTabState extends State<ExercisesTab>
                                 key: const ValueKey('list'),
                                 onRefresh: _refresh,
                                 child: ListView.builder(
+                                  key: PageStorageKey('exercises_${widget.classId}'),
                                   itemCount: items.length,
                                   padding: const EdgeInsets.fromLTRB(
                                     12,
@@ -203,7 +234,21 @@ class _ExercisesTabState extends State<ExercisesTab>
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          // TODO: Navigate to exercise details/submission page
+          final id = ex.id;
+          if (id == null) return;
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder:
+                  (_) => BlocProvider(
+                    create: (_) => ExerciseBloc(),
+                    child: ExerciseDetailScreen(
+                      classId: widget.classId,
+                      exerciseId: id,
+                      role: widget.role,
+                    ),
+                  ),
+            ),
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),

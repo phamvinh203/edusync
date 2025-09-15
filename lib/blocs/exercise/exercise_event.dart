@@ -38,3 +38,32 @@ class RefreshExercisesByClassEvent extends ExerciseEvent {
   @override
   List<Object?> get props => [classId];
 }
+
+class LoadExerciseDetailEvent extends ExerciseEvent {
+  final String classId;
+  final String exerciseId;
+  const LoadExerciseDetailEvent({
+    required this.classId,
+    required this.exerciseId,
+  });
+
+  @override
+  List<Object?> get props => [classId, exerciseId];
+}
+
+class SubmitExerciseRequested extends ExerciseEvent {
+  final String classId;
+  final String exerciseId;
+  final String? content;
+  final MultipartFile? file;
+
+  const SubmitExerciseRequested({
+    required this.classId,
+    required this.exerciseId,
+    this.content,
+    this.file,
+  });
+
+  @override
+  List<Object?> get props => [classId, exerciseId, content, file];
+}

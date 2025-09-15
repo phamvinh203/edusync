@@ -134,7 +134,7 @@ class Submission {
 
   factory Submission.fromMap(Map<String, dynamic> map) => Submission(
     id: map['_id']?.toString(),
-    studentId: map['studentId']?.toString(),
+    studentId: _extractStudentId(map),
     submittedAt:
         map['submittedAt'] != null
             ? DateTime.tryParse(map['submittedAt'].toString())
@@ -153,6 +153,21 @@ class Submission {
             : null,
     feedback: map['feedback']?.toString(),
   );
+
+  static String? _extractStudentId(Map<String, dynamic> map) {
+    // Trường hợp 1: studentId là string trực tiếp
+    if (map['studentId'] is String) {
+      return map['studentId'];
+    }
+
+    // Trường hợp 2: student là object có _id
+    if (map['student'] is Map<String, dynamic>) {
+      final student = map['student'] as Map<String, dynamic>;
+      return student['_id']?.toString();
+    }
+
+    return null;
+  }
 }
 
 class Exercise {
@@ -247,6 +262,77 @@ class ExerciseResponse {
 
   static ExerciseResponse fromJson(String source) =>
       ExerciseResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
+}
+
+// Phản hồi khi học sinh nộp bài
+class SubmitExerciseResponse {
+  final String message;
+  final SubmitResult data;
+
+  const SubmitExerciseResponse({required this.message, required this.data});
+
+  factory SubmitExerciseResponse.fromMap(Map<String, dynamic> map) =>
+      SubmitExerciseResponse(
+        message: (map['message'] ?? '').toString(),
+        data: SubmitResult.fromMap(map['data'] as Map<String, dynamic>),
+      );
+}
+
+class SubmitResult {
+  final String id; // _id
+  final String submissionId;
+  final UserRef student; // {_id, username, email}
+  final ExerciseLite exercise; // {_id, title, type, maxScore}
+  final DateTime? submittedAt;
+  final String? content;
+  final String? fileUrl;
+
+  const SubmitResult({
+    required this.id,
+    required this.submissionId,
+    required this.student,
+    required this.exercise,
+    this.submittedAt,
+    this.content,
+    this.fileUrl,
+  });
+
+  factory SubmitResult.fromMap(Map<String, dynamic> map) => SubmitResult(
+    id: (map['_id'] ?? '').toString(),
+    submissionId: (map['submissionId'] ?? '').toString(),
+    student: UserRef.fromMap(map['student'] as Map<String, dynamic>?),
+    exercise: ExerciseLite.fromMap(map['exercise'] as Map<String, dynamic>?),
+    submittedAt:
+        map['submittedAt'] != null
+            ? DateTime.tryParse(map['submittedAt'].toString())
+            : null,
+    content: map['content']?.toString(),
+    fileUrl: map['fileUrl']?.toString(),
+  );
+}
+
+class ExerciseLite {
+  final String id;
+  final String title;
+  final String type;
+  final int? maxScore;
+
+  const ExerciseLite({
+    required this.id,
+    required this.title,
+    required this.type,
+    this.maxScore,
+  });
+
+  factory ExerciseLite.fromMap(Map<String, dynamic>? map) {
+    final m = map ?? const {};
+    return ExerciseLite(
+      id: (m['_id'] ?? '').toString(),
+      title: (m['title'] ?? '').toString(),
+      type: (m['type'] ?? '').toString(),
+      maxScore: m['maxScore'] is num ? (m['maxScore'] as num).toInt() : null,
+    );
+  }
 }
 
 class CreateExerciseRequest {

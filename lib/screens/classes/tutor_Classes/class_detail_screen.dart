@@ -186,7 +186,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen>
               controller: _ensureTabController,
               children: [
                 _buildStudentsSection(),
-                ExercisesTab(classId: widget.classId, isTeacher: isTeacher),
+                ExercisesTab(classId: widget.classId, isTeacher: isTeacher, role: widget.userRole ?? 'student'),
                 ClassScheduleSection(classDetails: _classDetails!),
                 if (isTeacher) const Center(child: Text('Điểm danh (TODO)')),
               ],

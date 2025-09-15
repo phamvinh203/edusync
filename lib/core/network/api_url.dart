@@ -43,5 +43,10 @@ class ApiUrl {
   // danh sách bài tập của lớp học
   static const getExercisesByClass = 'exercises/:classId/classAssignments';
 
+  // xem chi tiết bài tập
+  static const getExerciseDetails = 'exercises/:classId/:exerciseId';
+
+  // nộp bài tập - học sinh
+  static const submitExercise = 'exercises/:classId/:exerciseId/student_Submit';
 
 }
