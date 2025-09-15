@@ -36,7 +36,7 @@ class _MainScreenState extends State<MainScreen> {
         ];
 
         return Scaffold(
-          body: pages[_selectedIndex],
+          body: IndexedStack(index: _selectedIndex, children: pages),
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
               color: Colors.white,

@@ -8,21 +8,34 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   HomeBloc(this.homeRepository) : super(HomeInitial()) {
     on<LoadHome>(_onLoadHome);
+    on<RefreshHome>(_onRefreshHome);
   }
 
   Future<void> _onLoadHome(LoadHome event, Emitter<HomeState> emit) async {
-    // Chỉ skip nếu đã có data cho đúng role
+    // Nếu đang loading, bỏ qua để tránh gọi API trùng
+    if (state is HomeLoading) return;
+
+    // Nếu đã có data thì không load lại
     if (state is HomeLoaded) {
       final currentState = state as HomeLoaded;
-      // Skip nếu đã có data cho teacher và event cũng là teacher
       if (event.isTeacher && currentState.teacherHome != null) return;
-      // Skip nếu đã có data cho student và event cũng là student
       if (!event.isTeacher && currentState.studentHome != null) return;
     }
 
+    await _fetchData(event.isTeacher, emit);
+  }
+
+  Future<void> _onRefreshHome(
+    RefreshHome event,
+    Emitter<HomeState> emit,
+  ) async {
+    await _fetchData(event.isTeacher, emit);
+  }
+
+  Future<void> _fetchData(bool isTeacher, Emitter<HomeState> emit) async {
     emit(HomeLoading());
     try {
-      if (event.isTeacher) {
+      if (isTeacher) {
         final data = await homeRepository.getTeacherDashboard();
         emit(HomeLoaded(teacherHome: data));
       } else {
