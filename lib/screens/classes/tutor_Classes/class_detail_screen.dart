@@ -6,6 +6,7 @@ import 'package:edusync/screens/classes/tutor_Classes/pending_students_screen.da
 import 'package:edusync/screens/classes/tutor_Classes/widgets/class_header_card.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/class_schedule_section.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/students_list_widget.dart';
+import 'package:edusync/screens/exercises/exercises_tab.dart';
 
 class ClassDetailScreen extends StatefulWidget {
   final String classId;
@@ -185,8 +186,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen>
               controller: _ensureTabController,
               children: [
                 _buildStudentsSection(),
-                // TODO: Bài tập - sẽ triển khai sau
-                const Center(child: Text('Bài tập (TODO)')),
+                ExercisesTab(classId: widget.classId, isTeacher: isTeacher),
                 ClassScheduleSection(classDetails: _classDetails!),
                 if (isTeacher) const Center(child: Text('Điểm danh (TODO)')),
               ],

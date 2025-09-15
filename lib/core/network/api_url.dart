@@ -37,5 +37,11 @@ class ApiUrl {
   static const postLeaveClass = 'classes/leave-class/:classId';
 
   // exercise endpoints
+  // tạo bài tập cho lớp học- giáo viên
   static const createExercise = 'exercises/:classId/create';
+
+  // danh sách bài tập của lớp học
+  static const getExercisesByClass = 'exercises/:classId/classAssignments';
+
+
 }

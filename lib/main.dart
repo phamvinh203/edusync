@@ -6,6 +6,8 @@ import 'package:edusync/blocs/user/user_bloc.dart';
 import 'package:edusync/repositories/user_repository.dart';
 import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/repositories/class_repository.dart';
+import 'package:edusync/blocs/exercise/exercise_bloc.dart';
+import 'package:edusync/repositories/exercise_repository.dart';
 import 'screens/auth/login_screen.dart';
 
 void main() {
@@ -22,6 +24,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(create: (_) => AuthRepository()),
         RepositoryProvider(create: (_) => UserRepository()),
         RepositoryProvider(create: (_) => ClassRepository()),
+        RepositoryProvider(create: (_) => ExerciseRepository()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -39,6 +42,12 @@ class MyApp extends StatelessWidget {
             create:
                 (context) =>
                     ClassBloc(classRepository: context.read<ClassRepository>()),
+          ),
+          BlocProvider(
+            create:
+                (context) => ExerciseBloc(
+                  repository: context.read<ExerciseRepository>(),
+                ),
           ),
         ],
         child: MaterialApp(
