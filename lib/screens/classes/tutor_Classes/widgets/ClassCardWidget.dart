@@ -22,16 +22,19 @@ class ClassCardWidget extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
+        borderRadius: BorderRadius.circular(8),
         onTap: () async {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ClassDetailScreen(
-                classId: classItem.id ?? '',
-                className: classItem.nameClass,
-                userRole: userRole,
-              ),
+              builder:
+                  (context) => ClassDetailScreen(
+                    classId: classItem.id ?? '',
+                    className: classItem.nameClass,
+                    userRole: userRole,
+                  ),
             ),
           );
           if (result == true) {
@@ -42,95 +45,138 @@ class ClassCardWidget extends StatelessWidget {
             }
           }
         },
-        borderRadius: BorderRadius.circular(8),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header: Tên lớp + nhãn "Gia sư"
               Row(
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          classItem.nameClass,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          classItem.subject,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.blue[600],
-                          ),
-                        ),
-                        if (classItem.teacherName != null && classItem.teacherName!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(Icons.person, size: 14, color: Colors.grey[600]),
-                              const SizedBox(width: 4),
-                              Text(
-                                'GV: ${classItem.teacherName}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
+                  Text(
+                    classItem.nameClass,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      'Gia sư',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
               ),
-              if (classItem.description != null && classItem.description!.isNotEmpty) ...[
-                const SizedBox(height: 12),
+              const SizedBox(height: 4),
+
+              // Giáo viên
+              if (classItem.teacherName != null &&
+                  classItem.teacherName!.isNotEmpty)
                 Text(
-                  classItem.description!,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  'Giáo viên: ${classItem.teacherName}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
-              ],
-              const SizedBox(height: 12),
+
+              const SizedBox(height: 4),
+
+              // Lịch học
+              if (classItem.schedule.isNotEmpty)
+                Text(
+                  'Lịch: ${_getScheduleText(classItem.schedule)}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                ),
+
+              const SizedBox(height: 4),
+
+              // Địa chỉ
+              if (classItem.location != null && classItem.location!.isNotEmpty)
+                Text(
+                  'Địa chỉ: ${classItem.location}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+
+              const SizedBox(height: 16),
+
+              // Action buttons
               Row(
                 children: [
-                  if (classItem.schedule.isNotEmpty) ...[
-                    Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text(
-                      _getScheduleText(classItem.schedule),
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                  if (classItem.location != null && classItem.location!.isNotEmpty) ...[
-                    Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        classItem.location!,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        overflow: TextOverflow.ellipsis,
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: mở màn hình bài tập
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
+                      icon: const Icon(Icons.assignment_turned_in, size: 18),
+                      label: const Text('Bài tập'),
                     ),
-                  ],
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ClassDetailScreen(
+                                  classId: classItem.id ?? '',
+                                  className: classItem.nameClass,
+                                  userRole: userRole,
+                                ),
+                          ),
+                        );
+                        if (result == true) {
+                          if (userRole.toLowerCase() == 'student') {
+                            context.read<ClassBloc>().add(
+                              GetRegisteredClassesEvent(),
+                            );
+                          } else {
+                            context.read<ClassBloc>().add(
+                              RefreshClassesEvent(),
+                            );
+                          }
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.blue,
+                        side: const BorderSide(color: Colors.blue),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: const Icon(Icons.info_outline, size: 18),
+                      label: const Text('Chi tiết'),
+                    ),
+                  ),
                 ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Tạo: ${_formatDate(classItem.createdAt)}',
-                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
               ),
             ],
           ),
@@ -146,15 +192,5 @@ class ClassCardWidget extends StatelessWidget {
       return '${s.dayOfWeek} ${s.startTime}-${s.endTime}';
     }
     return '${schedule.length} buổi/tuần';
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Không rõ';
-    final now = DateTime.now();
-    final diff = now.difference(date).inDays;
-    if (diff == 0) return 'Hôm nay';
-    if (diff == 1) return 'Hôm qua';
-    if (diff < 7) return '$diff ngày trước';
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

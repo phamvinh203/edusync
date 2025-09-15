@@ -27,8 +27,8 @@ class StudentsListWidget extends StatelessWidget {
           children: [
             _buildHeader(),
             const SizedBox(height: 16),
-            if (isForStudent)
-            _buildStudentsList(),
+            // Khu vực danh sách cần có không gian cố định và cho phép cuộn
+            Expanded(child: _buildStudentsList()),
           ],
         ),
       ),
@@ -60,8 +60,6 @@ class StudentsListWidget extends StatelessWidget {
       ],
     );
   }
-
-  
 
   Widget _buildStudentsList() {
     if ((classStudents?.students.isEmpty ?? true) &&
@@ -108,8 +106,6 @@ class StudentsListWidget extends StatelessWidget {
 
   Widget _buildDetailedStudentsList() {
     return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemCount: classStudents!.students.length,
       itemBuilder: (context, index) {
         final student = classStudents!.students[index];
@@ -132,8 +128,6 @@ class StudentsListWidget extends StatelessWidget {
 
   Widget _buildBasicStudentsList() {
     return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemCount: classDetails.students.length,
       itemBuilder: (context, index) {
         final studentId = classDetails.students[index];

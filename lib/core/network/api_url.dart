@@ -35,4 +35,7 @@ class ApiUrl {
       'classes/:classId/approveStudent/:studentId';
       // học sinh rời khỏi lớp học
   static const postLeaveClass = 'classes/leave-class/:classId';
+
+  // exercise endpoints
+  static const createExercise = 'exercises/:classId/create';
 }

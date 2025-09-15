@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
 import 'package:edusync/screens/classes/tutor_Classes/pending_students_screen.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/class_header_card.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/class_detail_section.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/class_schedule_section.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/students_list_widget.dart';
 
@@ -26,7 +23,8 @@ class ClassDetailScreen extends StatefulWidget {
   State<ClassDetailScreen> createState() => _ClassDetailScreenState();
 }
 
-class _ClassDetailScreenState extends State<ClassDetailScreen> {
+class _ClassDetailScreenState extends State<ClassDetailScreen>
+    with SingleTickerProviderStateMixin {
   final ClassRepository _classRepository = ClassRepository();
   ClassModel? _classDetails;
   ClassStudentsResponse? _classStudents;
@@ -34,14 +32,32 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
   bool _isLoadingStudents = false;
   String? _error;
 
-  // State cho đăng ký lớp học
-  bool _isRegistered = false;
-  
+  TabController? _tabController;
+
+  // Ensure we always have a controller even after hot reload/state restore
+  TabController get _ensureTabController {
+    final tabsCount = _tabsLength;
+    if (_tabController == null || _tabController!.length != tabsCount) {
+      _tabController?.dispose();
+      _tabController = TabController(length: tabsCount, vsync: this);
+    }
+    return _tabController!;
+  }
+
+  int get _tabsLength => widget.userRole?.toLowerCase() == 'teacher' ? 4 : 3;
 
   @override
   void initState() {
     super.initState();
+    // Initialize once; also guarded by _ensureTabController for hot reload cases
+    _tabController = TabController(length: _tabsLength, vsync: this);
     _loadClassDetails();
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   Future<void> refreshClassData() async {
@@ -63,7 +79,6 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
           _isLoading = false;
         });
 
-        _checkStudentApprovalStatus();
         _loadClassStudents();
       }
     } catch (e) {
@@ -87,10 +102,6 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
           _classStudents = response;
           _isLoadingStudents = false;
         });
-
-        if (widget.userRole?.toLowerCase() == 'student') {
-          _markStudentAsApproved();
-        }
       }
     } catch (e) {
       if (mounted) {
@@ -98,10 +109,8 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
 
         if (widget.userRole?.toLowerCase() == 'student' &&
             e.toString().contains('403')) {
-          return; // Silent fail cho student chưa được approve
+          return; // Silent fail
         }
-
-        print('Lỗi tải danh sách học sinh: $e');
       }
     }
   }
@@ -132,16 +141,7 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Đang tải thông tin lớp học...'),
-          ],
-        ),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null) {
@@ -152,25 +152,47 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
       return const Center(child: Text('Không tìm thấy thông tin lớp học'));
     }
 
+    final isTeacher = widget.userRole?.toLowerCase() == 'teacher';
+
     return RefreshIndicator(
       onRefresh: _loadClassDetails,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            ClassHeaderCard(
-              classDetails: _classDetails!,
-              classStudents: _classStudents,
+      child: Column(
+        children: [
+          // Header + Thông tin lớp cố định
+          ClassHeaderCard(
+            classDetails: _classDetails!,
+            classStudents: _classStudents,
+            isTeacher: isTeacher,
+          ),
+          // Tab bar moved into body below the header
+          Material(
+            color: Colors.transparent,
+            child: TabBar(
+              controller: _ensureTabController,
+              labelColor: Theme.of(context).colorScheme.primary,
+              unselectedLabelColor:
+                  Theme.of(context).textTheme.bodyMedium?.color,
+              tabs: [
+                const Tab(text: 'Học sinh'),
+                const Tab(text: 'Bài tập'),
+                const Tab(text: 'Lịch học'),
+                if (isTeacher) const Tab(text: 'Điểm danh'),
+              ],
             ),
-            ClassDetailSection(
-              classDetails: _classDetails!,
-              classStudents: _classStudents,
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _ensureTabController,
+              children: [
+                _buildStudentsSection(),
+                // TODO: Bài tập - sẽ triển khai sau
+                const Center(child: Text('Bài tập (TODO)')),
+                ClassScheduleSection(classDetails: _classDetails!),
+                if (isTeacher) const Center(child: Text('Điểm danh (TODO)')),
+              ],
             ),
-            ClassScheduleSection(classDetails: _classDetails!),
-            _buildStudentsSection(),
-            const SizedBox(height: 20),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -198,28 +220,11 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
   }
 
   Widget _buildStudentsSection() {
-    if (widget.userRole?.toLowerCase() == 'student') {
-      if (_isRegistered && _classStudents != null) {
-        return StudentsListWidget(
-          classDetails: _classDetails!,
-          classStudents: _classStudents,
-          isLoadingStudents: _isLoadingStudents,
-          isForStudent: true,
-        );
-      }
-      // return RegistrationSection(
-      //   classDetails: _classDetails!,
-      //   isRegistered: _isRegistered,
-      //   isRegistering: _isRegistering,
-      //   registrationData: _registrationData,
-      //   onRegister: _showRegistrationDialog,
-      // );
-    }
-
     return StudentsListWidget(
       classDetails: _classDetails!,
       classStudents: _classStudents,
       isLoadingStudents: _isLoadingStudents,
+      isForStudent: widget.userRole?.toLowerCase() == 'student',
     );
   }
 
@@ -334,9 +339,6 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
   Future<void> _deleteClass() async {
     try {
       final response = await _classRepository.deleteClass(widget.classId);
-
-      if (mounted) Navigator.pop(context); // Đóng loading
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -350,8 +352,6 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) Navigator.pop(context); // Đóng loading
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -361,36 +361,6 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
           ),
         );
       }
-    }
-  }
-
-  
-  void _markStudentAsApproved() {
-    setState(() => _isRegistered = true);
-  }
-
-  void _checkStudentApprovalStatus() {
-    if (widget.userRole?.toLowerCase() != 'student' || _classDetails == null)
-      return;
-
-    final authBloc = context.read<AuthBloc>();
-    final currentUserId = authBloc.state.user?.id;
-
-    if (currentUserId == null) return;
-
-    bool isApproved = _classDetails!.students.contains(currentUserId);
-    bool isPending = _classDetails!.pendingStudents.contains(currentUserId);
-
-    if (isApproved) {
-      setState(() {
-        _isRegistered = true;
-        
-      });
-    } else if (isPending) {
-      setState(() {
-        _isRegistered = true;
-        
-      });
     }
   }
 }

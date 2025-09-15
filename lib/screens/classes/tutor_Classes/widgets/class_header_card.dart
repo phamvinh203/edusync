@@ -5,11 +5,13 @@ import 'package:edusync/models/users_model.dart';
 class ClassHeaderCard extends StatelessWidget {
   final ClassModel classDetails;
   final ClassStudentsResponse? classStudents;
+  final bool isTeacher;
 
   const ClassHeaderCard({
     super.key,
     required this.classDetails,
     this.classStudents,
+    this.isTeacher = false,
   });
 
   @override
@@ -27,7 +29,7 @@ class ClassHeaderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
+            color: Colors.blue.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -44,11 +46,14 @@ class ClassHeaderCard extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            classDetails.subject,
-            style: const TextStyle(fontSize: 18, color: Colors.white70),
-          ),
+          if (!isTeacher) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Giáo viên: '
+              '${(classDetails.teacherName?.trim().isNotEmpty ?? false) ? classDetails.teacherName!.trim() : 'Không xác định'}',
+              style: const TextStyle(fontSize: 18, color: Colors.white70),
+            ),
+          ],
           const SizedBox(height: 16),
           Row(
             children: [
@@ -80,7 +85,7 @@ class ClassHeaderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
