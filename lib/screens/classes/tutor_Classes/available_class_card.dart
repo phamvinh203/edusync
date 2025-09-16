@@ -1,7 +1,9 @@
 import 'package:edusync/models/class_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:edusync/blocs/auth/auth_bloc.dart';
 
-class AvailableClassCard extends StatelessWidget {
+class AvailableClassCard extends StatefulWidget {
   final ClassModel classItem;
   final void Function(ClassModel, Color) onRegister;
 
@@ -12,11 +14,31 @@ class AvailableClassCard extends StatelessWidget {
   });
 
   @override
+  State<AvailableClassCard> createState() => _AvailableClassCardState();
+}
+
+class _AvailableClassCardState extends State<AvailableClassCard> {
+  // Trạng thái local để chuyển ngay sang "Đang chờ" sau khi bấm đăng ký
+  bool _localPending = false;
+
+  @override
   Widget build(BuildContext context) {
-    final currentStudents = classItem.students.length;
-    final maxStudents = classItem.maxStudents ?? 0;
+    final currentStudents = widget.classItem.students.length;
+    final maxStudents = widget.classItem.maxStudents ?? 0;
     final isOpen = currentStudents < maxStudents;
-    final subjectColor = _getSubjectColor(classItem.subject);
+    final subjectColor = _getSubjectColor(widget.classItem.subject);
+
+    // Lấy thông tin user hiện tại để xác định trạng thái tham gia
+    final authState = context.read<AuthBloc>().state;
+    final currentUserId = authState.user?.id ?? '';
+    final isJoined =
+        currentUserId.isNotEmpty &&
+        widget.classItem.students.contains(currentUserId);
+    final isPendingFromServer =
+        currentUserId.isNotEmpty &&
+        widget.classItem.pendingStudents.contains(currentUserId);
+    final isPending = isPendingFromServer || _localPending;
+    final canRegister = isOpen && !isJoined && !isPending;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -27,7 +49,7 @@ class AvailableClassCard extends StatelessWidget {
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -43,7 +65,7 @@ class AvailableClassCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: subjectColor.withOpacity(0.1),
+                  color: subjectColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(Icons.school, color: subjectColor, size: 24),
@@ -54,64 +76,56 @@ class AvailableClassCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      classItem.nameClass,
+                      widget.classItem.nameClass,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Môn học: ${classItem.subject}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey[600]),
+                      'Môn học: ${widget.classItem.subject}',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                     Text(
-                      'Lớp: ${classItem.gradeLevel}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey[600]),
+                      'Lớp: ${widget.classItem.gradeLevel}',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
-                    if (classItem.teacherName != null &&
-                        classItem.teacherName!.isNotEmpty)
+                    if (widget.classItem.teacherName != null &&
+                        widget.classItem.teacherName!.isNotEmpty)
                       Text(
-                        'Giáo viên: ${classItem.teacherName}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Colors.grey[600]),
+                        'Giáo viên: ${widget.classItem.teacherName}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
                       ),
-                    if (classItem.schedule.isNotEmpty)
+                    if (widget.classItem.schedule.isNotEmpty)
                       Text(
-                        'Lịch: ${_getScheduleText(classItem.schedule)}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Colors.grey[600]),
+                        'Lịch: ${_getScheduleText(widget.classItem.schedule)}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
                       ),
-                    if (classItem.location != null &&
-                        classItem.location!.isNotEmpty)
+                    if (widget.classItem.location != null &&
+                        widget.classItem.location!.isNotEmpty)
                       Text(
-                        'Địa chỉ: ${classItem.location}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                              color: Colors.grey[600],
-                              fontStyle: FontStyle.italic,
-                            ),
+                        'Địa chỉ: ${widget.classItem.location}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
-                    if (classItem.description != null &&
-                        classItem.description!.isNotEmpty) ...[
+                    if (widget.classItem.description != null &&
+                        widget.classItem.description!.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
-                        classItem.description!,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Colors.grey[700]),
+                        widget.classItem.description!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[700],
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -137,8 +151,8 @@ class AvailableClassCard extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   'Giá/buổi',
-                  classItem.pricePerSession != null
-                      ? '${_formatCurrency(classItem.pricePerSession!)} VNĐ'
+                  widget.classItem.pricePerSession != null
+                      ? '${_formatCurrency(widget.classItem.pricePerSession!)} VNĐ'
                       : 'Miễn phí',
                   Colors.green,
                 ),
@@ -160,9 +174,16 @@ class AvailableClassCard extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed:
-                  isOpen ? () => onRegister(classItem, subjectColor) : null,
+                  canRegister
+                      ? () {
+                        setState(() {
+                          _localPending = true;
+                        });
+                        widget.onRegister(widget.classItem, subjectColor);
+                      }
+                      : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: isOpen ? subjectColor : Colors.grey,
+                backgroundColor: canRegister ? subjectColor : Colors.grey,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -170,11 +191,23 @@ class AvailableClassCard extends StatelessWidget {
                 ),
               ),
               icon: Icon(
-                isOpen ? Icons.app_registration : Icons.block,
+                isJoined
+                    ? Icons.check_circle
+                    : isPending
+                    ? Icons.hourglass_top
+                    : isOpen
+                    ? Icons.app_registration
+                    : Icons.block,
                 size: 18,
               ),
               label: Text(
-                isOpen ? 'Đăng ký tham gia' : 'Lớp đã đầy',
+                isJoined
+                    ? 'Đã tham gia lớp'
+                    : isPending
+                    ? 'Đang chờ giáo viên duyệt'
+                    : isOpen
+                    ? 'Đăng ký tham gia'
+                    : 'Lớp đã đầy',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -190,10 +223,7 @@ class AvailableClassCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
         Text(
           value,
@@ -239,7 +269,6 @@ class AvailableClassCard extends StatelessWidget {
     }
   }
 
-
   String _getScheduleText(List<Schedule> schedule) {
     if (schedule.isEmpty) return '';
 
@@ -261,6 +290,7 @@ class AvailableClassCard extends StatelessWidget {
       return _addThousandsSeparator(amount.toString());
     }
   }
+
   // Hàm thêm dấu phẩy phân cách hàng nghìn
   String _addThousandsSeparator(String number) {
     // Tách phần nguyên và phần thập phân
@@ -279,6 +309,4 @@ class AvailableClassCard extends StatelessWidget {
 
     return result + decimalPart;
   }
-
-
 }
