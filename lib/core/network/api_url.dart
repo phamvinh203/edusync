@@ -1,7 +1,7 @@
 class ApiUrl {
   static const baseURL = 'http://10.0.2.2:3001/api/';
   // static const baseURL = 'http://localhost:3001/api/';
-//   static const baseURL = 'https://be-edusync.onrender.com/api/';
+  //   static const baseURL = 'https://be-edusync.onrender.com/api/';
 
   // Auth endpoints
   static const login = 'auth/login';
@@ -24,7 +24,7 @@ class ApiUrl {
   static const deleteClass = 'classes/deleteclass/:id';
   // join class
   static const joinClassStudent = 'classes/joinclass/:id';
-  
+
   // lớp học học sinh đang chờ duyệt
   static const getMyPendingClasses = 'classes/my-pending-classes';
 
@@ -33,9 +33,8 @@ class ApiUrl {
       'classes/:classId/getPendingStudentsByClass';
   static const postApproveStudent =
       'classes/:classId/approveStudent/:studentId';
-      // học sinh rời khỏi lớp học
+  // học sinh rời khỏi lớp học
   static const postLeaveClass = 'classes/leave-class/:classId';
-
 
   // lịch học endpoints
   static const createSchedule = 'classes/schedules';
@@ -66,4 +65,12 @@ class ApiUrl {
   // danh sách bài tập đã được tạo bởi giáo viên
   static const getMyCreatedExercises = 'exercises/teacher/overview';
 
+  // giáo viên bắt đầu điểm danh
+  static const takeAttendance = 'attendance/:classId/start';
+
+  // giáo viên điểm danh
+  static const markAttendance = 'attendance/:sessionId/mark';
+
+  // lịch sử điểm danh của lớp học
+  static const getAttendanceHistory = 'attendance/:classId/history';
 }

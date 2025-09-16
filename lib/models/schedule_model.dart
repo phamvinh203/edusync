@@ -61,6 +61,18 @@ class ClassSchedule {
   });
 
   factory ClassSchedule.fromJson(Map<String, dynamic> json) {
+    // Support multiple shapes for teacher info (teacher | teacherId | createdBy)
+    final dynamic teacherSource =
+        json['teacher'] ?? json['teacherId'] ?? json['createdBy'] ?? {};
+    Map<String, dynamic> teacherMap;
+    if (teacherSource is Map<String, dynamic>) {
+      teacherMap = teacherSource;
+    } else if (teacherSource is String) {
+      teacherMap = {'_id': teacherSource};
+    } else {
+      teacherMap = {};
+    }
+
     return ClassSchedule(
       classId: json['classId'] ?? '',
       nameClass: json['nameClass'] ?? '',
@@ -68,7 +80,7 @@ class ClassSchedule {
       gradeLevel: json['gradeLevel'] ?? '',
       pricePerSession: json['pricePerSession'] ?? 0,
       location: json['location'] ?? '',
-      teacher: Teacher.fromJson(json['teacher'] ?? {}),
+      teacher: Teacher.fromJson(teacherMap),
       schedule:
           (json['schedule'] as List<dynamic>? ?? [])
               .map((item) => Schedule.fromJson(item))
@@ -104,9 +116,16 @@ class Teacher {
 
   factory Teacher.fromJson(Map<String, dynamic> json) {
     return Teacher(
-      id: json['_id'] ?? '',
-      email: json['email'] ?? '',
-      username: json['username'] ?? '',
+      // Accept variations for id and email/username fields
+      id: (json['_id'] ?? json['id'] ?? json['authId'] ?? '').toString(),
+      email: (json['email'] ?? json['mail'] ?? '').toString(),
+      username:
+          (json['username'] ??
+                  json['name'] ??
+                  json['teacherName'] ??
+                  json['createdByName'] ??
+                  '')
+              .toString(),
     );
   }
 

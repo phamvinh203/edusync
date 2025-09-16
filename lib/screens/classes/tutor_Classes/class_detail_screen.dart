@@ -7,6 +7,7 @@ import 'package:edusync/screens/classes/tutor_Classes/widgets/class_header_card.
 import 'package:edusync/screens/classes/tutor_Classes/widgets/class_schedule_section.dart';
 import 'package:edusync/screens/classes/tutor_Classes/widgets/students_list_widget.dart';
 import 'package:edusync/screens/exercises/exercises_tab.dart';
+import 'package:edusync/screens/classes/tutor_Classes/widgets/attendance_widget.dart';
 
 class ClassDetailScreen extends StatefulWidget {
   final String classId;
@@ -186,9 +187,17 @@ class _ClassDetailScreenState extends State<ClassDetailScreen>
               controller: _ensureTabController,
               children: [
                 _buildStudentsSection(),
-                ExercisesTab(classId: widget.classId, isTeacher: isTeacher, role: widget.userRole ?? 'student'),
+                ExercisesTab(
+                  classId: widget.classId,
+                  isTeacher: isTeacher,
+                  role: widget.userRole ?? 'student',
+                ),
                 ClassScheduleSection(classDetails: _classDetails!),
-                if (isTeacher) const Center(child: Text('Điểm danh (TODO)')),
+                if (isTeacher)
+                  AttendanceTab(
+                    classId: widget.classId,
+                    students: _classStudents?.students ?? const [],
+                  ),
               ],
             ),
           ),
