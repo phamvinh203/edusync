@@ -1,3 +1,8 @@
+import 'package:edusync/blocs/AvailableClasses/availableClasses_bloc.dart';
+import 'package:edusync/blocs/AvailableClasses/availableClasses_event.dart';
+import 'package:edusync/blocs/RegisteredClasses/registeredClasses_bloc.dart';
+import 'package:edusync/blocs/RegisteredClasses/registeredClasses_event.dart';
+import 'package:edusync/blocs/RegisteredClasses/registeredClasses_state.dart';
 import 'package:edusync/screens/classes/widgets/quick_info_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,14 +36,32 @@ class _ClassScreenState extends State<ClassScreen>
     _tabController = TabController(length: 2, vsync: this);
 
     // Load danh sách lớp học để hiển thị số lượng
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (mounted) {
+    //     context.read<ClassBloc>().add(LoadClassesEvent());
+    //
+    //     // Chỉ load số lượng lớp đã đăng ký nếu là student
+    //     final authState = context.read<AuthBloc>().state;
+    //     final userRole = authState.user?.role ?? '';
+    //     if (userRole.toLowerCase() == 'student') {
+    //       context.read<ClassBloc>().add(LoadRegisteredClassesCountEvent());
+    //     }
+    //   }
+    // });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<ClassBloc>().add(LoadClassesEvent());
+        // load available classes once
+        context.read<AvailableClassesBloc>().add(LoadAvailableClassesEvent());
 
-        // Chỉ load số lượng lớp đã đăng ký nếu là student
         final authState = context.read<AuthBloc>().state;
         final userRole = authState.user?.role ?? '';
         if (userRole.toLowerCase() == 'student') {
+          context.read<RegisteredClassesBloc>().add(
+            LoadRegisteredClassesEvent(),
+          );
+          // Load số lượng lớp đã đăng ký cho hiển thị trong QuickInfoCard
           context.read<ClassBloc>().add(LoadRegisteredClassesCountEvent());
         }
       }
@@ -94,134 +117,129 @@ class _ClassScreenState extends State<ClassScreen>
                 }
 
                 return Scaffold(
-                  body: SafeArea(
-                    child: Column(
-                      children: [
-                        // thông tin lớp học
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 16.0),
-                              // Quick info card
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: QuickInfoCard(
-                                  userClass: userClass,
-                                  userSchool: userSchool,
-                                  classCount: classCount,
-                                  classLabel: classLabel,
-                                  userRole: userRole,
-                                  onCreateClass: () async {
-                                    final result = await Navigator.push(
+                  body: Column(
+                    children: [
+                      // thông tin lớp học
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 16.0),
+                            // Quick info card
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: QuickInfoCard(
+                                userClass: userClass,
+                                userSchool: userSchool,
+                                classCount: classCount,
+                                classLabel: classLabel,
+                                userRole: userRole,
+                                onCreateClass: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              const CreateClassScreen(),
+                                    ),
+                                  );
+
+                                  if (result is ClassModel && mounted) {
+                                    context.read<ClassBloc>().add(
+                                      RefreshClassesEvent(),
+                                    );
+
+                                    if (userRole.toLowerCase() == 'student') {
+                                      context.read<ClassBloc>().add(
+                                        LoadRegisteredClassesCountEvent(),
+                                      );
+                                    }
+
+                                    _tabController.animateTo(1);
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Đã tạo lớp "${result.nameClass}" thành công!',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Tab bar and schedule button
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TabBar(
+                                    controller: _tabController,
+                                    labelColor: Colors.blue[600],
+                                    unselectedLabelColor: Colors.grey,
+                                    indicatorColor: Colors.blue[600],
+                                    tabs: const [
+                                      Tab(
+                                        text: 'Môn học trường',
+                                        icon: Icon(Icons.school, size: 20),
+                                      ),
+                                      Tab(
+                                        text: 'Lớp gia sư',
+                                        icon: Icon(Icons.person, size: 20),
+                                      ),
+                                      // Tab(
+                                      //   text: 'Lớp đã đăng ký',
+                                      //   icon: Icon(Icons.person, size: 20),
+                                      // ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                TextButton.icon(
+                                  onPressed: () {
+                                    if (!mounted) return;
+                                    Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (context) =>
-                                                const CreateClassScreen(),
+                                            (context) => const ScheduleScreen(),
                                       ),
                                     );
-
-                                    if (result is ClassModel && mounted) {
-                                      context.read<ClassBloc>().add(
-                                        RefreshClassesEvent(),
-                                      );
-
-                                      if (userRole.toLowerCase() == 'student') {
-                                        context.read<ClassBloc>().add(
-                                          LoadRegisteredClassesCountEvent(),
-                                        );
-                                      }
-
-                                      _tabController.animateTo(1);
-
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Đã tạo lớp "${result.nameClass}" thành công!',
-                                          ),
-                                          backgroundColor: Colors.green,
-                                          duration: const Duration(seconds: 3),
-                                        ),
-                                      );
-                                    }
                                   },
+                                  icon: const Icon(
+                                    Icons.calendar_today,
+                                    size: 16,
+                                  ),
+                                  label: const Text('Lịch học'),
                                 ),
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Tab bar and schedule button
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TabBar(
-                                      controller: _tabController,
-                                      labelColor: Colors.blue[600],
-                                      unselectedLabelColor: Colors.grey,
-                                      indicatorColor: Colors.blue[600],
-                                      tabs: const [
-                                        Tab(
-                                          text: 'Môn học trường',
-                                          icon: Icon(Icons.school, size: 20),
-                                        ),
-                                        Tab(
-                                          text: 'Lớp gia sư',
-                                          icon: Icon(Icons.person, size: 20),
-                                        ),
-                                        // Tab(
-                                        //   text: 'Lớp đã đăng ký',
-                                        //   icon: Icon(Icons.person, size: 20),
-                                        // ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  TextButton.icon(
-                                    onPressed: () {
-                                      if (!mounted) return;
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  const ScheduleScreen(),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.calendar_today,
-                                      size: 16,
-                                    ),
-                                    label: const Text('Lịch học'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                          ],
                         ),
+                      ),
 
-                        // TabBarView - Nội dung các tab
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: [
-                              // Tab môn học trường với PageStorageKey
-                              Container(
-                                key: const PageStorageKey('school_tab'),
-                                child: const SchoolSubjectTab(),
-                              ),
-                              // Tab lớp gia sư với PageStorageKey
-                              Container(
-                                key: const PageStorageKey('tutor_tab'),
-                                child: const TutorClassTab(),
-                              ),
-                            ],
-                          ),
+                      // TabBarView - Nội dung các tab
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            // Tab môn học trường với PageStorageKey
+                            Container(
+                              key: const PageStorageKey('school_tab'),
+                              child: const SchoolSubjectTab(),
+                            ),
+                            // Tab lớp gia sư với PageStorageKey
+                            Container(
+                              key: const PageStorageKey('tutor_tab'),
+                              child: const TutorClassTab(),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               },

@@ -19,7 +19,8 @@ class StudentClassTab extends StatefulWidget {
   State<StudentClassTab> createState() => _StudentClassTabState();
 }
 
-class _StudentClassTabState extends State<StudentClassTab> with AutomaticKeepAliveClientMixin {
+class _StudentClassTabState extends State<StudentClassTab>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -60,13 +61,17 @@ class _StudentClassTabState extends State<StudentClassTab> with AutomaticKeepAli
           child: Column(
             children: [
               StudentActionButtonsWidget(
-                onFindClasses: () => _showAvailableClassesBottomSheet(context, classes),
+                onFindClasses: () => _showAvailableClassesBottomSheet(context),
                 onViewPending: () => _showPendingClassesBottomSheet(context),
               ),
               Expanded(
-                child: classes.isEmpty
-                    ? const EmptyStateWidget(userRole: 'student')
-                    : ClassListWidget(classes: classes, userRole: 'student'),
+                child:
+                    classes.isEmpty
+                        ? const EmptyStateWidget(userRole: 'student')
+                        : ClassListWidget(
+                          classes: classes,
+                          userRole: 'student',
+                        ),
               ),
             ],
           ),
@@ -75,7 +80,7 @@ class _StudentClassTabState extends State<StudentClassTab> with AutomaticKeepAli
     );
   }
 
-  void _showAvailableClassesBottomSheet(BuildContext context, List<ClassModel> classes) {
+  void _showAvailableClassesBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -83,7 +88,7 @@ class _StudentClassTabState extends State<StudentClassTab> with AutomaticKeepAli
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext bottomSheetContext) {
-        return AvailableClassesBottomSheet(classes: classes);
+        return const AvailableClassesBottomSheet();
       },
     );
   }

@@ -8,6 +8,8 @@ import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/repositories/class_repository.dart';
 import 'package:edusync/blocs/exercise/exercise_bloc.dart';
 import 'package:edusync/repositories/exercise_repository.dart';
+import 'package:edusync/blocs/AvailableClasses/availableClasses_bloc.dart';
+import 'package:edusync/blocs/RegisteredClasses/registeredClasses_bloc.dart';
 import 'screens/auth/login_screen.dart';
 
 void main() {
@@ -47,6 +49,18 @@ class MyApp extends StatelessWidget {
             create:
                 (context) => ExerciseBloc(
                   repository: context.read<ExerciseRepository>(),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => AvailableClassesBloc(
+                  classRepository: context.read<ClassRepository>(),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => RegisteredClassesBloc(
+                  classRepository: context.read<ClassRepository>(),
                 ),
           ),
         ],

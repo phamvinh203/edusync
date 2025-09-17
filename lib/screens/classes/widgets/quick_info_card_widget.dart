@@ -28,7 +28,7 @@ class QuickInfoCard extends StatelessWidget {
           colors: [Colors.blue[400]!, Colors.blue[600]!],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          ),
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(
@@ -40,25 +40,24 @@ class QuickInfoCard extends StatelessWidget {
               Text(
                 'Lớp: $userClass',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Trường: $userSchool',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withOpacity(0.9),
-                    ),
+                  color: Colors.white.withOpacity(0.9),
+                ),
               ),
               const SizedBox(height: 16),
               Wrap(
                 spacing: 12,
                 runSpacing: 8,
                 children: [
-                  _buildCardClass('6 môn học', Icons.book),
-                  _buildCardClass('$classCount $classLabel', Icons.person),
-                  _buildCardClass('12 bài tập', Icons.assignment),
+                  _buildCardClass('0 môn học', Icons.book),
+                  _buildCardClass('$classCount $classLabel', Icons.school),
                 ],
               ),
             ],

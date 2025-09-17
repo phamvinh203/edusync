@@ -78,13 +78,18 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
     on<LoadRegisteredClassesCountEvent>((event, emit) async {
       print('LoadRegisteredClassesCountEvent triggered');
       try {
-        final count = await _classRepository.getMyRegisteredClassesCount();
-        _registeredClassesCount = count;
+        // Sử dụng getMyRegisteredClasses() để đảm bảo chỉ đếm lớp đã được duyệt
+        final registeredClasses =
+            await _classRepository.getMyRegisteredClasses();
+        _registeredClassesCount = registeredClasses.length;
         // Cập nhật lại state hiện tại với số lượng mới
         if (state is ClassLoaded) {
           final currentState = state as ClassLoaded;
           emit(
-            ClassLoaded(currentState.classes, registeredClassesCount: count),
+            ClassLoaded(
+              currentState.classes,
+              registeredClassesCount: _registeredClassesCount,
+            ),
           );
         }
       } catch (e) {
@@ -117,6 +122,7 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       try {
         final classes = await _classRepository.getMyRegisteredClasses();
         _classes = classes; // Cập nhật cache
+        _registeredClassesCount = classes.length; // Cập nhật số lượng đúng
         emit(
           ClassLoaded(classes, registeredClassesCount: _registeredClassesCount),
         );
