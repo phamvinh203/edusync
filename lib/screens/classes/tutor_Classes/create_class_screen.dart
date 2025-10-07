@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
+import 'package:edusync/core/services/notification_service.dart';
 
 // Custom formatter cho số tiền
 class CurrencyInputFormatter extends TextInputFormatter {
@@ -406,6 +407,15 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
       );
 
       if (mounted) {
+        // Fire local notification for teacher on successful class creation
+        try {
+          await NotificationService().showClassCreatedNotification(
+            className: _nameController.text.trim(),
+            subject: _subjectController.text.trim(),
+          );
+        } catch (_) {
+          // Ignore notification failures to not block UX
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Tạo lớp học thành công!'),
@@ -434,7 +444,6 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
       }
     }
   }
-  
 }
 
 // Dialog để thêm lịch học

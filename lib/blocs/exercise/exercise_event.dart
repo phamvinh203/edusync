@@ -80,3 +80,43 @@ class LoadExerciseSubmissionsEvent extends ExerciseEvent {
   @override
   List<Object?> get props => [classId, exerciseId];
 }
+
+class UpdateSubmissionGradeEvent extends ExerciseEvent {
+  final String classId;
+  final String exerciseId;
+  final String submissionId;
+  final double grade;
+  final String? feedback;
+
+  UpdateSubmissionGradeEvent({
+    required this.classId,
+    required this.exerciseId,
+    required this.submissionId,
+    required this.grade,
+    this.feedback,
+  });
+
+  @override
+  List<Object?> get props => [
+    classId,
+    exerciseId,
+    submissionId,
+    grade,
+    feedback,
+  ];
+}
+
+class RedoSubmissionEvent extends ExerciseEvent {
+  final String classId;
+  final String exerciseId;
+  final String? submissionId;
+
+  RedoSubmissionEvent({
+    required this.classId,
+    required this.exerciseId,
+    this.submissionId,
+  });
+
+  @override
+  List<Object?> get props => [classId, exerciseId, submissionId];
+}

@@ -39,8 +39,8 @@ class ClassModel {
   final List<Schedule> schedule;
   final String? location;
   final int? maxStudents;
-  final String? gradeLevel; // Lớp dạy thêm (ví dụ: "Lớp 12")
-  final double? pricePerSession; // Giá tiền cho 1 buổi học
+  final String? gradeLevel; 
+  final double? pricePerSession; 
   final List<String> pendingStudents;
   final List<String> students;
   final String? createdBy;

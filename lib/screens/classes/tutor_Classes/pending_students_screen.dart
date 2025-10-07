@@ -19,6 +19,71 @@ class PendingStudentsScreen extends StatefulWidget {
 }
 
 class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
+  void _showRemoveConfirmation(UserProfile student) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Xác nhận xóa'),
+            content: Text(
+              'Bạn có chắc chắn muốn xóa học sinh "${student.username}" khỏi danh sách chờ duyệt?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Hủy'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _removePendingStudent(
+                    student.id ?? '',
+                    student.username ?? '',
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Xóa'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _removePendingStudent(
+    String studentId,
+    String studentName,
+  ) async {
+    try {
+      // Gọi API xóa học sinh khỏi lớp (chờ duyệt)
+      await _classRepository.removePendingStudent(widget.classId, studentId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Đã xóa học sinh $studentName khỏi danh sách chờ duyệt',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        _loadPendingStudents();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lỗi xóa: ${e.toString().replaceFirst('Exception: ', '')}',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   final ClassRepository _classRepository = ClassRepository();
   PendingStudentsResponse? _pendingStudents;
   bool _isLoading = true;
@@ -361,21 +426,22 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
+                            ElevatedButton.icon(
+                              onPressed: () => _showRemoveConfirmation(student),
+                              icon: const Icon(Icons.delete, size: 16),
+                              label: const Text(
+                                'Xóa',
+                                style: TextStyle(fontSize: 12),
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[100],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                'Chờ duyệt',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.blue[700],
-                                  fontWeight: FontWeight.w500,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                             ),

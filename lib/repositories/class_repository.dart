@@ -219,6 +219,19 @@ class ClassRepository {
     }
   }
 
+  /// Xóa học sinh khỏi danh sách chờ
+  Future<void> removePendingStudent(String classId, String studentId) async {
+    try {
+      final url = ApiUrl.removePendingStudent
+          .replaceAll(':classId', classId)
+          .replaceAll(':studentId', studentId);
+      await client.delete(url);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
   String _extractMessage(DioException e) {
     if (e.response?.data is Map<String, dynamic>) {
       return e.response?.data['message'] ?? 'Có lỗi xảy ra';

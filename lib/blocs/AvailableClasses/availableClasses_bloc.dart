@@ -1,4 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:edusync/core/services/notification_service.dart';
+import 'package:edusync/core/services/notification_manager.dart';
+import 'package:edusync/models/class_model.dart';
 
 import '../../repositories/class_repository.dart';
 import 'availableClasses_event.dart';
@@ -21,23 +24,23 @@ class AvailableClassesBloc
     LoadAvailableClassesEvent event,
     Emitter<AvailableClassesState> emit,
   ) async {
-    // Nếu đã load và không force thì giữ nguyên (avoid re-fetch)
-    if (state is AvailableClassesLoaded && !event.force) return;
+    // Luôn load dữ liệu mới từ server để đảm bảo cập nhật
+    // Chỉ skip nếu đang loading để tránh multiple requests
+    if (state is AvailableClassesLoading) return;
 
     emit(AvailableClassesLoading());
     try {
       final all = await _classRepository.getAllClasses();
-      // Lọc chỉ các lớp "available" (còn chỗ) — bạn có thể thay đổi nếu muốn giữ tất cả
+
+      // Lọc các lớp có thể hiển thị: không bị xóa
       final available =
           all.where((c) {
-            final cur = c.students.length;
-            final max = c.maxStudents ?? 0;
-            return cur < max;
+            if (c.deleted == true) return false;
+            return true;
           }).toList();
 
-      final registrationMap = <String, RegistrationStatus>{
-        for (var c in available) (c.id ?? ''): RegistrationStatus.idle,
-      };
+      // Lấy danh sách lớp đã đăng ký và đang chờ duyệt để cập nhật trạng thái đúng
+      final registrationMap = await _buildRegistrationStatusMap(available);
 
       emit(
         AvailableClassesLoaded(
@@ -46,8 +49,9 @@ class AvailableClassesBloc
         ),
       );
     } catch (e) {
-      // Khi lỗi, giữ initial (hoặc có thể emit error state nếu bạn muốn)
+      // Khi lỗi, emit error state thay vì initial để user biết có lỗi
       emit(AvailableClassesInitial());
+      print('Error loading available classes: $e');
     }
   }
 
@@ -58,16 +62,16 @@ class AvailableClassesBloc
     emit(AvailableClassesLoading());
     try {
       final all = await _classRepository.getAllClasses();
+
+      // Lọc các lớp có thể hiển thị: không bị xóa
       final available =
           all.where((c) {
-            final cur = c.students.length;
-            final max = c.maxStudents ?? 0;
-            return cur < max;
+            if (c.deleted == true) return false;
+            return true;
           }).toList();
 
-      final registrationMap = <String, RegistrationStatus>{
-        for (var c in available) (c.id ?? ''): RegistrationStatus.idle,
-      };
+      // Lấy danh sách lớp đã đăng ký và đang chờ duyệt để cập nhật trạng thái đúng
+      final registrationMap = await _buildRegistrationStatusMap(available);
 
       emit(
         AvailableClassesLoaded(
@@ -78,6 +82,54 @@ class AvailableClassesBloc
     } catch (e) {
       emit(AvailableClassesInitial());
     }
+  }
+  
+
+  /// Xây dựng map trạng thái đăng ký dựa trên dữ liệu thực tế từ server
+  Future<Map<String, RegistrationStatus>> _buildRegistrationStatusMap(
+    List<ClassModel> availableClasses,
+  ) async {
+    final registrationMap = <String, RegistrationStatus>{};
+
+    try {
+      // Lấy danh sách lớp đã đăng ký (đã được duyệt)
+      final registeredClasses = await _classRepository.getMyRegisteredClasses();
+      final registeredClassIds =
+          registeredClasses
+              .map((c) => c.id ?? '')
+              .where((id) => id.isNotEmpty)
+              .toSet();
+
+      // Lấy danh sách lớp đang chờ duyệt
+      final pendingClasses = await _classRepository.getMyPendingClasses();
+      final pendingClassIds =
+          pendingClasses
+              .map((c) => c.id ?? '')
+              .where((id) => id.isNotEmpty)
+              .toSet();
+
+      // Cập nhật trạng thái cho từng lớp
+      for (final classItem in availableClasses) {
+        final classId = classItem.id ?? '';
+        if (classId.isEmpty) continue;
+
+        if (registeredClassIds.contains(classId)) {
+          registrationMap[classId] = RegistrationStatus.registered;
+        } else if (pendingClassIds.contains(classId)) {
+          registrationMap[classId] = RegistrationStatus.pending;
+        } else {
+          registrationMap[classId] = RegistrationStatus.idle;
+        }
+      }
+    } catch (e) {
+      print('Error building registration status map: $e');
+      // Fallback: set tất cả về idle nếu có lỗi
+      for (var c in availableClasses) {
+        registrationMap[c.id ?? ''] = RegistrationStatus.idle;
+      }
+    }
+
+    return registrationMap;
   }
 
   Future<void> _onRegister(
@@ -96,7 +148,7 @@ class AvailableClassesBloc
     emit(current.copyWith(registrationStatus: reg1));
 
     try {
-      await _classRepository.joinClass(id);
+      final resp = await _classRepository.joinClass(id);
 
       // Decide final status:
       // If API returns "approved" you can set registered; otherwise pending.
@@ -104,6 +156,30 @@ class AvailableClassesBloc
       final reg2 = Map<String, RegistrationStatus>.from(reg1);
       reg2[id] = RegistrationStatus.pending;
       emit(current.copyWith(registrationStatus: reg2));
+
+      // Fire local notification to the student on successful registration request
+      try {
+        String className;
+        String subject;
+        try {
+          final found = current.classes.firstWhere((c) => (c.id ?? '') == id);
+          className = found.nameClass;
+          subject = found.subject;
+          // Also schedule reminders for this newly-registered class
+          await NotificationManager().scheduleClassNotifications(
+            classInfo: found,
+          );
+        } catch (_) {
+          className = resp.data.className;
+          subject = resp.data.subject;
+        }
+        await NotificationService().showClassRegistrationSuccessNotification(
+          className: className,
+          subject: subject,
+        );
+      } catch (_) {
+        // non-fatal
+      }
     } catch (e) {
       final reg3 = Map<String, RegistrationStatus>.from(
         current.registrationStatus,
@@ -132,4 +208,6 @@ class AvailableClassesBloc
     errors.remove(id);
     emit(current.copyWith(registrationStatus: reg, errorMessages: errors));
   }
+
+  
 }

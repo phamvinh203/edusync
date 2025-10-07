@@ -3,6 +3,7 @@ import 'package:edusync/blocs/class/class_event.dart';
 import 'package:edusync/blocs/class/class_state.dart';
 import 'package:edusync/repositories/class_repository.dart';
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/core/services/notification_service.dart';
 
 class ClassBloc extends Bloc<ClassEvent, ClassState> {
   final ClassRepository _classRepository;
@@ -50,6 +51,12 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
 
         // Thêm lớp học mới vào danh sách local
         _classes.add(response.data);
+
+        // Show notification for successful class creation (Teacher)
+        await NotificationService().showClassCreatedNotification(
+          className: event.nameClass,
+          subject: event.subject,
+        );
 
         emit(
           ClassCreateSuccess(
@@ -155,6 +162,13 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       emit(ClassJoining());
       try {
         final response = await _classRepository.joinClass(event.classId);
+
+        // Show notification for successful class registration (Student)
+        await NotificationService().showClassRegistrationSuccessNotification(
+          className: response.data.className,
+          subject: response.data.subject,
+        );
+
         emit(ClassJoinSuccess(response));
       } catch (e) {
         emit(ClassJoinError('Không thể đăng ký lớp học: ${e.toString()}'));

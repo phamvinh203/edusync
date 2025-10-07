@@ -149,6 +149,11 @@ class _ClassScreenState extends State<ClassScreen>
                                       RefreshClassesEvent(),
                                     );
 
+                                    // Cập nhật AvailableClassesBloc để học sinh có thể thấy lớp mới
+                                    context.read<AvailableClassesBloc>().add(
+                                      RefreshAvailableClassesEvent(),
+                                    );
+
                                     if (userRole.toLowerCase() == 'student') {
                                       context.read<ClassBloc>().add(
                                         LoadRegisteredClassesCountEvent(),

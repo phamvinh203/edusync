@@ -271,10 +271,12 @@ class _AvailableClassesBottomSheetState
   @override
   void initState() {
     super.initState();
-    // Kích hoạt load (nếu bloc chưa load)
+    // Luôn refresh dữ liệu mới khi mở bottom sheet
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.read<AvailableClassesBloc>().add(LoadAvailableClassesEvent());
+        context.read<AvailableClassesBloc>().add(
+          RefreshAvailableClassesEvent(),
+        );
       }
     });
   }

@@ -79,6 +79,7 @@ class ProfileScreen extends StatelessWidget {
                   final avatarUrl = userState.profile?.avatar ?? '';
 
                   // Lấy role từ AuthBloc và hiển thị theo role
+                  // Lấy role từ AuthBloc và hiển thị theo role
                   final userRole = authState.user?.role ?? '';
                   final roleDisplayText = _getRoleDisplayText(userRole);
                   final classText =
@@ -86,6 +87,8 @@ class ProfileScreen extends StatelessWidget {
                               userState.profile!.userClass!.isNotEmpty)
                           ? 'Lớp ${userState.profile!.userClass} • $roleDisplayText'
                           : roleDisplayText;
+
+                  // hiển thị trường học khi có thông tin
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(16.0),
@@ -219,6 +222,7 @@ class ProfileScreen extends StatelessWidget {
                               const SizedBox(height: 8),
                               Text(
                                 classText,
+                                textAlign: TextAlign.center,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodyLarge?.copyWith(
@@ -226,40 +230,40 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Expanded(
-                                    child: _buildStatItem(
-                                      '15',
-                                      'Bài tập\nhoàn thành',
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 1,
-                                    height: 40,
-                                    color: Colors.white.withValues(alpha: 0.3),
-                                  ),
-                                  Expanded(
-                                    child: _buildStatItem(
-                                      '6',
-                                      'Môn học\nđang theo',
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 1,
-                                    height: 40,
-                                    color: Colors.white.withValues(alpha: 0.3),
-                                  ),
-                                  Expanded(
-                                    child: _buildStatItem(
-                                      '8.5',
-                                      'Điểm TB\nhọc kỳ',
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              // Row(
+                              //   mainAxisAlignment:
+                              //       MainAxisAlignment.spaceEvenly,
+                              //   children: [
+                              //     Expanded(
+                              //       child: _buildStatItem(
+                              //         '15',
+                              //         'Bài tập\nhoàn thành',
+                              //       ),
+                              //     ),
+                              //     Container(
+                              //       width: 1,
+                              //       height: 40,
+                              //       color: Colors.white.withValues(alpha: 0.3),
+                              //     ),
+                              //     Expanded(
+                              //       child: _buildStatItem(
+                              //         '6',
+                              //         'Môn học\nđang theo',
+                              //       ),
+                              //     ),
+                              //     Container(
+                              //       width: 1,
+                              //       height: 40,
+                              //       color: Colors.white.withValues(alpha: 0.3),
+                              //     ),
+                              //     Expanded(
+                              //       child: _buildStatItem(
+                              //         '8.5',
+                              //         'Điểm TB\nhọc kỳ',
+                              //       ),
+                              //     ),
+                              //   ],
+                              // ),
                             ],
                           ),
                         ),
