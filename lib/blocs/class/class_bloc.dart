@@ -22,7 +22,12 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       emit(ClassLoading());
       try {
         // Gọi API lấy danh sách lớp học từ server
-        final classes = await _classRepository.getAllClasses();
+        final allClasses = await _classRepository.getAllClasses();
+
+        // Chỉ lấy các lớp học thêm (type='extra') cho tab "Lớp gia sư"
+        final classes =
+            allClasses.where((c) => c.type.toLowerCase() == 'extra').toList();
+
         _classes = classes;
         emit(
           ClassLoaded(
@@ -86,9 +91,16 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       print('LoadRegisteredClassesCountEvent triggered');
       try {
         // Sử dụng getMyRegisteredClasses() để đảm bảo chỉ đếm lớp đã được duyệt
-        final registeredClasses =
+        final allRegisteredClasses =
             await _classRepository.getMyRegisteredClasses();
-        _registeredClassesCount = registeredClasses.length;
+
+        // Chỉ đếm các lớp học thêm (type='extra') cho tab "Lớp gia sư"
+        final registeredExtraClasses =
+            allRegisteredClasses
+                .where((c) => c.type.toLowerCase() == 'extra')
+                .toList();
+
+        _registeredClassesCount = registeredExtraClasses.length;
         // Cập nhật lại state hiện tại với số lượng mới
         if (state is ClassLoaded) {
           final currentState = state as ClassLoaded;
@@ -109,7 +121,12 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
     on<RefreshClassesEvent>((event, emit) async {
       print('RefreshClassesEvent triggered');
       try {
-        final classes = await _classRepository.getAllClasses();
+        final allClasses = await _classRepository.getAllClasses();
+
+        // Chỉ lấy các lớp học thêm (type='extra') cho tab "Lớp gia sư"
+        final classes =
+            allClasses.where((c) => c.type.toLowerCase() == 'extra').toList();
+
         _classes = classes;
         emit(
           ClassLoaded(
@@ -127,7 +144,15 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       // print('GetRegisteredClassesEvent triggered');
       emit(ClassLoading());
       try {
-        final classes = await _classRepository.getMyRegisteredClasses();
+        final allRegisteredClasses =
+            await _classRepository.getMyRegisteredClasses();
+
+        // Chỉ lấy các lớp học thêm (type='extra') cho tab "Lớp gia sư"
+        final classes =
+            allRegisteredClasses
+                .where((c) => c.type.toLowerCase() == 'extra')
+                .toList();
+
         _classes = classes; // Cập nhật cache
         _registeredClassesCount = classes.length; // Cập nhật số lượng đúng
         emit(
@@ -145,7 +170,12 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       print('GetPendingClassesEvent triggered');
       emit(ClassLoading());
       try {
-        final classes = await _classRepository.getMyPendingClasses();
+        final allPendingClasses = await _classRepository.getMyPendingClasses();
+        // Chỉ lấy các lớp học thêm (type='extra') cho tab "Lớp gia sư"
+        final classes =
+            allPendingClasses
+                .where((c) => c.type.toLowerCase() == 'extra')
+                .toList();
         emit(PendingClassesLoaded(classes));
       } catch (e) {
         emit(

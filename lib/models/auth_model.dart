@@ -6,12 +6,14 @@ class AuthUser {
   final String username;
   final String email;
   final String role;
+  final String? teacherId; // ID của giáo viên (chỉ có khi role='teacher')
 
   const AuthUser({
     required this.id,
     required this.username,
     required this.email,
     required this.role,
+    this.teacherId,
   });
 
   factory AuthUser.fromMap(Map<String, dynamic> map) => AuthUser(
@@ -19,6 +21,7 @@ class AuthUser {
     username: (map['username'] ?? '').toString(),
     email: (map['email'] ?? '').toString(),
     role: (map['role'] ?? '').toString(),
+    teacherId: map['teacherId']?.toString(), // Lấy teacherId nếu có
   );
 }
 

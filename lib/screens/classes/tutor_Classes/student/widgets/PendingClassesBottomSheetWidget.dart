@@ -49,7 +49,10 @@ class PendingClassesBottomSheet extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.error_outline, color: Colors.redAccent),
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.redAccent,
+                              ),
                               const SizedBox(height: 8),
                               Text(
                                 'Không thể tải danh sách lớp đang chờ duyệt: ${snapshot.error}',
@@ -61,17 +64,30 @@ class PendingClassesBottomSheet extends StatelessWidget {
                       );
                     }
 
-                    final pendingClasses = snapshot.data ?? [];
+                    final allPendingClasses = snapshot.data ?? [];
+                    // Chỉ hiển thị các lớp học thêm (type='extra') trong tab "Lớp gia sư"
+                    final pendingClasses =
+                        allPendingClasses
+                            .where((c) => c.type.toLowerCase() == 'extra')
+                            .toList();
+
                     if (pendingClasses.isEmpty) {
                       return const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.hourglass_empty, size: 64, color: Colors.grey),
+                            Icon(
+                              Icons.hourglass_empty,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
                             SizedBox(height: 16),
                             Text(
                               'Không có lớp nào đang chờ duyệt',
-                              style: TextStyle(fontSize: 16, color: Colors.grey),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),

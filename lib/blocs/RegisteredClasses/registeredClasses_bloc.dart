@@ -20,8 +20,10 @@ class RegisteredClassesBloc
   ) async {
     emit(RegisteredClassesLoading());
     try {
-      final classes = await classRepository.getMyRegisteredClasses();
-      emit(RegisteredClassesLoaded(classes));
+      final allClasses = await classRepository.getMyRegisteredClasses();
+      // Trả về TẤT CẢ các lớp (cả 'extra' và 'regular')
+      // UI sẽ tự lọc theo nhu cầu
+      emit(RegisteredClassesLoaded(allClasses));
     } catch (e) {
       emit(RegisteredClassesError(e.toString()));
     }
@@ -32,8 +34,10 @@ class RegisteredClassesBloc
     Emitter<RegisteredClassesState> emit,
   ) async {
     try {
-      final classes = await classRepository.getMyRegisteredClasses();
-      emit(RegisteredClassesLoaded(classes));
+      final allClasses = await classRepository.getMyRegisteredClasses();
+      // Trả về TẤT CẢ các lớp (cả 'extra' và 'regular')
+      // UI sẽ tự lọc theo nhu cầu
+      emit(RegisteredClassesLoaded(allClasses));
     } catch (e) {
       emit(RegisteredClassesError(e.toString()));
     }

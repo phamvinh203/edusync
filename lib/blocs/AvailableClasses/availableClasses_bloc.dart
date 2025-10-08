@@ -32,10 +32,12 @@ class AvailableClassesBloc
     try {
       final all = await _classRepository.getAllClasses();
 
-      // Lọc các lớp có thể hiển thị: không bị xóa
+      // Lọc các lớp có thể hiển thị: không bị xóa VÀ chỉ lấy lớp học thêm (type='extra')
       final available =
           all.where((c) {
             if (c.deleted == true) return false;
+            // Chỉ hiển thị lớp gia sư (lớp học thêm)
+            if (c.type.toLowerCase() != 'extra') return false;
             return true;
           }).toList();
 
@@ -63,10 +65,12 @@ class AvailableClassesBloc
     try {
       final all = await _classRepository.getAllClasses();
 
-      // Lọc các lớp có thể hiển thị: không bị xóa
+      // Lọc các lớp có thể hiển thị: không bị xóa VÀ chỉ lấy lớp học thêm (type='extra')
       final available =
           all.where((c) {
             if (c.deleted == true) return false;
+            // Chỉ hiển thị lớp gia sư (lớp học thêm)
+            if (c.type.toLowerCase() != 'extra') return false;
             return true;
           }).toList();
 
@@ -83,7 +87,6 @@ class AvailableClassesBloc
       emit(AvailableClassesInitial());
     }
   }
-  
 
   /// Xây dựng map trạng thái đăng ký dựa trên dữ liệu thực tế từ server
   Future<Map<String, RegistrationStatus>> _buildRegistrationStatusMap(
@@ -96,6 +99,9 @@ class AvailableClassesBloc
       final registeredClasses = await _classRepository.getMyRegisteredClasses();
       final registeredClassIds =
           registeredClasses
+              .where(
+                (c) => c.type.toLowerCase() == 'extra',
+              ) // Chỉ lấy lớp học thêm
               .map((c) => c.id ?? '')
               .where((id) => id.isNotEmpty)
               .toSet();
@@ -104,6 +110,9 @@ class AvailableClassesBloc
       final pendingClasses = await _classRepository.getMyPendingClasses();
       final pendingClassIds =
           pendingClasses
+              .where(
+                (c) => c.type.toLowerCase() == 'extra',
+              ) // Chỉ lấy lớp học thêm
               .map((c) => c.id ?? '')
               .where((id) => id.isNotEmpty)
               .toSet();
@@ -208,6 +217,4 @@ class AvailableClassesBloc
     errors.remove(id);
     emit(current.copyWith(registrationStatus: reg, errorMessages: errors));
   }
-
-  
 }

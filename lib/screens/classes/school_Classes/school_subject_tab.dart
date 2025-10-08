@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:edusync/blocs/auth/auth_bloc.dart';
+import 'teacher/teacher_subject.dart';
+import 'students/student_subject.dart';
 
 class SchoolSubjectTab extends StatefulWidget {
   const SchoolSubjectTab({super.key});
@@ -10,35 +14,19 @@ class SchoolSubjectTab extends StatefulWidget {
 class _SchoolSubjectTabState extends State<SchoolSubjectTab>
     with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true; // Giữ state khi chuyển tab
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    super.build(
-      context,
-    ); // Quan trọng: phải gọi super.build cho AutomaticKeepAliveClientMixin
+    super.build(context);
 
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.school, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text(
-            'Môn học trường',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Tính năng đang được phát triển',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
+    final authState = context.read<AuthBloc>().state;
+    final userRole = authState.user?.role.toLowerCase() ?? '';
+
+    if (userRole == 'teacher') {
+      return const TeacherSubjectView();
+    } else {
+      return const StudentSubjectView();
+    }
   }
 }

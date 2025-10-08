@@ -35,12 +35,14 @@ class ClassModel {
   final String subject;
   final String? description;
   final String? teacherId;
-  final String? teacherName; 
+  final String? teacherName;
   final List<Schedule> schedule;
   final String? location;
   final int? maxStudents;
-  final String? gradeLevel; 
-  final double? pricePerSession; 
+  final String? gradeLevel;
+  final double? pricePerSession;
+  final String type; // 'extra' (lớp học thêm) hoặc 'regular' (lớp chính khóa)
+  final String? classCode; // Mã lớp để học sinh tham gia (cho lớp regular)
   final List<String> pendingStudents;
   final List<String> students;
   final String? createdBy;
@@ -60,6 +62,8 @@ class ClassModel {
     this.maxStudents,
     this.gradeLevel,
     this.pricePerSession,
+    this.type = 'extra', // Mặc định là lớp học thêm
+    this.classCode, // Mã lớp
     this.pendingStudents = const [],
     this.students = const [],
     this.createdBy,
@@ -89,6 +93,8 @@ class ClassModel {
                 ? (map['pricePerSession'] as num).toDouble()
                 : double.tryParse(map['pricePerSession'].toString()))
             : null,
+    type: (map['type'] ?? 'extra').toString(),
+    classCode: map['classCode']?.toString(),
     pendingStudents:
         (map['pendingStudents'] as List<dynamic>?)
             ?.map((x) => x.toString())
@@ -167,6 +173,7 @@ class ClassModel {
     'subject': subject,
     if (description != null) 'description': description,
     'schedule': schedule.map((x) => x.toMap()).toList(),
+    'type': type,
     if (location != null) 'location': location,
     if (maxStudents != null) 'maxStudents': maxStudents,
     if (gradeLevel != null) 'gradeLevel': gradeLevel,
@@ -225,7 +232,6 @@ class DeleteClassResponse {
       DeleteClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
 }
 
-
 // Response cho API học sinh rời khỏi lớp học
 class LeaveClassResponse {
   final String message;
@@ -246,12 +252,133 @@ class LeaveClassResponse {
       message: (map['message'] ?? '').toString(),
       classId: (data['classId'] ?? data['_id'] ?? '').toString(),
       className: (data['className'] ?? data['nameClass'] ?? '').toString(),
-      leftAt: data['leftAt'] != null
-          ? DateTime.tryParse(data['leftAt'].toString())
-          : null,
+      leftAt:
+          data['leftAt'] != null
+              ? DateTime.tryParse(data['leftAt'].toString())
+              : null,
     );
   }
 
   static LeaveClassResponse fromJson(String source) =>
       LeaveClassResponse.fromMap(jsonDecode(source) as Map<String, dynamic>);
+}
+
+// Response cho API tham gia lớp học bằng mã (join by code)
+class JoinClassByCodeResponse {
+  final bool success;
+  final String message;
+  final JoinClassData data;
+
+  const JoinClassByCodeResponse({
+    required this.success,
+    required this.message,
+    required this.data,
+  });
+
+  factory JoinClassByCodeResponse.fromMap(Map<String, dynamic> map) {
+    return JoinClassByCodeResponse(
+      success: map['success'] == true,
+      message: (map['message'] ?? '').toString(),
+      data: JoinClassData.fromMap(map['data'] as Map<String, dynamic>),
+    );
+  }
+
+  static JoinClassByCodeResponse fromJson(String source) =>
+      JoinClassByCodeResponse.fromMap(
+        jsonDecode(source) as Map<String, dynamic>,
+      );
+}
+
+class JoinClassData {
+  final String classId;
+  final String className;
+  final String subject;
+  final String teacherId;
+  final String type;
+  final String status;
+  final DateTime? registeredAt;
+  final String? classCode;
+
+  const JoinClassData({
+    required this.classId,
+    required this.className,
+    required this.subject,
+    required this.teacherId,
+    required this.type,
+    required this.status,
+    this.registeredAt,
+    this.classCode,
+  });
+
+  factory JoinClassData.fromMap(Map<String, dynamic> map) {
+    return JoinClassData(
+      classId: (map['classId'] ?? map['_id'] ?? '').toString(),
+      className: (map['className'] ?? '').toString(),
+      subject: (map['subject'] ?? '').toString(),
+      teacherId: (map['teacherId'] ?? '').toString(),
+      type: (map['type'] ?? 'regular').toString(),
+      status: (map['status'] ?? '').toString(),
+      registeredAt:
+          map['registeredAt'] != null
+              ? DateTime.tryParse(map['registeredAt'].toString())
+              : null,
+      classCode: map['classCode']?.toString(),
+    );
+  }
+}
+
+// Response cho API lấy danh sách lớp học do admin tạo (dành cho teacher)
+class TeacherClassesResponse {
+  final bool success;
+  final String message;
+  final TeacherInfo teacher;
+  final int total;
+  final List<ClassModel> data;
+
+  const TeacherClassesResponse({
+    required this.success,
+    required this.message,
+    required this.teacher,
+    required this.total,
+    required this.data,
+  });
+
+  factory TeacherClassesResponse.fromMap(Map<String, dynamic> map) {
+    return TeacherClassesResponse(
+      success: map['success'] == true,
+      message: (map['message'] ?? '').toString(),
+      teacher: TeacherInfo.fromMap(map['teacher'] as Map<String, dynamic>),
+      total: map['total'] is int ? map['total'] : 0,
+      data:
+          (map['data'] as List<dynamic>?)
+              ?.map((x) => ClassModel.fromMap(x as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  static TeacherClassesResponse fromJson(String source) =>
+      TeacherClassesResponse.fromMap(
+        jsonDecode(source) as Map<String, dynamic>,
+      );
+}
+
+class TeacherInfo {
+  final String id;
+  final String username;
+  final String email;
+
+  const TeacherInfo({
+    required this.id,
+    required this.username,
+    required this.email,
+  });
+
+  factory TeacherInfo.fromMap(Map<String, dynamic> map) {
+    return TeacherInfo(
+      id: (map['_id'] ?? '').toString(),
+      username: (map['username'] ?? '').toString(),
+      email: (map['email'] ?? '').toString(),
+    );
+  }
 }
