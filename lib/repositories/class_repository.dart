@@ -15,6 +15,7 @@ class ClassRepository {
     required String subject,
     String? description,
     required List<Schedule> schedule,
+    String? type, // 'extra' hoặc 'regular'
     String? location,
     int? maxStudents,
     String? gradeLevel,
@@ -27,6 +28,7 @@ class ClassRepository {
         if (description != null && description.isNotEmpty)
           'description': description,
         'schedule': schedule.map((s) => s.toMap()).toList(),
+        if (type != null && type.isNotEmpty) 'type': type,
         if (location != null && location.isNotEmpty) 'location': location,
         if (maxStudents != null) 'maxStudents': maxStudents,
         if (gradeLevel != null && gradeLevel.isNotEmpty)
@@ -226,6 +228,36 @@ class ClassRepository {
           .replaceAll(':classId', classId)
           .replaceAll(':studentId', studentId);
       await client.delete(url);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
+  /// Tham gia lớp học chính khóa bằng mã lớp
+  Future<JoinClassByCodeResponse> joinClassByCode(String classCode) async {
+    try {
+      final data = {'classCode': classCode};
+      final Response resp = await client.post(
+        ApiUrl.joinRegularClass,
+        data: data,
+      );
+      return JoinClassByCodeResponse.fromMap(resp.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
+  /// Lấy danh sách lớp học do admin tạo (dành cho teacher)
+  Future<TeacherClassesResponse> getMyCreatedClasses(String teacherId) async {
+    try {
+      final url = ApiUrl.getMyCreatedClasses.replaceAll(
+        ':teacherId',
+        teacherId,
+      );
+      final Response resp = await client.get(url);
+      return TeacherClassesResponse.fromMap(resp.data as Map<String, dynamic>);
     } on DioException catch (e) {
       final msg = _extractMessage(e);
       throw Exception(msg);

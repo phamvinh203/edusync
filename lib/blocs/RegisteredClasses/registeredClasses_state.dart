@@ -18,6 +18,8 @@ class RegisteredClassesLoaded extends RegisteredClassesState {
 
   @override
   List<Object?> get props => [registeredClasses];
+
+  get classes => null;
 }
 
 class RegisteredClassesError extends RegisteredClassesState {

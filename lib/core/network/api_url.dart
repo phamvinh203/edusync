@@ -40,6 +40,12 @@ class ApiUrl {
   // học sinh rời khỏi lớp học
   static const postLeaveClass = 'classes/leave-class/:classId';
 
+  // học sinh tham gia lớp học chính khóa bằng mã lớp
+  static const joinRegularClass = 'classes/join-by-code';
+
+  // giáo viên lấy danh sách lớp học do admin tạo
+  static const getMyCreatedClasses = 'admin/classes-by-teacher/:teacherId';
+
   // lịch học endpoints
   static const createSchedule = 'classes/schedules';
 
