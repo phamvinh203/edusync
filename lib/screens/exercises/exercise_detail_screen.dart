@@ -89,11 +89,33 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           BlocListener<ExerciseBloc, ExerciseState>(
             listener: (context, state) {
               if (!mounted) return;
+
+              // Reload khi nộp bài thành công
               if (state is ExerciseSubmitSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.response.message.isNotEmpty
+                          ? state.response.message
+                          : 'Nộp bài thành công',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
                 _exerciseBloc.add(
                   LoadExerciseDetailEvent(
                     classId: widget.classId,
                     exerciseId: widget.exerciseId,
+                  ),
+                );
+              }
+
+              // Hiển thị lỗi nếu có
+              if (state is ExerciseError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
                   ),
                 );
               }
@@ -378,18 +400,43 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                       ),
                                     ],
 
-                                    // // Nếu đã chấm thì hiển thị điểm
-                                    // if (graded) ...[
-                                    //   const SizedBox(height: 10),
-                                    //   Text(
-                                    //     '🏆 Điểm: ${userSubmission!.grade!.toStringAsFixed(1)} / ${ex.maxScore ?? '-'}',
-                                    //     style: const TextStyle(
-                                    //       fontSize: 15,
-                                    //       fontWeight: FontWeight.w600,
-                                    //       color: Colors.blue,
-                                    //     ),
-                                    //   ),
-                                    // ],
+                                    // Hiển thị điểm nếu đã chấm
+                                    if (graded) ...[
+                                      const SizedBox(height: 10),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.blue.shade300,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.grade,
+                                              color: Colors.blue,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '🏆 Điểm: ${userSubmission!.grade!.toStringAsFixed(1)} / ${ex.maxScore ?? 10}',
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
 
                                     // Nếu chưa chấm và còn hạn thì cho phép làm lại
                                     if (!graded && stillInDeadline) ...[
@@ -417,74 +464,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                             elevation: 2,
                                           ),
                                           onPressed: () {
-                                            showDialog(
-                                              context: context,
-                                              builder:
-                                                  (_) => AlertDialog(
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            12,
-                                                          ),
-                                                    ),
-                                                    title: const Text(
-                                                      'Làm lại bài tập',
-                                                    ),
-                                                    content: const Text(
-                                                      'Bạn có chắc chắn muốn làm lại? Bài nộp trước đó sẽ bị xóa.',
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed:
-                                                            () => Navigator.pop(
-                                                              context,
-                                                            ),
-                                                        child: const Text(
-                                                          'Hủy',
-                                                        ),
-                                                      ),
-                                                      ElevatedButton.icon(
-                                                        icon: const Icon(
-                                                          Icons.check,
-                                                        ),
-                                                        label: const Text(
-                                                          'Xác nhận',
-                                                        ),
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              Colors.red,
-                                                          foregroundColor:
-                                                              Colors.white,
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  8,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                            context,
-                                                          );
-
-                                                          // 🚀 Gửi event xoá submission cũ
-                                                          _exerciseBloc.add(
-                                                            RedoSubmissionEvent(
-                                                              classId:
-                                                                  widget
-                                                                      .classId,
-                                                              exerciseId:
-                                                                  widget
-                                                                      .exerciseId,
-                                                              submissionId:
-                                                                  userSubmission!
-                                                                      .id, // lấy id của submission
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                    ],
-                                                  ),
+                                            _showRedoConfirmationDialog(
+                                              context,
+                                              userSubmission,
                                             );
                                           },
                                         ),
@@ -613,5 +595,97 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     } catch (_) {}
     final ts = DateTime.now().millisecondsSinceEpoch;
     return 'submission_$ts.bin';
+  }
+
+  void _showRedoConfirmationDialog(
+    BuildContext context,
+    Submission? userSubmission,
+  ) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: const Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 28,
+                ),
+                SizedBox(width: 12),
+                Text('Làm lại bài tập'),
+              ],
+            ),
+            content: const Text(
+              'Bạn có chắc chắn muốn làm lại?\n\nBài nộp trước đó sẽ bị xóa hoàn toàn.',
+              style: TextStyle(fontSize: 15),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Hủy'),
+              ),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.check),
+                label: const Text('Xác nhận'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+
+                  if (userSubmission?.id == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Không tìm thấy bài nộp để xóa'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Gửi event xóa submission cũ
+                  _exerciseBloc.add(
+                    RedoSubmissionEvent(
+                      classId: widget.classId,
+                      exerciseId: widget.exerciseId,
+                      submissionId: userSubmission!.id,
+                    ),
+                  );
+
+                  // Hiển thị thông báo đang xử lý
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text('Đang xóa bài nộp cũ...'),
+                        ],
+                      ),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+    );
   }
 }

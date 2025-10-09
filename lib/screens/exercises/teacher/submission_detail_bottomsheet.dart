@@ -19,7 +19,9 @@ class SubmissionDetailBottomSheet {
     final gradeController = TextEditingController(
       text: submission.grade != null ? submission.grade!.toString() : '',
     );
-    final feedbackController = TextEditingController(text: submission.feedback ?? '');
+    final feedbackController = TextEditingController(
+      text: submission.feedback ?? '',
+    );
     bool graded = false;
 
     await showModalBottomSheet(
@@ -40,13 +42,19 @@ class SubmissionDetailBottomSheet {
               final maxScore = exercise.maxScore;
               if (parsed == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Vui lòng nhập điểm hợp lệ')),
+                  const SnackBar(
+                    content: Text('Vui lòng nhập điểm hợp lệ'),
+                    backgroundColor: Colors.orange,
+                  ),
                 );
                 return;
               }
               if (maxScore != null && (parsed < 0 || parsed > maxScore)) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Điểm phải nằm trong khoảng 0 - $maxScore')),
+                  SnackBar(
+                    content: Text('Điểm phải nằm trong khoảng 0 - $maxScore'),
+                    backgroundColor: Colors.orange,
+                  ),
                 );
                 return;
               }
@@ -64,14 +72,38 @@ class SubmissionDetailBottomSheet {
                 if (context.mounted) {
                   Navigator.of(ctx).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Chấm điểm thành công')),
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Đã chấm điểm: ${parsed.toStringAsFixed(1)}${maxScore != null ? '/$maxScore' : ''} điểm',
+                          ),
+                        ],
+                      ),
+                      backgroundColor: Colors.green,
+                      behavior: SnackBarBehavior.floating,
+                    ),
                   );
                 }
               } catch (e) {
                 setSheetState(() => loading = false);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Lỗi chấm điểm: $e')),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text('Lỗi chấm điểm: $e')),
+                        ],
+                      ),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               }
             }
 
@@ -87,28 +119,67 @@ class SubmissionDetailBottomSheet {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'Bài nộp của ${submission.student?.username ?? submission.studentId ?? 'Học sinh'}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                    // Header với tên học sinh
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.blue.shade100,
+                            child: Icon(Icons.person, color: Colors.blue[700]),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  submission.student?.username ??
+                                      submission.studentId ??
+                                      'Học sinh',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  'Nộp lúc: ${submission.submittedAt != null ? _formatDate(submission.submittedAt!) : 'Không rõ'}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (submission.isLate)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade100,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'Nộp muộn',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Nộp lúc: ${submission.submittedAt != null ? _formatDate(submission.submittedAt!) : 'Không rõ'}',
-                        ),
-                        if (submission.isLate)
-                          const Text(
-                            'Nộp muộn',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
                     // Nội dung văn bản
                     if ((submission.content ?? '').isNotEmpty) ...[
@@ -156,16 +227,48 @@ class SubmissionDetailBottomSheet {
 
                     const Divider(height: 24),
 
+                    // Hiển thị điểm hiện tại nếu đã chấm
+                    if (submission.grade != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green.shade300),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.grade, color: Colors.green[700]),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Điểm hiện tại: ${submission.grade!.toStringAsFixed(1)}${exercise.maxScore != null ? ' / ${exercise.maxScore}' : ''}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.green[700],
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+
                     // Nhập điểm
                     Row(
                       children: [
                         Expanded(
                           child: TextField(
                             controller: gradeController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
                             decoration: InputDecoration(
                               labelText: 'Điểm',
-                              hintText: exercise.maxScore != null ? '0 - ${exercise.maxScore}' : 'Nhập điểm',
+                              hintText:
+                                  exercise.maxScore != null
+                                      ? '0 - ${exercise.maxScore}'
+                                      : 'Nhập điểm',
                               border: const OutlineInputBorder(),
                             ),
                           ),
@@ -188,32 +291,42 @@ class SubmissionDetailBottomSheet {
                       minLines: 2,
                       maxLines: 4,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
+                    // Buttons
                     Row(
                       children: [
-                        TextButton(
-                          onPressed: loading
-                              ? null
-                              : () {
-                                  Navigator.of(ctx).pop();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Đã phê duyệt bài nộp')),
-                                  );
-                                },
-                          child: const Text('Phê duyệt'),
-                        ),
-                        const Spacer(),
-                        ElevatedButton.icon(
-                          onPressed: loading ? null : submitGrade,
-                          icon: loading
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Icon(Icons.check),
-                          label: const Text('Chấm điểm'),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: loading ? null : submitGrade,
+                            icon:
+                                loading
+                                    ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    )
+                                    : const Icon(Icons.check_circle),
+                            label: Text(loading ? 'Đang lưu...' : 'Chấm điểm'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -238,7 +351,8 @@ class SubmissionDetailBottomSheet {
   static String _fileNameFromUrl(String url) {
     try {
       final uri = Uri.tryParse(url);
-      final last = uri?.pathSegments.isNotEmpty == true ? uri!.pathSegments.last : null;
+      final last =
+          uri?.pathSegments.isNotEmpty == true ? uri!.pathSegments.last : null;
       final clean = (last ?? '').split('?').first.split('#').first.trim();
       if (clean.isNotEmpty) return clean;
     } catch (_) {}
@@ -246,7 +360,11 @@ class SubmissionDetailBottomSheet {
     return 'submission_$ts.bin';
   }
 
-  static Future<void> _downloadFile(BuildContext context, String url, String fileName) async {
+  static Future<void> _downloadFile(
+    BuildContext context,
+    String url,
+    String fileName,
+  ) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
       String fullUrl = url;
@@ -270,12 +388,17 @@ class SubmissionDetailBottomSheet {
       }
 
       final dir = await getApplicationDocumentsDirectory();
-      final safeName = (fileName.isNotEmpty ? fileName : _fileNameFromUrl(fullUrl)).replaceAll('..', '.');
+      final safeName = (fileName.isNotEmpty
+              ? fileName
+              : _fileNameFromUrl(fullUrl))
+          .replaceAll('..', '.');
       final savePath = '${dir.path}/$safeName';
       final file = File(savePath);
       await file.writeAsBytes(data);
 
-      messenger.showSnackBar(SnackBar(content: Text('Đã tải xuống: $safeName')));
+      messenger.showSnackBar(
+        SnackBar(content: Text('Đã tải xuống: $safeName')),
+      );
       await OpenFilex.open(savePath);
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('Lỗi tải tệp: $e')));
