@@ -4,7 +4,7 @@ import 'package:edusync/models/exercise_model.dart';
 import 'package:edusync/repositories/exercise_repository.dart';
 import 'submission_detail_bottomsheet.dart';
 
-class TeacherSection extends StatelessWidget {
+class TeacherSection extends StatefulWidget {
   final String classId;
   final String exerciseId;
   final Exercise exercise;
@@ -16,10 +16,24 @@ class TeacherSection extends StatelessWidget {
     required this.exercise,
   });
 
+  @override
+  State<TeacherSection> createState() => _TeacherSectionState();
+}
+
+class _TeacherSectionState extends State<TeacherSection> {
+  // Key để force rebuild FutureBuilder
+  int _refreshKey = 0;
+
   String _formatDate(DateTime dt) {
     final d = dt.toLocal();
     String two(int n) => n.toString().padLeft(2, '0');
     return '${two(d.day)}/${two(d.month)}/${d.year} ${two(d.hour)}:${two(d.minute)}';
+  }
+
+  void _reloadSubmissions() {
+    setState(() {
+      _refreshKey++;
+    });
   }
 
   @override
@@ -27,18 +41,28 @@ class TeacherSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Danh sách học sinh đã nộp",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Danh sách học sinh đã nộp",
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 20),
+              onPressed: _reloadSubmissions,
+              tooltip: 'Tải lại',
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         FutureBuilder<List<Submission>>(
+          key: ValueKey(_refreshKey), // Force rebuild khi key thay đổi
           future: ExerciseRepository().getSubmissions(
-            classId: classId,
-            exerciseId: exerciseId,
+            classId: widget.classId,
+            exerciseId: widget.exerciseId,
           ),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
@@ -48,70 +72,149 @@ class TeacherSection extends StatelessWidget {
               );
             }
             if (snap.hasError) {
-              return Text(
-                'Lỗi tải danh sách: ${snap.error}',
-                style: const TextStyle(color: Colors.red),
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red[700]),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Lỗi tải danh sách: ${snap.error}',
+                        style: TextStyle(color: Colors.red[700]),
+                      ),
+                    ),
+                  ],
+                ),
               );
             }
             final list = snap.data ?? const [];
             if (list.isEmpty) {
-              return const Text(
-                'Chưa có học sinh nào nộp',
-                style: TextStyle(color: Colors.grey),
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.grey[600]),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Chưa có học sinh nào nộp',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                  ],
+                ),
               );
             }
-            return ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: list.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final sub = list[index];
-                final studentName = (sub.student?.username ?? '').isNotEmpty
-                    ? sub.student!.username!
-                    : (sub.studentId ?? 'Không rõ');
-                final submittedAt = sub.submittedAt != null
-                    ? _formatDate(sub.submittedAt!)
-                    : 'Không rõ thời gian';
-                final gradeText = sub.grade != null
-                    ? 'Điểm: ${sub.grade!.toStringAsFixed(1)}${exercise.maxScore != null ? '/${exercise.maxScore}' : ''}'
-                    : (sub.feedback != null ? 'Đã nhận xét' : 'Chưa chấm');
-                return ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
-                  title: Text(
-                    studentName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Nộp lúc: $submittedAt'),
-                      const SizedBox(height: 2),
-                      Text(
-                        gradeText,
-                        style: TextStyle(
-                          color: sub.grade != null ? Colors.green[700] : Colors.orange[700],
-                          fontWeight: FontWeight.w500,
-                        ),
+            return Card(
+              elevation: 1,
+              margin: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(color: Colors.grey.shade300),
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: list.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  final sub = list[index];
+                  final studentName =
+                      (sub.student?.username ?? '').isNotEmpty
+                          ? sub.student!.username!
+                          : (sub.studentId ?? 'Không rõ');
+                  final submittedAt =
+                      sub.submittedAt != null
+                          ? _formatDate(sub.submittedAt!)
+                          : 'Không rõ thời gian';
+                  final gradeText =
+                      sub.grade != null
+                          ? 'Điểm: ${sub.grade!.toStringAsFixed(1)}${widget.exercise.maxScore != null ? '/${widget.exercise.maxScore}' : ''}'
+                          : (sub.feedback != null
+                              ? 'Đã nhận xét'
+                              : 'Chưa chấm');
+
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          sub.grade != null
+                              ? Colors.green.shade100
+                              : Colors.orange.shade100,
+                      child: Icon(
+                        Icons.person,
+                        color:
+                            sub.grade != null
+                                ? Colors.green[700]
+                                : Colors.orange[700],
                       ),
-                    ],
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () async {
-                    final graded = await SubmissionDetailBottomSheet.show(
-                      context: context,
-                      exercise: exercise,
-                      submission: sub,
-                      classId: classId,
-                      exerciseId: exerciseId,
-                    );
-                    if (graded == true) {
-                      // Trigger rebuild by calling setState in parent if needed
-                    }
-                  },
-                );
-              },
+                    ),
+                    title: Text(
+                      studentName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              submittedAt,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          gradeText,
+                          style: TextStyle(
+                            color:
+                                sub.grade != null
+                                    ? Colors.green[700]
+                                    : Colors.orange[700],
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () async {
+                      final graded = await SubmissionDetailBottomSheet.show(
+                        context: context,
+                        exercise: widget.exercise,
+                        submission: sub,
+                        classId: widget.classId,
+                        exerciseId: widget.exerciseId,
+                      );
+                      // Reload danh sách nếu đã chấm điểm
+                      if (graded == true) {
+                        _reloadSubmissions();
+                      }
+                    },
+                  );
+                },
+              ),
             );
           },
         ),
