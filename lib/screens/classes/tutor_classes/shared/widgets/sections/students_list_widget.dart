@@ -1,3 +1,4 @@
+import 'package:edusync/utils/class_info_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
@@ -50,7 +51,7 @@ class StudentsListWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            '${classStudents?.students.length ?? classDetails.students.length}/${classDetails.maxStudents ?? 0}',
+            _buildStudentCountText(),
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: isForStudent ? Colors.green[700] : Colors.blue[700],
@@ -214,5 +215,15 @@ class StudentsListWidget extends StatelessWidget {
 
   void _onStudentTap(UserProfile student) {
     // TODO: Xem thông tin chi tiết học sinh
+  }
+
+  String _buildStudentCountText() {
+    final loadedCount = classStudents?.students.length;
+    final defaultText = ClassInfoHelper.getStudentCountText(classDetails);
+    if (loadedCount != null) {
+      final maxStudents = classDetails.maxStudents ?? 0;
+      return '$loadedCount/$maxStudents';
+    }
+    return defaultText;
   }
 }

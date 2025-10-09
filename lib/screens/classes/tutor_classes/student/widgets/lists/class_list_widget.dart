@@ -1,6 +1,6 @@
 // Widget hiển thị danh sách các lớp học.
 
-import 'package:edusync/screens/classes/tutor_Classes/widgets/ClassCardWidget.dart';
+import 'package:edusync/screens/classes/tutor_classes/shared/widgets/cards/class_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 

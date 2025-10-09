@@ -1,3 +1,4 @@
+import 'package:edusync/utils/day_of_week.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
@@ -64,7 +65,7 @@ class ClassDetailSection extends StatelessWidget {
             _buildDetailRow(
               icon: Icons.calendar_today,
               label: 'Ngày tạo',
-              value: _formatDate(classDetails.createdAt),
+              value: formatDate(classDetails.createdAt)
             ),
           ],
         ),
@@ -109,16 +110,5 @@ class ClassDetailSection extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Không rõ';
-
-    final now = DateTime.now();
-    final diff = now.difference(date).inDays;
-
-    if (diff == 0) return 'Hôm nay';
-    if (diff == 1) return 'Hôm qua';
-    if (diff < 7) return '$diff ngày trước';
-
-    return '${date.day}/${date.month}/${date.year}';
-  }
+  
 }
