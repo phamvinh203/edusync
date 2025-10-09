@@ -1,9 +1,9 @@
+import 'package:edusync/screens/classes/tutor_classes/student/widgets/tabs/student_class_tab.dart';
+import 'package:edusync/screens/classes/tutor_classes/teacher/widgets/teacher_class_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/blocs/auth/auth_state.dart';
-import 'student/student_class_tab.dart';
-import 'teacher/teacher_class_tab.dart';
 
 class TutorClassTab extends StatelessWidget {
   const TutorClassTab({super.key});

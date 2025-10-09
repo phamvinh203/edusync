@@ -1,13 +1,13 @@
+import 'package:edusync/screens/classes/tutor_classes/teacher/screens/pending_students_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
-import 'package:edusync/screens/classes/tutor_Classes/pending_students_screen.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/class_header_card.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/class_schedule_section.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/students_list_widget.dart';
+import 'package:edusync/screens/classes/tutor_classes/shared/widgets/cards/class_header_card.dart';
+import 'package:edusync/screens/classes/tutor_classes/shared/widgets/sections/class_schedule_section.dart';
+import 'package:edusync/screens/classes/tutor_classes/shared/widgets/sections/students_list_widget.dart';
 import 'package:edusync/screens/exercises/exercises_tab.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/attendance_widget.dart';
+import 'package:edusync/screens/classes/tutor_classes/teacher/widgets/attendance_widget.dart';
 
 class ClassDetailScreen extends StatefulWidget {
   final String classId;

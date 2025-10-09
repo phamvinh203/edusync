@@ -1,3 +1,4 @@
+import 'package:edusync/utils/class_info_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
@@ -59,8 +60,7 @@ class ClassHeaderCard extends StatelessWidget {
             children: [
               _buildInfoChip(
                 icon: Icons.people,
-                text:
-                    '${classStudents?.students.length ?? classDetails.students.length}/${classDetails.maxStudents ?? 0}',
+                text: _buildStudentCountText(),
               ),
               const SizedBox(width: 12),
               _buildInfoChip(
@@ -104,5 +104,14 @@ class ClassHeaderCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _buildStudentCountText() {
+    final loadedCount = classStudents?.students.length;
+    if (loadedCount != null) {
+      final maxStudents = classDetails.maxStudents ?? 0;
+      return '$loadedCount/$maxStudents';
+    }
+    return ClassInfoHelper.getStudentCountText(classDetails);
   }
 }

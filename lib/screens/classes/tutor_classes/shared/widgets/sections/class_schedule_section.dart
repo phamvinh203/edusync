@@ -1,3 +1,4 @@
+import 'package:edusync/utils/day_of_week.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 
@@ -42,7 +43,7 @@ class ClassScheduleSection extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _getDayInVietnamese(schedule.dayOfWeek),
+                            getVietnameseDayOfWeek(schedule.dayOfWeek),
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
@@ -68,16 +69,5 @@ class ClassScheduleSection extends StatelessWidget {
     );
   }
 
-  String _getDayInVietnamese(String englishDay) {
-    const dayMap = {
-      'Monday': 'Thứ 2',
-      'Tuesday': 'Thứ 3',
-      'Wednesday': 'Thứ 4',
-      'Thursday': 'Thứ 5',
-      'Friday': 'Thứ 6',
-      'Saturday': 'Thứ 7',
-      'Sunday': 'Chủ nhật',
-    };
-    return dayMap[englishDay] ?? englishDay;
-  }
+  
 }

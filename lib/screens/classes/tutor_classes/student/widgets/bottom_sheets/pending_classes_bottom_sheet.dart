@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
-import 'package:edusync/screens/classes/tutor_Classes/student/widgets/pending_class_card.dart';
+import 'package:edusync/screens/classes/tutor_classes/shared/widgets/cards/pending_class_card.dart';
 
 class PendingClassesBottomSheet extends StatelessWidget {
   const PendingClassesBottomSheet({super.key});

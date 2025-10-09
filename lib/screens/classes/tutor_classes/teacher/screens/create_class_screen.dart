@@ -1,3 +1,4 @@
+import 'package:edusync/utils/day_of_week.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:edusync/models/class_model.dart';
@@ -321,25 +322,12 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Text('Thứ: ${_getVietnameseDayOfWeek(schedule.dayOfWeek)}'),
+            Text('${getVietnameseDayOfWeek(schedule.dayOfWeek)}'),
             Text('Giờ học: ${schedule.startTime} - ${schedule.endTime}'),
           ],
         ),
       ),
     );
-  }
-
-  String _getVietnameseDayOfWeek(String dayOfWeek) {
-    const dayMap = {
-      'Monday': 'Thứ 2',
-      'Tuesday': 'Thứ 3',
-      'Wednesday': 'Thứ 4',
-      'Thursday': 'Thứ 5',
-      'Friday': 'Thứ 6',
-      'Saturday': 'Thứ 7',
-      'Sunday': 'Chủ nhật',
-    };
-    return dayMap[dayOfWeek] ?? dayOfWeek;
   }
 
   void _addSchedule() {
@@ -461,26 +449,6 @@ class _ScheduleDialogState extends State<_ScheduleDialog> {
   TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 10, minute: 0);
 
-  final List<String> _daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
-
-  final Map<String, String> _dayTranslations = {
-    'Monday': 'Thứ 2',
-    'Tuesday': 'Thứ 3',
-    'Wednesday': 'Thứ 4',
-    'Thursday': 'Thứ 5',
-    'Friday': 'Thứ 6',
-    'Saturday': 'Thứ 7',
-    'Sunday': 'Chủ nhật',
-  };
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -496,10 +464,18 @@ class _ScheduleDialogState extends State<_ScheduleDialog> {
               border: OutlineInputBorder(),
             ),
             items:
-                _daysOfWeek.map((day) {
-                  return DropdownMenuItem(
-                    value: day,
-                    child: Text(_dayTranslations[day]!),
+                [
+                  'Monday',
+                  'Tuesday',
+                  'Wednesday',
+                  'Thursday',
+                  'Friday',
+                  'Saturday',
+                  'Sunday',
+                ].map((d) {
+                  return DropdownMenuItem<String>(
+                    value: d,
+                    child: Text(getVietnameseDayOfWeek(d)),
                   );
                 }).toList(),
             onChanged: (value) {

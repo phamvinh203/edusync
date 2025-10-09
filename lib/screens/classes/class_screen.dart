@@ -3,6 +3,7 @@ import 'package:edusync/blocs/AvailableClasses/availableClasses_event.dart';
 import 'package:edusync/blocs/RegisteredClasses/registeredClasses_bloc.dart';
 import 'package:edusync/blocs/RegisteredClasses/registeredClasses_event.dart';
 import 'package:edusync/blocs/RegisteredClasses/registeredClasses_state.dart';
+import 'package:edusync/screens/classes/tutor_classes/teacher/screens/create_class_screen.dart';
 import 'package:edusync/screens/classes/widgets/quick_info_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,10 +14,9 @@ import 'package:edusync/blocs/auth/auth_state.dart';
 import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_event.dart';
 import 'package:edusync/blocs/class/class_state.dart';
-import 'package:edusync/screens/classes/tutor_Classes/create_class_screen.dart';
 import 'package:edusync/screens/schedule/schedule_screen.dart';
 import 'package:edusync/screens/classes/school_Classes/school_subject_tab.dart';
-import 'package:edusync/screens/classes/tutor_Classes/tutor_class_tab.dart';
+import 'package:edusync/screens/classes/tutor_classes/tutor_class_tab.dart';
 import 'package:edusync/models/class_model.dart';
 
 class ClassScreen extends StatefulWidget {
