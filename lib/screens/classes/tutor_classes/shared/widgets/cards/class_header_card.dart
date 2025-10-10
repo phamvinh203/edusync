@@ -2,6 +2,7 @@ import 'package:edusync/utils/class_info_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class ClassHeaderCard extends StatelessWidget {
   final ClassModel classDetails;
@@ -50,7 +51,7 @@ class ClassHeaderCard extends StatelessWidget {
           if (!isTeacher) ...[
             const SizedBox(height: 8),
             Text(
-              'Giáo viên: '
+              '${AppLocalizations.of(context)!.teacherPrefix} '
               '${(classDetails.teacherName?.trim().isNotEmpty ?? false) ? classDetails.teacherName!.trim() : 'Không xác định'}',
               style: const TextStyle(fontSize: 18, color: Colors.white70),
             ),
@@ -65,7 +66,8 @@ class ClassHeaderCard extends StatelessWidget {
               const SizedBox(width: 12),
               _buildInfoChip(
                 icon: Icons.schedule,
-                text: '${classDetails.schedule.length} buổi/tuần',
+                text:
+                    '${classDetails.schedule.length} ${AppLocalizations.of(context)!.perSession}',
               ),
               if (classDetails.location != null) ...[
                 const SizedBox(width: 12),

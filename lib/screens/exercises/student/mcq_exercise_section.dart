@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:edusync/models/exercise_model.dart';
 import 'package:edusync/repositories/exercise_repository.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class McqExerciseSection extends StatefulWidget {
   final Exercise exercise;
@@ -41,7 +42,11 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
     for (var s in _selected) {
       if (s.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Vui lòng trả lời tất cả câu hỏi')),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.pleaseAnswerAllQuestions,
+            ),
+          ),
         );
         return;
       }
@@ -84,7 +89,7 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
 
       // Tạo nội dung tóm tắt
       final summary = StringBuffer();
-      summary.writeln('Bài làm trắc nghiệm');
+      summary.writeln(AppLocalizations.of(context)!.mcqSummaryTitle);
       summary.writeln('Số câu đúng: $correctCount/$totalQ');
       summary.writeln(
         'Điểm: ${score.toStringAsFixed(2)}${widget.exercise.maxScore != null ? ' / ${widget.exercise.maxScore}' : ''}',
@@ -107,7 +112,10 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Nộp bài thành công! Điểm: ${score.toStringAsFixed(1)}/$maxScore',
+              AppLocalizations.of(context)!.submitSuccessScore(
+                score.toStringAsFixed(1),
+                maxScore.toString(),
+              ),
             ),
             backgroundColor: Colors.green,
           ),
@@ -120,7 +128,9 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Lỗi nộp bài: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.submitError(e.toString()),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -144,9 +154,12 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
             children: [
               Icon(Icons.info_outline, size: 48, color: Colors.orange[300]),
               const SizedBox(height: 12),
-              const Text(
-                'Bài tập trắc nghiệm chưa có câu hỏi',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              Text(
+                AppLocalizations.of(context)!.noQuestionsInMcq,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -168,9 +181,9 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
             children: [
               const Icon(Icons.quiz, color: Colors.purple),
               const SizedBox(width: 8),
-              const Text(
-                'Làm bài trắc nghiệm',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.mcqExercise,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Colors.purple,
@@ -178,7 +191,11 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
               ),
               const Spacer(),
               Chip(
-                label: Text('${ex.questions.length} câu'),
+                label: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.questionCount(ex.questions.length),
+                ),
                 backgroundColor: Colors.purple.withOpacity(0.2),
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
@@ -221,7 +238,9 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'Câu ${index + 1}',
+                            AppLocalizations.of(
+                              context,
+                            )!.questionLabel(index + 1),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.purple,
@@ -240,9 +259,9 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
                               color: Colors.orange.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
-                              'Nhiều đáp án',
-                              style: TextStyle(
+                            child: Text(
+                              AppLocalizations.of(context)!.multipleAnswers,
+                              style: const TextStyle(
                                 fontSize: 11,
                                 color: Colors.orange,
                                 fontWeight: FontWeight.w600,
@@ -327,7 +346,11 @@ class _McqExerciseSectionState extends State<McqExerciseSection> {
                       ),
                     )
                     : const Icon(Icons.send),
-            label: Text(_submitting ? 'Đang nộp bài...' : 'Nộp bài'),
+            label: Text(
+              _submitting
+                  ? AppLocalizations.of(context)!.submitting
+                  : AppLocalizations.of(context)!.submitExercise,
+            ),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
               backgroundColor: Colors.purple,

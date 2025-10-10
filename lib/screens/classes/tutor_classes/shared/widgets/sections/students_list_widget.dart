@@ -2,6 +2,7 @@ import 'package:edusync/utils/class_info_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/models/users_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class StudentsListWidget extends StatelessWidget {
   final ClassModel classDetails;
@@ -26,21 +27,23 @@ class StudentsListWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             const SizedBox(height: 16),
             // Khu vực danh sách cần có không gian cố định và cho phép cuộn
-            Expanded(child: _buildStudentsList()),
+            Expanded(child: _buildStudentsList(context)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
         Text(
-          isForStudent ? 'Học sinh trong lớp' : 'Học sinh',
+          isForStudent
+              ? AppLocalizations.of(context)!.studentsInClass
+              : AppLocalizations.of(context)!.studentsLabel,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const Spacer(),
@@ -62,10 +65,10 @@ class StudentsListWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStudentsList() {
+  Widget _buildStudentsList(BuildContext context) {
     if ((classStudents?.students.isEmpty ?? true) &&
         classDetails.students.isEmpty) {
-      return _buildEmptyState();
+      return _buildEmptyState(context);
     }
 
     if (isLoadingStudents) {
@@ -84,7 +87,7 @@ class StudentsListWidget extends StatelessWidget {
     return _buildBasicStudentsList();
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -97,7 +100,7 @@ class StudentsListWidget extends StatelessWidget {
           Icon(Icons.people_outline, size: 48, color: Colors.grey[400]),
           const SizedBox(height: 8),
           Text(
-            isForStudent ? 'Chưa có học sinh nào khác' : 'Chưa có học sinh nào',
+            AppLocalizations.of(context)!.noStudentsYet,
             style: TextStyle(color: Colors.grey[600], fontSize: 16),
           ),
         ],

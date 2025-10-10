@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:edusync/models/attendance_model.dart';
 import 'package:edusync/repositories/attendance_repository.dart';
 import 'package:edusync/models/users_model.dart';
@@ -110,15 +111,17 @@ class _AttendanceTabState extends State<AttendanceTab> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Điểm danh hôm nay',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.todayAttendance,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          'Ngày ${today.day}/${today.month}/${today.year}',
+                          AppLocalizations.of(context)!.todayDate(
+                            '${today.day}/${today.month}/${today.year}',
+                          ),
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
@@ -140,7 +143,9 @@ class _AttendanceTabState extends State<AttendanceTab> {
                                 color: Colors.white,
                               ),
                             )
-                            : const Text('Điểm danh'),
+                            : Text(
+                              AppLocalizations.of(context)!.startAttendance,
+                            ),
                   ),
                 ],
               ),
@@ -163,15 +168,17 @@ class _AttendanceTabState extends State<AttendanceTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Lịch sử điểm danh',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.attendanceHistory,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Expanded(
               child:
                   history.isEmpty
-                      ? const Center(child: Text('Chưa có lịch sử'))
+                      ? Center(
+                        child: Text(AppLocalizations.of(context)!.noHistory),
+                      )
                       : ListView.builder(
                         itemCount: history.length,
                         itemBuilder: (context, index) {
@@ -191,10 +198,12 @@ class _AttendanceTabState extends State<AttendanceTab> {
                               ),
                             ),
                             title: Text(
-                              'Ngày ${s.date.day}/${s.date.month}/${s.date.year}',
+                              AppLocalizations.of(context)!.todayDate(
+                                '${s.date.day}/${s.date.month}/${s.date.year}',
+                              ),
                             ),
                             subtitle: Text(
-                              '$presentCount / ${s.students.length} có mặt',
+                              '${presentCount} / ${s.students.length} ${AppLocalizations.of(context)!.present}',
                             ),
                             onTap: () => _openAttendanceDialogForSession(s),
                           );
@@ -235,7 +244,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  title: const Text('Điểm danh lớp học'),
+                  title: Text(AppLocalizations.of(context)!.classAttendance),
                   content: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -283,7 +292,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(dialogContext).pop(),
-                      child: const Text('Hủy'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     FilledButton(
                       onPressed:
@@ -352,7 +361,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                                     setState(() => _isMarking = false);
                                 }
                               },
-                      child: const Text('Lưu điểm danh'),
+                      child: Text(AppLocalizations.of(context)!.saveAttendance),
                     ),
                   ],
                 ),

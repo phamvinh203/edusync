@@ -1,0 +1,587 @@
+{
+  "@@locale": "vi",
+  
+  "appTitle": "EduSync",
+  
+  "home": "Trang chủ",
+  "classes": "Lớp học",
+  "exercises": "Bài tập",
+  "profile": "Cá nhân",
+  
+  "personalInfo": "Thông tin cá nhân",
+  "academicInfo": "Thông tin học tập",
+  "feeManagement": "Quản lý học phí",
+  "changePassword": "Đổi mật khẩu",
+  
+  "settings": "Cài đặt",
+  "theme": "Giao diện",
+  "notifications": "Thông báo",
+  "language": "Ngôn ngữ",
+  
+  "support": "Hỗ trợ",
+  "about": "Về ứng dụng",
+  "feedback": "Phản hồi",
+  
+  "logout": "Đăng xuất",
+  "logoutConfirm": "Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?",
+  "cancel": "Huỷ",
+  "confirm": "Xác nhận",
+  
+  "student": "Học sinh",
+  "teacher": "Giáo viên",
+  "admin": "Quản trị viên",
+  "user": "Người dùng",
+  
+  "classLabel": "Lớp",
+  
+  "selectLanguage": "Chọn ngôn ngữ",
+  "vietnamese": "Tiếng Việt",
+  "english": "English",
+  
+  "hello": "Xin chào!",
+  "errorLoadingUserInfo": "Lỗi tải thông tin người dùng",
+  "cannotLoadData": "Không thể tải dữ liệu",
+  "reload": "Tải lại",
+  
+  "todayAssignments": "Bài tập hôm nay",
+  "classesJoined": "Lớp học tham gia",
+  "recentActivities": "Hoạt động gần đây",
+  "noActivities": "Chưa có hoạt động nào",
+  
+  "todayAssignmentsCount": "Bài tập hôm nay ({count})",
+  "@todayAssignmentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "submitted": "Đã nộp",
+  "overdue": "Quá hạn",
+  "notSubmitted": "Chưa nộp",
+  "deadline": "Hạn",
+  
+  "justNow": "Vừa xong",
+  "minutesAgo": "{minutes} phút trước",
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{hours} giờ trước",
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "daysAgo": "{days} ngày trước",
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "managedClasses": "Lớp phụ trách",
+  "students": "Học sinh",
+  "pendingGrading": "Bài tập chờ chấm",
+  "todayClasses": "Tiết học hôm nay",
+  
+  "quickActions": "Thao tác nhanh",
+  "createExercise": "Tạo bài tập",
+  "takeAttendance": "Điểm danh",
+  
+  "todaySchedule": "Lịch dạy hôm nay ({count})",
+  "@todaySchedule": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "studentCount": "{count} học sinh",
+  "@studentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "submissionCount": "{count} bài nộp",
+  "@submissionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "createExerciseFeatureInDevelopment": "Chức năng tạo bài tập đang được phát triển",
+  "takeAttendanceFeatureInDevelopment": "Chức năng điểm danh đang được phát triển",
+  
+  "classNotUpdated": "Chưa cập nhật lớp",
+  "schoolNotUpdated": "Chưa cập nhật trường",
+  "tutorClasses": "lớp gia sư",
+  "createdClasses": "lớp đã tạo",
+  "classCreatedSuccess": "Đã tạo lớp \"{className}\" thành công!",
+  "@classCreatedSuccess": {
+    "placeholders": {
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "schoolSubjects": "Môn học trường",
+  "tutorClassesTab": "Lớp gia sư",
+  "schedule": "Lịch học",
+  
+  "classInfo": "Lớp",
+  "schoolInfo": "Trường",
+  "subjects": "môn học",
+  "createNewClass": "Tạo lớp học mới",
+  
+  "subject": "Môn học",
+  "gradeLevel": "Lớp",
+  "teacherName": "Giáo viên",
+  "scheduleLabel": "Lịch",
+  "location": "Địa chỉ",
+  
+  "todayAttendance": "Điểm danh hôm nay",
+  "date": "Ngày",
+  "attendanceHistory": "Lịch sử điểm danh",
+  "noHistory": "Chưa có lịch sử",
+  "present": "có mặt",
+  "classAttendance": "Điểm danh lớp học",
+  "email": "Email",
+  "saveAttendance": "Lưu điểm danh",
+  
+  "createClass": "Tạo lớp học mới",
+  "basicInfo": "Thông tin cơ bản",
+  "className": "Tên lớp học *",
+  "enterClassName": "Nhập tên lớp học",
+  "pleaseEnterClassName": "Vui lòng nhập tên lớp học",
+  "subjectName": "Môn học *",
+  "enterSubject": "Nhập môn học",
+  "pleaseEnterSubject": "Vui lòng nhập môn học",
+  "extraClass": "Lớp dạy thêm",
+  "extraClassHint": "Ví dụ: Lớp 12, Lớp 10, ...",
+  "pricePerSession": "Giá tiền cho 1 buổi học (VNĐ)",
+  "priceHint": "Ví dụ: 20.000",
+  "pleaseEnterValidPrice": "Vui lòng nhập số tiền hợp lệ",
+  "description": "Mô tả",
+  "descriptionHint": "Nhập mô tả về lớp học",
+  "locationLabel": "Địa điểm",
+  "locationHint": "Nhập địa điểm học",
+  "maxStudents": "Số học viên tối đa",
+  "maxStudentsHint": "Nhập số học viên tối đa",
+  "pleaseEnterValidNumber": "Vui lòng nhập số hợp lệ",
+  "addSchedule": "Thêm lịch học",
+  "scheduleNumber": "Lịch học {number}",
+  "@scheduleNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "enterClassCode": "Nhập mã lớp",
+  "enterClassCodeDescription": "Nhập mã lớp do giáo viên cung cấp để tham gia lớp học chính khóa.",
+  "joinClass": "Tham gia lớp học",
+  "noSubjectsYet": "Chưa có môn học nào",
+  "enterCodeToJoin": "Nhập mã lớp do giáo viên cung cấp để bắt đầu tham gia các môn học chính khóa",
+  "enterClassCodeButton": "Nhập mã lớp học",
+  "classesCreated": "{count} lớp học đã tạo",
+  "@classesCreated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noClassesYet": "Chưa có lớp học nào",
+  "createFirstClass": "Bạn chưa tạo lớp học chính khóa nào. Tạo lớp học mới để bắt đầu.",
+  "dataLoadError": "Lỗi tải dữ liệu",
+  "retry": "Thử lại",
+  "noTutorRegistered": "Chưa đăng ký lớp gia sư nào",
+  "noTutorCreated": "Chưa có lớp gia sư nào",
+  "findTutorClasses": "Tìm và đăng ký lớp gia sư phù hợp",
+  "createFirstTutorClass": "Tạo lớp gia sư đầu tiên của bạn",
+  "findTutorButton": "Tìm lớp gia sư",
+  "registrationApplications": "Đơn đăng ký",
+  "noTeacherIdError": "Không tìm thấy Teacher ID. Vui lòng đăng nhập lại.",
+  
+  "created": "Đã tạo",
+  "joined": "Đã tham gia",
+  "teacherLabel": "GV",
+  "youSelectedClass": "Bạn đã chọn lớp {className}",
+  "@youSelectedClass": {
+    "placeholders": {
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "tutor": "Gia sư",
+  "exercises": "Bài tập",
+  "detail": "Chi tiết",
+  "classCodeLabel": "Mã lớp học",
+  "classCodeHint": "Ví dụ: 5LG9HA",
+  "pleaseEnterClassCode": "Vui lòng nhập mã lớp học",
+  "joining": "Đang tham gia...",
+  "joinSuccess": "Tham gia lớp học thành công",
+  
+  "filterByGrade": "Lọc theo lớp",
+  "allGrades": "Tất cả lớp",
+  "errorPrefix": "Lỗi",
+  "registerTutorClass": "Đăng ký lớp gia sư",
+  "scheduleLabel": "Lịch học:",
+  "addressLabel": "Địa chỉ",
+  "cancel": "Hủy",
+  "register": "Đăng ký",
+  "noScheduleYet": "Chưa có lịch học",
+  
+  "confirmDelete": "Xác nhận xóa",
+  "confirmDeleteMessage": "Bạn có chắc chắn muốn xóa học sinh này khỏi danh sách chờ duyệt?",
+  "delete": "Xóa",
+  "confirmApprove": "Xác nhận duyệt",
+  "confirmApproveMessage": "Bạn có chắc chắn muốn duyệt học sinh này vào lớp?",
+  "approve": "Duyệt",
+  "loadingPendingStudents": "Đang tải danh sách học sinh chờ duyệt...",
+  "noPendingStudents": "Không có học sinh nào đang chờ duyệt",
+  
+  "classInfoNotFound": "Không tìm thấy thông tin lớp học",
+  "featureInDevelopment": "Tính năng đang phát triển",
+  "confirmDeleteClass": "Bạn có chắc chắn muốn xóa lớp học này không?",
+  "deleteClassError": "Lỗi khi xóa lớp học: {error}",
+  "@deleteClassError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "createNewClass": "Tạo lớp học mới",
+  "dayLabel": "{day}",
+  "@dayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "classTimeLabel": "Giờ học: {startTime} - {endTime}",
+  "@classTimeLabel": {
+    "placeholders": {
+      "startTime": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "createClassSuccess": "Tạo lớp học thành công!",
+  "addScheduleDialog": "Thêm lịch học",
+  "startTime": "Giờ bắt đầu",
+  "endTime": "Giờ kết thúc",
+  "endTimeMustBeAfterStart": "Giờ kết thúc phải sau giờ bắt đầu",
+  "save": "Lưu",
+  
+  "attendance": "Điểm danh",
+  "noAttendanceHistory": "Chưa có lịch sử",
+  "attendanceDialog": "Điểm danh lớp học",
+  "saveAttendance": "Lưu điểm danh",
+  
+  "studentNumber": "Học sinh {number}",
+  "@studentNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "idLabel": "ID",
+  "emailLabel": "Email",
+  "classGrade": "Lớp",
+  
+  "descriptionLabel": "Mô tả",
+  "subjectLabel": "Môn học",
+  "studentCount2": "Số lượng học sinh",
+  "createdDate": "Ngày tạo",
+  
+  "availableTutorClasses": "Danh sách lớp gia sư",
+  "noTutorClassesAvailable": "Hiện tại chưa có lớp gia sư nào",
+  "registerSuccess": "Đăng ký lớp thành công! Vui lòng chờ giáo viên duyệt.",
+  "registerError": "Lỗi khi đăng ký",
+  "registering": "Đang đăng ký...",
+  "classInfo": "Thông tin lớp:",
+  "tuitionFee": "Học phí",
+  "perSession": "VNĐ/buổi",
+  "alreadyRegistered": "Bạn đã đăng ký lớp này",
+  "confirmRegister": "Bạn có muốn đăng ký vào lớp \"{className}\"?",
+  "@confirmRegister": {
+    "placeholders": {
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "createClassButton": "Tạo lớp học",
+  "classNameRequired": "Tên lớp học *",
+  "subjectRequired": "Môn học *",
+  
+  "registerToJoin": "Đăng ký tham gia",
+  "joined": "Đã tham gia lớp",
+  "registering2": "Đang đăng ký...",
+  "waitingForApproval": "Đang chờ giáo viên duyệt",
+  "classFull": "Lớp đã đầy",
+  "studentsLabel": "Học sinh",
+  "spotsAvailable": "Còn trống",
+  "tuitionFeeLabel": "Học phí",
+  
+  "subjectPrefix": "Môn học:",
+  "gradePrefix": "Lớp:",
+  "teacherPrefix": "Giáo viên:",
+  "schedulePrefix": "Lịch:",
+  "addressPrefix": "Địa chỉ:",
+  
+  "classDetailInfo": "Thông tin chi tiết",
+  "locationLabel": "Địa điểm",
+  "studentCountLabel": "Số lượng học sinh",
+  "studentCountValue": "{current}/{max} học sinh",
+  "@studentCountValue": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "classSchedule": "Lịch học",
+  "studentsInClass": "Học sinh trong lớp",
+  "noStudentsYet": "Chưa có học sinh nào",
+  "noStudentsDescription": "Lớp học chưa có học sinh nào tham gia",
+  
+  "errorLoadingClass": "Lỗi khi tải thông tin lớp học",
+  "tryAgain": "Thử lại",
+  
+  "pendingClasses": "Danh sách lớp đang chờ duyệt",
+  "noPendingClasses": "Không có lớp nào đang chờ duyệt",
+  
+  "confirmRemoveStudent": "Bạn có chắc chắn muốn xóa học sinh \"{studentName}\" khỏi danh sách chờ duyệt?",
+  "@confirmRemoveStudent": {
+    "placeholders": {
+      "studentName": {
+        "type": "String"
+      }
+    }
+  },
+  "studentRemoved": "Đã xóa học sinh {studentName} khỏi danh sách chờ duyệt",
+  "@studentRemoved": {
+    "placeholders": {
+      "studentName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorRemovingStudent": "Lỗi khi xóa học sinh: {error}",
+  "@errorRemovingStudent": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "confirmApproveStudent": "Bạn có chắc chắn muốn duyệt học sinh \"{studentName}\" vào lớp học?",
+  "@confirmApproveStudent": {
+    "placeholders": {
+      "studentName": {
+        "type": "String"
+      }
+    }
+  },
+  "studentApproved": "Đã duyệt học sinh {studentName}",
+  "@studentApproved": {
+    "placeholders": {
+      "studentName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorApprovingStudent": "Lỗi khi duyệt học sinh: {error}",
+  "@errorApprovingStudent": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "pendingStudentsTitle": "Học sinh chờ duyệt",
+  "pendingStudentsCount": "{count} học sinh chờ duyệt",
+  "@pendingStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "approveInstruction": "Nhấn vào nút \"Duyệt\" để xác nhận học sinh vào lớp",
+  "allStudentsApproved": "Tất cả học sinh đã được duyệt hoặc chưa có ai đăng ký",
+  
+  "attendanceHistory": "Lịch sử điểm danh",
+  "startAttendance": "Bắt đầu điểm danh",
+  "todayDate": "Hôm nay - {date}",
+  "@todayDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "attendanceStarted": "Đã bắt đầu điểm danh",
+  "errorStartingAttendance": "Lỗi khi bắt đầu điểm danh: {error}",
+  "@errorStartingAttendance": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "present": "Có mặt",
+  "absent": "Vắng mặt",
+  "attendanceSaved": "Đã lưu điểm danh thành công",
+  "errorSavingAttendance": "Lỗi khi lưu điểm danh: {error}",
+  "@errorSavingAttendance": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
+  ,
+  "essayExercise": "Bài tập tự luận",
+  "submitExercise": "Nộp bài",
+  "submitting": "Đang nộp...",
+  "pleaseAnswerAllQuestions": "Vui lòng trả lời tất cả câu hỏi",
+  "mcqSummaryTitle": "Bài làm trắc nghiệm",
+  "submitSuccessScore": "Nộp bài thành công! Điểm: {score}/{max}",
+  "@submitSuccessScore": {
+    "placeholders": {
+      "score": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "submitError": "Lỗi nộp bài: {error}",
+  "@submitError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "enterContentOrFile": "Vui lòng nhập nội dung hoặc chọn tệp.",
+  "enterValidGrade": "Vui lòng nhập điểm hợp lệ",
+  "gradeRange": "Điểm phải nằm trong khoảng 0 - {max}",
+  "@gradeRange": { "placeholders": { "max": { "type": "String" } } },
+  "downloaded": "Đã tải xuống: {fileName}",
+  "@downloaded": { "placeholders": { "fileName": { "type": "String" } } },
+  "fileDownloadError": "Lỗi tải tệp: {error}",
+  "@fileDownloadError": { "placeholders": { "error": { "type": "String" } } },
+  "submissionsListTitle": "Danh sách học sinh đã nộp",
+  "noSubmissionsYet": "Chưa có học sinh nào nộp",
+  "unknown": "Không rõ",
+  "unknownTime": "Không rõ thời gian",
+  "essay": "Tự luận",
+  "multipleChoice": "Trắc nghiệm",
+  "overdue": "Đã quá hạn",
+  "timeLeftDays": "Còn {days} ngày",
+  "@timeLeftDays": { "placeholders": { "days": { "type": "int" } } },
+  "timeLeftHours": "Còn {hours} giờ",
+  "@timeLeftHours": { "placeholders": { "hours": { "type": "int" } } },
+  "timeLeftMinutes": "Còn {minutes} phút",
+  "@timeLeftMinutes": { "placeholders": { "minutes": { "type": "int" } } },
+  "noExercises": "Không có bài tập"
+  ,
+  "noQuestionsInMcq": "Bài tập trắc nghiệm chưa có câu hỏi",
+  "mcqExercise": "Làm bài trắc nghiệm",
+  "questionCount": "{count} câu",
+  "@questionCount": { "placeholders": { "count": { "type": "int" } } },
+  "questionLabel": "Câu {number}",
+  "@questionLabel": { "placeholders": { "number": { "type": "int" } } },
+  "multipleAnswers": "Nhiều đáp án",
+  "enterContentLabel": "Nhập nội dung",
+  "contentHint": "Viết câu trả lời... (có thể để trống nếu nộp tệp)",
+  "pickFile": "Chọn tệp",
+  "submitSuccessMessage": "Nộp bài thành công",
+  "manage": "Quản lý",
+  "viewResult": "Xem kết quả",
+  "viewDetail": "Xem chi tiết",
+  "doExercise": "Làm bài"
+  ,
+  "submittedStudentsTitle": "Danh sách học sinh đã nộp",
+  "reload": "Tải lại",
+  "errorLoadingList": "Lỗi tải danh sách",
+  "noSubmissionsYet": "Chưa có học sinh nào nộp",
+  "unknownStudent": "Không rõ",
+  "unknownTime": "Không rõ thời gian",
+  "scorePrefix": "Điểm",
+  "hasFeedback": "Đã nhận xét",
+  "notGraded": "Chưa chấm",
+  "invalidGrade": "Vui lòng nhập điểm hợp lệ",
+  "gradeRange": "Điểm phải nằm trong khoảng 0 - {max}",
+  "graded": "Đã chấm",
+  "points": "điểm",
+  "gradeError": "Lỗi chấm điểm",
+  "student": "Học sinh",
+  "submittedAt": "Nộp lúc",
+  "lateSubmission": "Nộp muộn",
+  "submissionContent": "Nội dung bài làm",
+  "attachments": "Tệp đính kèm",
+  "downloaded": "Đã tải xuống: {fileName}",
+  "fileDownloadError": "Lỗi tải tệp: {error}"
+  ,
+  "createdAt": "Tạo lúc",
+  "yourScore": "Điểm của bạn: {score}/{max}",
+  "@yourScore": { "placeholders": { "score": { "type": "String" }, "max": { "type": "String" } } },
+  "yourSubmissionNotGraded": "Bài nộp của bạn: Chưa chấm",
+  "redoExercise": "Làm lại bài tập",
+  "redoConfirmationContent": "Bạn có chắc chắn muốn làm lại?\n\nBài nộp trước đó sẽ bị xóa hoàn toàn.",
+  "submissionNotFound": "Không tìm thấy bài nộp để xóa",
+  "deletingOldSubmission": "Đang xóa bài nộp cũ...",
+  "fileUpload": "Nộp file",
+  "statusClosed": "Đã đóng",
+  "statusOpen": "Đang mở",
+  "pleaseSelectDueDate": "Vui lòng chọn hạn nộp bài",
+  "pleaseAddAtLeastOneQuestion": "Vui lòng thêm ít nhất một câu hỏi",
+  "createExerciseSuccess": "Tạo bài tập thành công!",
+  "exerciseTitleLabel": "Tiêu đề bài tập",
+  "enterExerciseTitle": "Nhập tiêu đề cho bài tập...",
+  "descriptionLabel": "Mô tả (tùy chọn)",
+  "descriptionHint": "Mô tả chi tiết về bài tập...",
+  "subjectHintExamples": "Toán, Văn, Anh...",
+  "createExercise": "Tạo bài tập",
+  "createExerciseButton": "Tạo bài tập"
+  ,
+  "pleaseEnterTitle": "Vui lòng nhập tiêu đề",
+  "positiveIntegerError": "Phải là số nguyên dương",
+  "exerciseSettings": "Cài đặt bài tập"
+  ,
+  "all": "Tất cả",
+  "manageExercises": "Quản lý bài tập"
+  ,
+  "exerciseDetailTitle": "Chi tiết bài tập"
+}

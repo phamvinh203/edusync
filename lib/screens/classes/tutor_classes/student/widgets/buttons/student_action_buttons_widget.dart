@@ -1,6 +1,7 @@
 // Widget chứa hai nút hành động dành cho học sinh.
 
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class StudentActionButtonsWidget extends StatelessWidget {
   final VoidCallback onFindClasses;
@@ -30,9 +31,9 @@ class StudentActionButtonsWidget extends StatelessWidget {
                 ),
               ),
               icon: const Icon(Icons.search, size: 18),
-              label: const Text(
-                'Tìm lớp gia sư',
-                style: TextStyle(
+              label: Text(
+                AppLocalizations.of(context)!.findTutorButton,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -52,9 +53,9 @@ class StudentActionButtonsWidget extends StatelessWidget {
                 ),
               ),
               icon: const Icon(Icons.pending_actions, size: 18),
-              label: const Text(
-                'Đơn đăng ký',
-                style: TextStyle(
+              label: Text(
+                AppLocalizations.of(context)!.registrationApplications,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),

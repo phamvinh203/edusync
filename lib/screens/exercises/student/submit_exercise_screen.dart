@@ -7,6 +7,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:edusync/blocs/exercise/exercise_bloc.dart';
 import 'package:edusync/blocs/exercise/exercise_event.dart';
 import 'package:edusync/blocs/exercise/exercise_state.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class SubmitExerciseScreen extends StatefulWidget {
   final String classId;
@@ -109,7 +110,9 @@ class _SubmitExerciseScreenState extends State<SubmitExerciseScreen> {
     if ((_contentCtrl.text.trim().isEmpty) && _pickedFile == null) {
       if (_disposed || !mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập nội dung hoặc chọn tệp.')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.enterContentOrFile),
+        ),
       );
       return;
     }
@@ -161,7 +164,7 @@ class _SubmitExerciseScreenState extends State<SubmitExerciseScreen> {
               content: Text(
                 state.response.message.isNotEmpty
                     ? state.response.message
-                    : 'Nộp bài thành công',
+                    : AppLocalizations.of(context)!.submitSuccessMessage,
               ),
             ),
           );
@@ -177,7 +180,9 @@ class _SubmitExerciseScreenState extends State<SubmitExerciseScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Nộp bài')),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.submitExercise),
+        ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -186,19 +191,18 @@ class _SubmitExerciseScreenState extends State<SubmitExerciseScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Nhập nội dung',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  Text(
+                    AppLocalizations.of(context)!.enterContentLabel,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _contentCtrl,
                     minLines: 5,
                     maxLines: 10,
-                    decoration: const InputDecoration(
-                      hintText:
-                          'Viết câu trả lời... (có thể để trống nếu nộp tệp) ',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.contentHint,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -207,7 +211,7 @@ class _SubmitExerciseScreenState extends State<SubmitExerciseScreen> {
                       ElevatedButton.icon(
                         onPressed: _submitting ? null : _pickFile,
                         icon: const Icon(Icons.attach_file),
-                        label: const Text('Chọn tệp'),
+                        label: Text(AppLocalizations.of(context)!.pickFile),
                       ),
                       const SizedBox(width: 12),
                       if (_pickedFile != null)
@@ -234,7 +238,11 @@ class _SubmitExerciseScreenState extends State<SubmitExerciseScreen> {
                                 ),
                               )
                               : const Icon(Icons.send),
-                      label: Text(_submitting ? 'Đang nộp...' : 'Nộp bài'),
+                      label: Text(
+                        _submitting
+                            ? AppLocalizations.of(context)!.submitting
+                            : AppLocalizations.of(context)!.submitExercise,
+                      ),
                     ),
                   ),
                 ],

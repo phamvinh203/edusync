@@ -4,6 +4,7 @@ import 'package:edusync/screens/classes/tutor_classes/widgets/base_class_card.da
 import 'package:edusync/screens/classes/tutor_classes/teacher/screens/class_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class ClassCardWidget extends BaseClassCard {
   final String userRole;
@@ -22,9 +23,9 @@ class ClassCardWidget extends BaseClassCard {
         color: Colors.orange,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Text(
-        'Gia sư',
-        style: TextStyle(
+      child: Text(
+        AppLocalizations.of(context)!.tutor,
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 11,
           fontWeight: FontWeight.bold,
@@ -52,7 +53,7 @@ class ClassCardWidget extends BaseClassCard {
               ),
             ),
             icon: const Icon(Icons.assignment_turned_in, size: 18),
-            label: const Text('Bài tập'),
+            label: Text(AppLocalizations.of(context)!.exercises),
           ),
         ),
         const SizedBox(width: 12),
@@ -68,7 +69,7 @@ class ClassCardWidget extends BaseClassCard {
               ),
             ),
             icon: const Icon(Icons.info_outline, size: 18),
-            label: const Text('Chi tiết'),
+            label: Text(AppLocalizations.of(context)!.detail),
           ),
         ),
       ],

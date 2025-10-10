@@ -1,6 +1,7 @@
 import 'package:edusync/utils/day_of_week.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class ClassScheduleSection extends StatelessWidget {
   final ClassModel classDetails;
@@ -20,9 +21,9 @@ class ClassScheduleSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Lịch học',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.classSchedule,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ...classDetails.schedule.map(
@@ -68,6 +69,4 @@ class ClassScheduleSection extends StatelessWidget {
       ),
     );
   }
-
-  
 }

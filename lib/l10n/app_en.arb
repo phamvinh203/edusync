@@ -1,0 +1,587 @@
+{
+  "@@locale": "en",
+  
+  "appTitle": "EduSync",
+  
+  "home": "Home",
+  "classes": "Classes",
+  "exercises": "Exercises",
+  "profile": "Profile",
+  
+  "personalInfo": "Personal Information",
+  "academicInfo": "Academic Information",
+  "feeManagement": "Fee Management",
+  "changePassword": "Change Password",
+  
+  "settings": "Settings",
+  "theme": "Theme",
+  "notifications": "Notifications",
+  "language": "Language",
+  
+  "support": "Support",
+  "about": "About",
+  "feedback": "Feedback",
+  
+  "logout": "Logout",
+  "logoutConfirm": "Are you sure you want to logout?",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  
+  "student": "Student",
+  "teacher": "Teacher",
+  "admin": "Administrator",
+  "user": "User",
+  
+  "classLabel": "Class",
+  
+  "selectLanguage": "Select Language",
+  "vietnamese": "Tiếng Việt",
+  "english": "English",
+  
+  "hello": "Hello!",
+  "errorLoadingUserInfo": "Error loading user info",
+  "cannotLoadData": "Cannot load data",
+  "reload": "Reload",
+  
+  "todayAssignments": "Today's Assignments",
+  "classesJoined": "Classes Joined",
+  "recentActivities": "Recent Activities",
+  "noActivities": "No activities yet",
+  
+  "todayAssignmentsCount": "Today's Assignments ({count})",
+  "@todayAssignmentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "submitted": "Submitted",
+  "overdue": "Overdue",
+  "notSubmitted": "Not Submitted",
+  "deadline": "Due",
+  
+  "justNow": "Just now",
+  "minutesAgo": "{minutes} minutes ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{hours} hours ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "daysAgo": "{days} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "managedClasses": "Managed Classes",
+  "students": "Students",
+  "pendingGrading": "Pending Grading",
+  "todayClasses": "Today's Classes",
+  
+  "quickActions": "Quick Actions",
+  "createExercise": "Create Exercise",
+  "takeAttendance": "Take Attendance",
+  
+  "todaySchedule": "Today's Schedule ({count})",
+  "@todaySchedule": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "studentCount": "{count} students",
+  "@studentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "submissionCount": "{count} submissions",
+  "@submissionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "createExerciseFeatureInDevelopment": "Create exercise feature is under development",
+  "takeAttendanceFeatureInDevelopment": "Take attendance feature is under development",
+  
+  "classNotUpdated": "Class not updated",
+  "schoolNotUpdated": "School not updated",
+  "tutorClasses": "tutor classes",
+  "createdClasses": "created classes",
+  "classCreatedSuccess": "Successfully created class \"{className}\"!",
+  "@classCreatedSuccess": {
+    "placeholders": {
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "schoolSubjects": "School Subjects",
+  "tutorClassesTab": "Tutor Classes",
+  "schedule": "Schedule",
+  
+  "classInfo": "Class",
+  "schoolInfo": "School",
+  "subjects": "subjects",
+  "createNewClass": "Create New Class",
+  
+  "subject": "Subject",
+  "gradeLevel": "Grade",
+  "teacherName": "Teacher",
+  "scheduleLabel": "Schedule",
+  "location": "Location",
+  
+  "todayAttendance": "Today's Attendance",
+  "date": "Date",
+  "attendanceHistory": "Attendance History",
+  "noHistory": "No history",
+  "present": "present",
+  "classAttendance": "Class Attendance",
+  "email": "Email",
+  "saveAttendance": "Save Attendance",
+  
+  "createClass": "Create New Class",
+  "basicInfo": "Basic Information",
+  "className": "Class Name *",
+  "enterClassName": "Enter class name",
+  "pleaseEnterClassName": "Please enter class name",
+  "subjectName": "Subject *",
+  "enterSubject": "Enter subject",
+  "pleaseEnterSubject": "Please enter subject",
+  "extraClass": "Extra Class",
+  "extraClassHint": "E.g: Grade 12, Grade 10, ...",
+  "pricePerSession": "Price per Session (VND)",
+  "priceHint": "E.g: 20,000",
+  "pleaseEnterValidPrice": "Please enter a valid price",
+  "description": "Description",
+  "descriptionHint": "Enter class description",
+  "locationLabel": "Location",
+  "locationHint": "Enter study location",
+  "maxStudents": "Maximum Students",
+  "maxStudentsHint": "Enter maximum number of students",
+  "pleaseEnterValidNumber": "Please enter a valid number",
+  "addSchedule": "Add Schedule",
+  "scheduleNumber": "Schedule {number}",
+  "@scheduleNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "enterClassCode": "Enter Class Code",
+  "enterClassCodeDescription": "Enter the class code provided by your teacher to join the school class.",
+  "joinClass": "Join Class",
+  "noSubjectsYet": "No Subjects Yet",
+  "enterCodeToJoin": "Enter the class code provided by your teacher to start joining school subjects",
+  "enterClassCodeButton": "Enter Class Code",
+  "classesCreated": "{count} classes created",
+  "@classesCreated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noClassesYet": "No Classes Yet",
+  "createFirstClass": "You haven't created any school classes yet. Create a new class to get started.",
+  "dataLoadError": "Data Load Error",
+  "retry": "Retry",
+  "noTutorRegistered": "No Tutor Classes Registered",
+  "noTutorCreated": "No Tutor Classes Yet",
+  "findTutorClasses": "Find and register for suitable tutor classes",
+  "createFirstTutorClass": "Create your first tutor class",
+  "findTutorButton": "Find Tutor Classes",
+  "registrationApplications": "Registration Applications",
+  "noTeacherIdError": "Teacher ID not found. Please log in again.",
+  
+  "created": "Created",
+  "joined": "Joined",
+  "teacherLabel": "Teacher",
+  "youSelectedClass": "You selected class {className}",
+  "@youSelectedClass": {
+    "placeholders": {
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "tutor": "Tutor",
+  "exercises": "Exercises",
+  "detail": "Detail",
+  "classCodeLabel": "Class Code",
+  "classCodeHint": "Example: 5LG9HA",
+  "pleaseEnterClassCode": "Please enter class code",
+  "joining": "Joining...",
+  "joinSuccess": "Successfully joined the class",
+  
+  "filterByGrade": "Filter by grade",
+  "allGrades": "All grades",
+  "errorPrefix": "Error",
+  "registerTutorClass": "Register for Tutor Class",
+  "scheduleLabel": "Schedule:",
+  "addressLabel": "Address",
+  "cancel": "Cancel",
+  "register": "Register",
+  "noScheduleYet": "No schedule yet",
+  
+  "confirmDelete": "Confirm Delete",
+  "confirmDeleteMessage": "Are you sure you want to remove this student from the pending list?",
+  "delete": "Delete",
+  "confirmApprove": "Confirm Approve",
+  "confirmApproveMessage": "Are you sure you want to approve this student to join the class?",
+  "approve": "Approve",
+  "loadingPendingStudents": "Loading pending students list...",
+  "noPendingStudents": "No pending students",
+  
+  "classInfoNotFound": "Class information not found",
+  "featureInDevelopment": "Feature in development",
+  "confirmDeleteClass": "Are you sure you want to delete this class?",
+  "deleteClassError": "Error deleting class: {error}",
+  "@deleteClassError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "createNewClass": "Create New Class",
+  "dayLabel": "{day}",
+  "@dayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "classTimeLabel": "Time: {startTime} - {endTime}",
+  "@classTimeLabel": {
+    "placeholders": {
+      "startTime": {
+        "type": "String"
+      },
+      "endTime": {
+        "type": "String"
+      }
+    }
+  },
+  "createClassSuccess": "Class created successfully!",
+  "addScheduleDialog": "Add Schedule",
+  "startTime": "Start Time",
+  "endTime": "End Time",
+  "endTimeMustBeAfterStart": "End time must be after start time",
+  "save": "Save",
+  
+  "attendance": "Attendance",
+  "noAttendanceHistory": "No history",
+  "attendanceDialog": "Class Attendance",
+  "saveAttendance": "Save Attendance",
+  
+  "studentNumber": "Student {number}",
+  "@studentNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "idLabel": "ID",
+  "emailLabel": "Email",
+  "classGrade": "Grade",
+  
+  "descriptionLabel": "Description",
+  "subjectLabel": "Subject",
+  "studentCount2": "Number of Students",
+  "createdDate": "Created Date",
+  
+  "availableTutorClasses": "Available Tutor Classes",
+  "noTutorClassesAvailable": "No tutor classes available at the moment",
+  "registerSuccess": "Successfully registered! Please wait for teacher's approval.",
+  "registerError": "Registration error",
+  "registering": "Registering...",
+  "classInfo": "Class Information:",
+  "tuitionFee": "Tuition Fee",
+  "perSession": "VND/session",
+  "alreadyRegistered": "You have already registered for this class",
+  "confirmRegister": "Do you want to register for class \"{className}\"?",
+  "@confirmRegister": {
+    "placeholders": {
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "createClassButton": "Create Class",
+  "classNameRequired": "Class Name *",
+  "subjectRequired": "Subject *",
+  
+  "registerToJoin": "Register to Join",
+  "joined": "Joined Class",
+  "registering2": "Registering...",
+  "waitingForApproval": "Waiting for teacher approval",
+  "classFull": "Class Full",
+  "studentsLabel": "Students",
+  "spotsAvailable": "Available",
+  "tuitionFeeLabel": "Tuition Fee",
+  
+  "subjectPrefix": "Subject:",
+  "gradePrefix": "Grade:",
+  "teacherPrefix": "Teacher:",
+  "schedulePrefix": "Schedule:",
+  "addressPrefix": "Address:",
+  
+  "classDetailInfo": "Detailed Information",
+  "locationLabel": "Location",
+  "studentCountLabel": "Number of Students",
+  "studentCountValue": "{current}/{max} students",
+  "@studentCountValue": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "classSchedule": "Class Schedule",
+  "studentsInClass": "Students in Class",
+  "noStudentsYet": "No students yet",
+  "noStudentsDescription": "No students have joined this class yet",
+  
+  "errorLoadingClass": "Error loading class information",
+  "tryAgain": "Try Again",
+  
+  "pendingClasses": "Pending Classes List",
+  "noPendingClasses": "No pending classes",
+  
+  "confirmRemoveStudent": "Are you sure you want to remove student \"{studentName}\" from the pending list?",
+  "@confirmRemoveStudent": {
+    "placeholders": {
+      "studentName": {
+        "type": "String"
+      }
+    }
+  },
+  "studentRemoved": "Removed student {studentName} from pending list",
+  "@studentRemoved": {
+    "placeholders": {
+      "studentName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorRemovingStudent": "Error removing student: {error}",
+  "@errorRemovingStudent": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "confirmApproveStudent": "Are you sure you want to approve student \"{studentName}\" to join the class?",
+  "@confirmApproveStudent": {
+    "placeholders": {
+      "studentName": {
+        "type": "String"
+      }
+    }
+  },
+  "studentApproved": "Approved student {studentName}",
+  "@studentApproved": {
+    "placeholders": {
+      "studentName": {
+        "type": "String"
+      }
+    }
+  },
+  "errorApprovingStudent": "Error approving student: {error}",
+  "@errorApprovingStudent": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "pendingStudentsTitle": "Pending Students",
+  "pendingStudentsCount": "{count} pending students",
+  "@pendingStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "approveInstruction": "Click \"Approve\" button to confirm students into the class",
+  "allStudentsApproved": "All students have been approved or no one has registered yet",
+  
+  "attendanceHistory": "Attendance History",
+  "startAttendance": "Start Attendance",
+  "todayDate": "Today - {date}",
+  "@todayDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "attendanceStarted": "Attendance started",
+  "errorStartingAttendance": "Error starting attendance: {error}",
+  "@errorStartingAttendance": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "present": "Present",
+  "absent": "Absent",
+  "attendanceSaved": "Attendance saved successfully",
+  "errorSavingAttendance": "Error saving attendance: {error}",
+  "@errorSavingAttendance": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
+  ,
+  "essayExercise": "Essay Exercise",
+  "submitExercise": "Submit Exercise",
+  "submitting": "Submitting...",
+  "pleaseAnswerAllQuestions": "Please answer all questions",
+  "mcqSummaryTitle": "MCQ Submission",
+  "submitSuccessScore": "Submission succeeded! Score: {score}/{max}",
+  "@submitSuccessScore": {
+    "placeholders": {
+      "score": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "submitError": "Error submitting exercise: {error}",
+  "@submitError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "enterContentOrFile": "Please enter content or pick a file.",
+  "enterValidGrade": "Please enter a valid grade",
+  "gradeRange": "Grade must be between 0 - {max}",
+  "@gradeRange": { "placeholders": { "max": { "type": "String" } } },
+  "downloaded": "Downloaded: {fileName}",
+  "@downloaded": { "placeholders": { "fileName": { "type": "String" } } },
+  "fileDownloadError": "File download error: {error}",
+  "@fileDownloadError": { "placeholders": { "error": { "type": "String" } } },
+  "submissionsListTitle": "Submitted Students List",
+  "noSubmissionsYet": "No students have submitted yet",
+  "unknown": "Unknown",
+  "unknownTime": "Unknown time",
+  "essay": "Essay",
+  "multipleChoice": "Multiple Choice",
+  "overdue": "Overdue",
+  "timeLeftDays": "Remaining {days} days",
+  "@timeLeftDays": { "placeholders": { "days": { "type": "int" } } },
+  "timeLeftHours": "Remaining {hours} hours",
+  "@timeLeftHours": { "placeholders": { "hours": { "type": "int" } } },
+  "timeLeftMinutes": "Remaining {minutes} minutes",
+  "@timeLeftMinutes": { "placeholders": { "minutes": { "type": "int" } } },
+  "noExercises": "No exercises"
+  ,
+  "noQuestionsInMcq": "This MCQ exercise has no questions",
+  "mcqExercise": "MCQ Exercise",
+  "questionCount": "{count} questions",
+  "@questionCount": { "placeholders": { "count": { "type": "int" } } },
+  "questionLabel": "Question {number}",
+  "@questionLabel": { "placeholders": { "number": { "type": "int" } } },
+  "multipleAnswers": "Multiple answers",
+  "enterContentLabel": "Enter content",
+  "contentHint": "Write your answer... (can be empty if attaching a file)",
+  "pickFile": "Pick file",
+  "submitSuccessMessage": "Submission succeeded",
+  "manage": "Manage",
+  "viewResult": "View Result",
+  "viewDetail": "View Detail",
+  "doExercise": "Do Exercise"
+  ,
+  "submittedStudentsTitle": "Submitted Students",
+  "reload": "Reload",
+  "errorLoadingList": "Error loading list",
+  "noSubmissionsYet": "No students have submitted yet",
+  "unknownStudent": "Unknown",
+  "unknownTime": "Unknown time",
+  "scorePrefix": "Score",
+  "hasFeedback": "Has feedback",
+  "notGraded": "Not graded",
+  "invalidGrade": "Please enter a valid grade",
+  "gradeRange": "Grade must be between 0 - {max}",
+  "graded": "Graded",
+  "points": "points",
+  "gradeError": "Grading error",
+  "student": "Student",
+  "submittedAt": "Submitted at",
+  "lateSubmission": "Late",
+  "submissionContent": "Submission Content",
+  "attachments": "Attachments",
+  "downloaded": "Downloaded: {fileName}",
+  "fileDownloadError": "File download error: {error}"
+  ,
+  "createdAt": "Created at",
+  "yourScore": "Your score: {score}/{max}",
+  "@yourScore": { "placeholders": { "score": { "type": "String" }, "max": { "type": "String" } } },
+  "yourSubmissionNotGraded": "Your submission: Not graded",
+  "redoExercise": "Redo exercise",
+  "redoConfirmationContent": "Are you sure you want to redo?\n\nThe previous submission will be permanently deleted.",
+  "submissionNotFound": "Submission to delete not found",
+  "deletingOldSubmission": "Deleting old submission...",
+  "fileUpload": "File upload",
+  "statusClosed": "Closed",
+  "statusOpen": "Open",
+  "pleaseSelectDueDate": "Please select a due date",
+  "pleaseAddAtLeastOneQuestion": "Please add at least one question",
+  "createExerciseSuccess": "Exercise created successfully!",
+  "exerciseTitleLabel": "Exercise Title",
+  "enterExerciseTitle": "Enter title for the exercise...",
+  "descriptionLabel": "Description (optional)",
+  "descriptionHint": "Enter full description for the exercise...",
+  "subjectHintExamples": "Math, Literature, English...",
+  "createExercise": "Create Exercise",
+  "createExerciseButton": "Create Exercise"
+  ,
+  "pleaseEnterTitle": "Please enter a title",
+  "positiveIntegerError": "Must be a positive integer",
+  "exerciseSettings": "Exercise Settings"
+  ,
+  "all": "All",
+  "manageExercises": "Manage Exercises"
+  ,
+  "exerciseDetailTitle": "Exercise details"
+}

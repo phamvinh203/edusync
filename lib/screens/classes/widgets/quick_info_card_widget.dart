@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class QuickInfoCard extends StatelessWidget {
   final String userClass;
@@ -38,7 +39,7 @@ class QuickInfoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Lớp: $userClass',
+                '${AppLocalizations.of(context)!.classInfo}: $userClass',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -46,7 +47,7 @@ class QuickInfoCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Trường: $userSchool',
+                '${AppLocalizations.of(context)!.schoolInfo}: $userSchool',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.white.withOpacity(0.9),
                 ),
@@ -56,8 +57,16 @@ class QuickInfoCard extends StatelessWidget {
                 spacing: 12,
                 runSpacing: 8,
                 children: [
-                  _buildCardClass('0 môn học', Icons.book),
-                  _buildCardClass('$classCount $classLabel', Icons.school),
+                  _buildCardClass(
+                    context,
+                    '0 ${AppLocalizations.of(context)!.subjects}',
+                    Icons.book,
+                  ),
+                  _buildCardClass(
+                    context,
+                    '$classCount $classLabel',
+                    Icons.school,
+                  ),
                 ],
               ),
             ],
@@ -69,7 +78,7 @@ class QuickInfoCard extends StatelessWidget {
               top: 0,
               right: 0,
               child: Tooltip(
-                message: 'Tạo lớp học mới',
+                message: AppLocalizations.of(context)!.createNewClass,
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -92,7 +101,7 @@ class QuickInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCardClass(String text, IconData icon) {
+  Widget _buildCardClass(BuildContext context, String text, IconData icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(

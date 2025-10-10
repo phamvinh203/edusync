@@ -8,6 +8,7 @@ import 'package:edusync/screens/classes/tutor_classes/shared/widgets/sections/cl
 import 'package:edusync/screens/classes/tutor_classes/shared/widgets/sections/students_list_widget.dart';
 import 'package:edusync/screens/exercises/exercises_tab.dart';
 import 'package:edusync/screens/classes/tutor_classes/teacher/widgets/attendance_widget.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class ClassDetailScreen extends StatefulWidget {
   final String classId;
@@ -151,7 +152,9 @@ class _ClassDetailScreenState extends State<ClassDetailScreen>
     }
 
     if (_classDetails == null) {
-      return const Center(child: Text('Không tìm thấy thông tin lớp học'));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.classInfoNotFound),
+      );
     }
 
     final isTeacher = widget.userRole?.toLowerCase() == 'teacher';
@@ -175,10 +178,11 @@ class _ClassDetailScreenState extends State<ClassDetailScreen>
               unselectedLabelColor:
                   Theme.of(context).textTheme.bodyMedium?.color,
               tabs: [
-                const Tab(text: 'Học sinh'),
-                const Tab(text: 'Bài tập'),
-                const Tab(text: 'Lịch học'),
-                if (isTeacher) const Tab(text: 'Điểm danh'),
+                Tab(text: AppLocalizations.of(context)!.studentsLabel),
+                Tab(text: AppLocalizations.of(context)!.exercises),
+                Tab(text: AppLocalizations.of(context)!.classSchedule),
+                if (isTeacher)
+                  Tab(text: AppLocalizations.of(context)!.attendance),
               ],
             ),
           ),
@@ -248,23 +252,23 @@ class _ClassDetailScreenState extends State<ClassDetailScreen>
               children: [
                 _buildMenuItem(
                   Icons.edit,
-                  'Chỉnh sửa lớp học',
+                  AppLocalizations.of(context)!.featureInDevelopment,
                   _showComingSoon,
                 ),
                 _buildMenuItem(
                   Icons.people_alt,
-                  'Học sinh chờ duyệt',
+                  AppLocalizations.of(context)!.pendingStudentsTitle,
                   _goToPendingStudents,
                 ),
                 _buildMenuItem(
                   Icons.assignment,
-                  'Bài tập và điểm số',
+                  AppLocalizations.of(context)!.exercises,
                   _showComingSoon,
                 ),
                 const Divider(),
                 _buildMenuItem(
                   Icons.delete,
-                  'Xóa lớp học',
+                  AppLocalizations.of(context)!.delete,
                   _showDeleteConfirmation,
                   isDestructive: true,
                 ),

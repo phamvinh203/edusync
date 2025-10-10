@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/utils/style_icon.dart';
 import 'package:edusync/utils/day_of_week.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 /// Base widget cung cấp layout chung cho các card lớp học.
 /// Các lớp con có thể tuỳ chỉnh màu sắc, biểu tượng và phần hành động.
@@ -119,33 +120,34 @@ abstract class BaseClassCard extends StatelessWidget {
 
   Widget _buildBasicInfo(BuildContext context) {
     final theme = Theme.of(context).textTheme.bodySmall;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (classItem.subject.isNotEmpty)
           Text(
-            'Môn học: ${classItem.subject}',
+            '${l10n.subjectPrefix} ${classItem.subject}',
             style: theme?.copyWith(color: Colors.grey[600]),
           ),
         if (classItem.gradeLevel?.isNotEmpty == true)
           Text(
-            'Lớp: ${classItem.gradeLevel}',
+            '${l10n.gradePrefix} ${classItem.gradeLevel}',
             style: theme?.copyWith(color: Colors.grey[600]),
           ),
         if (classItem.teacherName?.isNotEmpty == true)
           Text(
-            'Giáo viên: ${classItem.teacherName}',
+            '${l10n.teacherPrefix} ${classItem.teacherName}',
             style: theme?.copyWith(color: Colors.grey[600]),
           ),
         if (classItem.schedule.isNotEmpty)
           Text(
-            'Lịch: ${getScheduleText(classItem.schedule)}',
+            '${l10n.schedulePrefix} ${getScheduleText(classItem.schedule)}',
             style: theme?.copyWith(color: Colors.grey[600]),
           ),
         if (classItem.location?.isNotEmpty == true)
           Text(
-            'Địa chỉ: ${classItem.location}',
+            '${l10n.addressPrefix} ${classItem.location}',
             style: theme?.copyWith(
               color: Colors.grey[600],
               fontStyle: FontStyle.italic,

@@ -1,5 +1,6 @@
 import 'package:edusync/utils/style_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 import 'package:edusync/screens/classes/tutor_classes/widgets/base_class_card.dart';
 
@@ -41,7 +42,7 @@ class PendingClassCard extends BaseClassCard {
           Icon(Icons.hourglass_empty, size: 18, color: subjectColor),
           const SizedBox(width: 8),
           Text(
-            'Đang chờ giáo viên duyệt',
+            AppLocalizations.of(context)!.waitingForApproval,
             style: TextStyle(fontWeight: FontWeight.bold, color: subjectColor),
           ),
         ],

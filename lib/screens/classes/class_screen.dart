@@ -18,6 +18,7 @@ import 'package:edusync/screens/schedule/schedule_screen.dart';
 import 'package:edusync/screens/classes/school_Classes/school_subject_tab.dart';
 import 'package:edusync/screens/classes/tutor_classes/tutor_class_tab.dart';
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class ClassScreen extends StatefulWidget {
   const ClassScreen({super.key});
@@ -84,9 +85,12 @@ class _ClassScreenState extends State<ClassScreen>
         if (!mounted) return const SizedBox.shrink();
 
         // Lấy thông tin profile từ UserBloc
-        final userClass = userState.profile?.userClass ?? 'Chưa cập nhật lớp';
+        final userClass =
+            userState.profile?.userClass ??
+            AppLocalizations.of(context)!.classNotUpdated;
         final userSchool =
-            userState.profile?.userSchool ?? 'Chưa cập nhật trường';
+            userState.profile?.userSchool ??
+            AppLocalizations.of(context)!.schoolNotUpdated;
 
         return BlocBuilder<AuthBloc, AuthState>(
           builder: (context, authState) {
@@ -104,16 +108,16 @@ class _ClassScreenState extends State<ClassScreen>
                   if (classState is ClassLoaded) {
                     classCount = classState.registeredClassesCount;
                   }
-                  classLabel = 'lớp gia sư';
+                  classLabel = AppLocalizations.of(context)!.tutorClasses;
                 } else if (userRole.toLowerCase() == 'teacher') {
                   // Giáo viên: hiển thị số lớp đã tạo
                   if (classState is ClassLoaded) {
                     classCount = classState.classes.length;
                   }
-                  classLabel = 'lớp đã tạo';
+                  classLabel = AppLocalizations.of(context)!.createdClasses;
                 } else {
                   // Role khác hoặc chưa xác định
-                  classLabel = 'lớp học';
+                  classLabel = AppLocalizations.of(context)!.classes;
                 }
 
                 return Scaffold(
@@ -165,7 +169,11 @@ class _ClassScreenState extends State<ClassScreen>
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                          'Đã tạo lớp "${result.nameClass}" thành công!',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.classCreatedSuccess(
+                                            result.nameClass,
+                                          ),
                                         ),
                                         backgroundColor: Colors.green,
                                         duration: const Duration(seconds: 3),
@@ -186,14 +194,26 @@ class _ClassScreenState extends State<ClassScreen>
                                     labelColor: Colors.blue[600],
                                     unselectedLabelColor: Colors.grey,
                                     indicatorColor: Colors.blue[600],
-                                    tabs: const [
+                                    tabs: [
                                       Tab(
-                                        text: 'Môn học trường',
-                                        icon: Icon(Icons.school, size: 20),
+                                        text:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.schoolSubjects,
+                                        icon: const Icon(
+                                          Icons.school,
+                                          size: 20,
+                                        ),
                                       ),
                                       Tab(
-                                        text: 'Lớp gia sư',
-                                        icon: Icon(Icons.person, size: 20),
+                                        text:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.tutorClassesTab,
+                                        icon: const Icon(
+                                          Icons.person,
+                                          size: 20,
+                                        ),
                                       ),
                                       // Tab(
                                       //   text: 'Lớp đã đăng ký',
@@ -218,7 +238,9 @@ class _ClassScreenState extends State<ClassScreen>
                                     Icons.calendar_today,
                                     size: 16,
                                   ),
-                                  label: const Text('Lịch học'),
+                                  label: Text(
+                                    AppLocalizations.of(context)!.schedule,
+                                  ),
                                 ),
                               ],
                             ),

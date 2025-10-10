@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/RegisteredClasses/registeredClasses_bloc.dart';
 import 'package:edusync/blocs/RegisteredClasses/registeredClasses_event.dart';
 import 'package:edusync/repositories/class_repository.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class JoinClassForm extends StatefulWidget {
   final VoidCallback? onSuccess;
@@ -27,7 +28,10 @@ class _JoinClassFormState extends State<JoinClassForm> {
   Future<void> _join() async {
     final code = _codeController.text.trim().toUpperCase();
     if (code.isEmpty) {
-      setState(() => _errorMessage = 'Vui lòng nhập mã lớp học');
+      setState(
+        () =>
+            _errorMessage = AppLocalizations.of(context)!.pleaseEnterClassCode,
+      );
       return;
     }
 
@@ -57,7 +61,7 @@ class _JoinClassFormState extends State<JoinClassForm> {
           SnackBar(
             content: Text(
               resp.message.isEmpty
-                  ? 'Tham gia lớp học thành công'
+                  ? AppLocalizations.of(context)!.joinSuccess
                   : resp.message,
             ),
             backgroundColor: Colors.green,
@@ -88,8 +92,8 @@ class _JoinClassFormState extends State<JoinClassForm> {
           textCapitalization: TextCapitalization.characters,
           enabled: !_isJoining,
           decoration: InputDecoration(
-            labelText: 'Mã lớp học',
-            hintText: 'Ví dụ: 5LG9HA',
+            labelText: AppLocalizations.of(context)!.classCodeLabel,
+            hintText: AppLocalizations.of(context)!.classCodeHint,
             prefixIcon: const Icon(Icons.vpn_key),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             errorText: _errorMessage,
@@ -110,7 +114,11 @@ class _JoinClassFormState extends State<JoinClassForm> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                     : const Icon(Icons.login),
-            label: Text(_isJoining ? 'Đang tham gia...' : 'Tham gia'),
+            label: Text(
+              _isJoining
+                  ? AppLocalizations.of(context)!.joining
+                  : AppLocalizations.of(context)!.joinClass,
+            ),
           ),
         ),
       ],

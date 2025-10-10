@@ -1,5 +1,6 @@
 import 'package:edusync/screens/exercises/widgets/exercise_item.dart';
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:edusync/models/exercise_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
 import 'package:edusync/repositories/exercise_repository.dart';
@@ -114,10 +115,12 @@ class _ExercisScreenState extends State<ExercisScreen>
       return const Center(child: CircularProgressIndicator());
     }
     if (_error != null) {
-      return Center(child: Text("Lỗi: $_error"));
+      return Center(
+        child: Text('${AppLocalizations.of(context)!.errorPrefix}: $_error'),
+      );
     }
     if (exercises.isEmpty) {
-      return const Center(child: Text("Không có bài tập"));
+      return Center(child: Text(AppLocalizations.of(context)!.noExercises));
     }
 
     return RefreshIndicator(
@@ -141,18 +144,28 @@ class _ExercisScreenState extends State<ExercisScreen>
 
   @override
   Widget build(BuildContext context) {
-    final String pendingTabLabel = widget.isTeacher ? 'Chưa chấm' : 'Chưa làm';
-    final String completedTabLabel = widget.isTeacher ? 'Đã chấm' : 'Đã nộp';
+    final String pendingTabLabel =
+        widget.isTeacher
+            ? AppLocalizations.of(context)!.pendingGrading
+            : AppLocalizations.of(context)!.notSubmitted;
+    final String completedTabLabel =
+        widget.isTeacher
+            ? AppLocalizations.of(context)!.graded
+            : AppLocalizations.of(context)!.submitted;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isTeacher ? "Quản lý bài tập" : "Bài tập"),
+        title: Text(
+          widget.isTeacher
+              ? AppLocalizations.of(context)!.manageExercises
+              : AppLocalizations.of(context)!.exercises,
+        ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: Theme.of(context).colorScheme.primary,
           unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
           tabs: [
-            const Tab(text: 'Tất cả'),
+            Tab(text: AppLocalizations.of(context)!.all),
             Tab(text: pendingTabLabel),
             Tab(text: completedTabLabel),
           ],

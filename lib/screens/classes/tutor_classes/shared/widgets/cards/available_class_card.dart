@@ -4,6 +4,7 @@ import 'package:edusync/utils/class_info_helper.dart';
 import 'package:edusync/utils/style_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 import 'package:edusync/screens/classes/tutor_classes/widgets/base_class_card.dart';
 
@@ -74,6 +75,7 @@ class AvailableClassCard extends BaseClassCard {
         registrationStatus == RegistrationStatus.idle;
 
     final (buttonLabel, buttonIcon) = _resolveButtonState(
+      context,
       isJoined: isJoined || isRegisteredFromBloc,
       isRegistering: isRegistering,
       isPending: isPending,
@@ -87,7 +89,8 @@ class AvailableClassCard extends BaseClassCard {
           children: [
             Expanded(
               child: _buildStatItem(
-                'Học sinh',
+                context,
+                AppLocalizations.of(context)!.studentsLabel,
                 ClassInfoHelper.getStudentCountText(classItem),
                 Colors.blue,
               ),
@@ -95,7 +98,8 @@ class AvailableClassCard extends BaseClassCard {
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatItem(
-                'Giá/buổi',
+                context,
+                AppLocalizations.of(context)!.tuitionFeeLabel,
                 ClassInfoHelper.getPriceText(classItem),
                 Colors.green,
               ),
@@ -103,7 +107,8 @@ class AvailableClassCard extends BaseClassCard {
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatItem(
-                'Trạng thái',
+                context,
+                AppLocalizations.of(context)!.spotsAvailable,
                 ClassInfoHelper.getClassStatusText(classItem),
                 ClassInfoHelper.isClassOpen(classItem)
                     ? Colors.green
@@ -137,28 +142,35 @@ class AvailableClassCard extends BaseClassCard {
     );
   }
 
-  (String, IconData) _resolveButtonState({
+  (String, IconData) _resolveButtonState(
+    BuildContext context, {
     required bool isJoined,
     required bool isRegistering,
     required bool isPending,
     required bool isOpen,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     if (isJoined) {
-      return ('Đã tham gia lớp', Icons.check_circle);
+      return (l10n.joined, Icons.check_circle);
     }
     if (isRegistering) {
-      return ('Đang đăng ký...', Icons.hourglass_top);
+      return (l10n.registering2, Icons.hourglass_top);
     }
     if (isPending) {
-      return ('Đang chờ giáo viên duyệt', Icons.hourglass_empty);
+      return (l10n.waitingForApproval, Icons.hourglass_empty);
     }
     if (!isOpen) {
-      return ('Lớp đã đầy', Icons.block);
+      return (l10n.classFull, Icons.block);
     }
-    return ('Đăng ký tham gia', Icons.app_registration);
+    return (l10n.registerToJoin, Icons.app_registration);
   }
 
-  Widget _buildStatItem(String title, String value, Color color) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String title,
+    String value,
+    Color color,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

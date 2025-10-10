@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/AvailableClasses/availableClasses_bloc.dart';
 import 'package:edusync/blocs/AvailableClasses/availableClasses_event.dart';
 import 'package:edusync/blocs/AvailableClasses/availableClasses_state.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class AvailableClassesBottomSheet extends StatefulWidget {
   const AvailableClassesBottomSheet({super.key});
@@ -53,9 +54,9 @@ class _AvailableClassesBottomSheetState
                   children: [
                     const Icon(Icons.search, color: Colors.blue),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Danh sách lớp gia sư',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.availableTutorClasses,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -63,11 +64,11 @@ class _AvailableClassesBottomSheetState
                     const Spacer(),
                     DropdownButton<String?>(
                       value: _selectedGrade,
-                      hint: const Text('Lọc theo lớp'),
+                      hint: Text(AppLocalizations.of(context)!.filterByGrade),
                       items: [
-                        const DropdownMenuItem<String?>(
+                        DropdownMenuItem<String?>(
                           value: null,
-                          child: Text('Tất cả lớp'),
+                          child: Text(AppLocalizations.of(context)!.allGrades),
                         ),
                         ..._gradeOptions.map(
                           (g) => DropdownMenuItem<String?>(
@@ -132,19 +133,21 @@ class _AvailableClassesBottomSheetState
                       }
 
                       if (filtered.isEmpty) {
-                        return const Center(
+                        return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.school_outlined,
                                 size: 64,
                                 color: Colors.grey,
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               Text(
-                                'Hiện tại chưa có lớp gia sư nào',
-                                style: TextStyle(
+                                AppLocalizations.of(
+                                  context,
+                                )!.noTutorClassesAvailable,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   color: Colors.grey,
                                 ),
@@ -202,12 +205,16 @@ class _AvailableClassesBottomSheetState
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
                                               content: Text(
-                                                'Đăng ký lớp thành công! Vui lòng chờ giáo viên duyệt.',
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.registerSuccess,
                                               ),
                                               backgroundColor: Colors.green,
-                                              duration: Duration(seconds: 4),
+                                              duration: const Duration(
+                                                seconds: 4,
+                                              ),
                                             ),
                                           );
                                         } else if (st ==
@@ -216,12 +223,16 @@ class _AvailableClassesBottomSheetState
                                           final err =
                                               nextState
                                                   .errorMessages[classId] ??
-                                              'Lỗi khi đăng ký';
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.registerError;
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
                                             SnackBar(
-                                              content: Text('Lỗi: $err'),
+                                              content: Text(
+                                                '${AppLocalizations.of(context)!.errorPrefix}: $err',
+                                              ),
                                               backgroundColor: Colors.red,
                                             ),
                                           );

@@ -1,5 +1,6 @@
 // widget hiển thị trạng thái lỗi khi có sự cố xảy ra.
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final String message;
@@ -27,7 +28,7 @@ class ErrorStateWidget extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: onRetry,
-            child: const Text('Thử lại'),
+            child: Text(AppLocalizations.of(context)!.tryAgain),
           ),
         ],
       ),

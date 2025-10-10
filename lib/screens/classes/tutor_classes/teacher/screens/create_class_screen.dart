@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
 import 'package:edusync/core/services/notification_service.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 // Custom formatter cho số tiền
 class CurrencyInputFormatter extends TextInputFormatter {
@@ -82,7 +83,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tạo lớp học mới'),
+        title: Text(AppLocalizations.of(context)!.createNewClass),
         backgroundColor: Colors.blue[600],
         foregroundColor: Colors.white,
       ),
@@ -95,21 +96,21 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Thông tin cơ bản
-                _buildSectionTitle('Thông tin cơ bản'),
+                _buildSectionTitle(AppLocalizations.of(context)!.basicInfo),
                 const SizedBox(height: 16),
 
                 // Tên lớp học
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tên lớp học *',
-                    hintText: 'Nhập tên lớp học',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.class_),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.classNameRequired,
+                    hintText: AppLocalizations.of(context)!.enterClassName,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.class_),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Vui lòng nhập tên lớp học';
+                      return AppLocalizations.of(context)!.pleaseEnterClassName;
                     }
                     return null;
                   },
@@ -119,15 +120,15 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                 // Môn học
                 TextFormField(
                   controller: _subjectController,
-                  decoration: const InputDecoration(
-                    labelText: 'Môn học *',
-                    hintText: 'Nhập môn học',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.book),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.subjectRequired,
+                    hintText: AppLocalizations.of(context)!.enterSubject,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.book),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Vui lòng nhập môn học';
+                      return AppLocalizations.of(context)!.pleaseEnterSubject;
                     }
                     return null;
                   },
@@ -137,11 +138,11 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                 // Lớp dạy thêm
                 TextFormField(
                   controller: _gradeLevelController,
-                  decoration: const InputDecoration(
-                    labelText: 'Lớp dạy thêm',
-                    hintText: 'Ví dụ: Lớp 12, Lớp 10, ...',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.grade),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.extraClass,
+                    hintText: AppLocalizations.of(context)!.extraClassHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.grade),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -151,11 +152,11 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                   controller: _pricePerSessionController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [CurrencyInputFormatter()],
-                  decoration: const InputDecoration(
-                    labelText: 'Giá tiền cho 1 buổi học (VNĐ)',
-                    hintText: 'Ví dụ: 20.000',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.monetization_on),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.pricePerSession,
+                    hintText: AppLocalizations.of(context)!.priceHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.monetization_on),
                     suffixText: 'VNĐ',
                   ),
                   validator: (value) {
@@ -164,7 +165,9 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                       final cleanValue = value.replaceAll('.', '');
                       final number = double.tryParse(cleanValue);
                       if (number == null || number <= 0) {
-                        return 'Vui lòng nhập số tiền hợp lệ';
+                        return AppLocalizations.of(
+                          context,
+                        )!.pleaseEnterValidPrice;
                       }
                     }
                     return null;
@@ -176,11 +179,11 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                 TextFormField(
                   controller: _descriptionController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Mô tả',
-                    hintText: 'Nhập mô tả về lớp học',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.description,
+                    hintText: AppLocalizations.of(context)!.descriptionHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.description),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -188,11 +191,11 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                 // Địa điểm
                 TextFormField(
                   controller: _locationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Địa điểm',
-                    hintText: 'Nhập địa điểm học',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.location_on),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.locationLabel,
+                    hintText: AppLocalizations.of(context)!.locationHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.location_on),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -202,17 +205,19 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                   controller: _maxStudentsController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    labelText: 'Số học viên tối đa',
-                    hintText: 'Nhập số học viên tối đa',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.people),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.maxStudents,
+                    hintText: AppLocalizations.of(context)!.maxStudentsHint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.people),
                   ),
                   validator: (value) {
                     if (value != null && value.isNotEmpty) {
                       final number = int.tryParse(value);
                       if (number == null || number <= 0) {
-                        return 'Vui lòng nhập số hợp lệ';
+                        return AppLocalizations.of(
+                          context,
+                        )!.pleaseEnterValidNumber;
                       }
                     }
                     return null;
@@ -221,20 +226,20 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                 const SizedBox(height: 32),
 
                 // Lịch học
-                _buildSectionTitle('Lịch học'),
+                _buildSectionTitle(AppLocalizations.of(context)!.schedule),
                 const SizedBox(height: 16),
 
                 ..._schedules.asMap().entries.map((entry) {
                   final index = entry.key;
                   final schedule = entry.value;
-                  return _buildScheduleCard(schedule, index);
+                  return _buildScheduleCard(context, schedule, index);
                 }),
 
                 // Nút thêm lịch học
                 OutlinedButton.icon(
                   onPressed: _addSchedule,
                   icon: const Icon(Icons.add),
-                  label: const Text('Thêm lịch học'),
+                  label: Text(AppLocalizations.of(context)!.addSchedule),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.blue[600],
                     side: BorderSide(color: Colors.blue[600]!),
@@ -269,9 +274,9 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
                                 ),
                               ),
                             )
-                            : const Text(
-                              'Tạo lớp học',
-                              style: TextStyle(
+                            : Text(
+                              AppLocalizations.of(context)!.createClassButton,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -297,7 +302,11 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
     );
   }
 
-  Widget _buildScheduleCard(Schedule schedule, int index) {
+  Widget _buildScheduleCard(
+    BuildContext context,
+    Schedule schedule,
+    int index,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -309,7 +318,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Lịch học ${index + 1}',
+                  AppLocalizations.of(context)!.scheduleNumber(index + 1),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -322,8 +331,16 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Text('${getVietnameseDayOfWeek(schedule.dayOfWeek)}'),
-            Text('Giờ học: ${schedule.startTime} - ${schedule.endTime}'),
+            Text(
+              AppLocalizations.of(
+                context,
+              )!.dayLabel(getVietnameseDayOfWeek(schedule.dayOfWeek)),
+            ),
+            Text(
+              AppLocalizations.of(
+                context,
+              )!.classTimeLabel(schedule.startTime, schedule.endTime),
+            ),
           ],
         ),
       ),
@@ -405,8 +422,8 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
           // Ignore notification failures to not block UX
         }
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tạo lớp học thành công!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.createClassSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -418,7 +435,7 @@ class _CreateClassScreenState extends State<CreateClassScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Lỗi: ${e.toString().replaceFirst('Exception: ', '')}',
+              '${AppLocalizations.of(context)!.errorPrefix}: ${e.toString().replaceFirst('Exception: ', '')}',
             ),
             backgroundColor: Colors.red,
           ),
@@ -452,16 +469,16 @@ class _ScheduleDialogState extends State<_ScheduleDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Thêm lịch học'),
+      title: Text(AppLocalizations.of(context)!.addScheduleDialog),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Chọn thứ
           DropdownButtonFormField<String>(
             value: _selectedDay,
-            decoration: const InputDecoration(
-              labelText: 'Thứ',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.dayLabel(''),
+              border: const OutlineInputBorder(),
             ),
             items:
                 [
@@ -488,7 +505,7 @@ class _ScheduleDialogState extends State<_ScheduleDialog> {
 
           // Giờ bắt đầu
           ListTile(
-            title: const Text('Giờ bắt đầu'),
+            title: Text(AppLocalizations.of(context)!.startTime),
             subtitle: Text(_startTime.format(context)),
             trailing: const Icon(Icons.access_time),
             onTap: () async {
@@ -506,7 +523,7 @@ class _ScheduleDialogState extends State<_ScheduleDialog> {
 
           // Giờ kết thúc
           ListTile(
-            title: const Text('Giờ kết thúc'),
+            title: Text(AppLocalizations.of(context)!.endTime),
             subtitle: Text(_endTime.format(context)),
             trailing: const Icon(Icons.access_time),
             onTap: () async {
@@ -526,7 +543,7 @@ class _ScheduleDialogState extends State<_ScheduleDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Hủy'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -534,8 +551,10 @@ class _ScheduleDialogState extends State<_ScheduleDialog> {
                 (_endTime.hour == _startTime.hour &&
                     _endTime.minute <= _startTime.minute)) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Giờ kết thúc phải sau giờ bắt đầu'),
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.of(context)!.endTimeMustBeAfterStart,
+                  ),
                   backgroundColor: Colors.red,
                 ),
               );
@@ -553,7 +572,7 @@ class _ScheduleDialogState extends State<_ScheduleDialog> {
             widget.onSave(schedule);
             Navigator.of(context).pop();
           },
-          child: const Text('Lưu'),
+          child: Text(AppLocalizations.of(context)!.save),
         ),
       ],
     );

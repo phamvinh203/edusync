@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
 import 'package:edusync/screens/classes/tutor_classes/shared/widgets/cards/pending_class_card.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class PendingClassesBottomSheet extends StatelessWidget {
   const PendingClassesBottomSheet({super.key});
@@ -21,13 +22,13 @@ class PendingClassesBottomSheet extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.pending_actions, color: Colors.orange),
-                    SizedBox(width: 8),
+                    const Icon(Icons.pending_actions, color: Colors.orange),
+                    const SizedBox(width: 8),
                     Text(
-                      'Danh sách lớp đang chờ duyệt',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.pendingClasses,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -55,7 +56,7 @@ class PendingClassesBottomSheet extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Không thể tải danh sách lớp đang chờ duyệt: ${snapshot.error}',
+                                '${AppLocalizations.of(context)!.errorPrefix}: ${snapshot.error}',
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -72,19 +73,19 @@ class PendingClassesBottomSheet extends StatelessWidget {
                             .toList();
 
                     if (pendingClasses.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.hourglass_empty,
                               size: 64,
                               color: Colors.grey,
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
-                              'Không có lớp nào đang chờ duyệt',
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.noPendingClasses,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey,
                               ),

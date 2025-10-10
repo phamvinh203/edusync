@@ -1,5 +1,6 @@
 import 'package:edusync/models/class_model.dart';
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class SubjectCard extends StatelessWidget {
   final ClassModel classItem;
@@ -49,7 +50,13 @@ class SubjectCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Bạn đã chọn lớp ${classItem.nameClass}')),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(
+                  context,
+                )!.youSelectedClass(classItem.nameClass),
+              ),
+            ),
           );
         },
         child: Container(
@@ -88,7 +95,9 @@ class SubjectCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      userRole == 'teacher' ? 'Đã tạo' : 'Đã tham gia',
+                      userRole == 'teacher'
+                          ? AppLocalizations.of(context)!.created
+                          : AppLocalizations.of(context)!.joined,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 9,
@@ -127,7 +136,7 @@ class SubjectCard extends StatelessWidget {
                       classItem.teacherName != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      'GV: ${classItem.teacherName}',
+                      '${AppLocalizations.of(context)!.teacherLabel}: ${classItem.teacherName}',
                       style: const TextStyle(
                         fontSize: 11,
                         color: Colors.black54,
