@@ -906,7 +906,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lateSubmission => 'Late';
 
   @override
-  String get submissionContent => 'Submission Content';
+  String get submissionContent => 'Submitted';
 
   @override
   String get attachments => 'Attachments';
@@ -943,6 +943,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusOpen => 'Open';
+
+  @override
+  String get submission => 'Submission';
+
+  @override
+  String get upcomingClassTitle => 'Upcoming class';
+
+  @override
+  String get assignmentDueTitle => 'Assignment due';
+
+  @override
+  String assignmentDueDescription(String title, String hours) {
+    return '$title - due in $hours hours';
+  }
+
+  @override
+  String get newExerciseCreatedTitle => 'New exercise created';
+
+  @override
+  String newExerciseCreatedDescription(String title, String count) {
+    return '$title - $count students submitted';
+  }
 
   @override
   String get pleaseSelectDueDate => 'Please select a due date';

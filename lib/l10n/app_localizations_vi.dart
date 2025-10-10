@@ -906,7 +906,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get lateSubmission => 'Nộp muộn';
 
   @override
-  String get submissionContent => 'Nội dung bài làm';
+  String get submissionContent => 'Đã nộp';
 
   @override
   String get attachments => 'Tệp đính kèm';
@@ -943,6 +943,28 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get statusOpen => 'Đang mở';
+
+  @override
+  String get submission => 'Bài nộp';
+
+  @override
+  String get upcomingClassTitle => 'Lớp học sắp diễn ra';
+
+  @override
+  String get assignmentDueTitle => 'Bài tập sắp hết hạn';
+
+  @override
+  String assignmentDueDescription(String title, String hours) {
+    return '$title - còn $hours giờ';
+  }
+
+  @override
+  String get newExerciseCreatedTitle => 'Bài tập vừa tạo';
+
+  @override
+  String newExerciseCreatedDescription(String title, String count) {
+    return '$title - $count học sinh đã nộp';
+  }
 
   @override
   String get pleaseSelectDueDate => 'Vui lòng chọn hạn nộp bài';

@@ -1721,7 +1721,7 @@ abstract class AppLocalizations {
   /// No description provided for @submissionContent.
   ///
   /// In en, this message translates to:
-  /// **'Submission Content'**
+  /// **'Submitted'**
   String get submissionContent;
 
   /// No description provided for @attachments.
@@ -1789,6 +1789,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get statusOpen;
+
+  /// No description provided for @submission.
+  ///
+  /// In en, this message translates to:
+  /// **'Submission'**
+  String get submission;
+
+  /// No description provided for @upcomingClassTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming class'**
+  String get upcomingClassTitle;
+
+  /// No description provided for @assignmentDueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment due'**
+  String get assignmentDueTitle;
+
+  /// No description provided for @assignmentDueDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} - due in {hours} hours'**
+  String assignmentDueDescription(String title, String hours);
+
+  /// No description provided for @newExerciseCreatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New exercise created'**
+  String get newExerciseCreatedTitle;
+
+  /// No description provided for @newExerciseCreatedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} - {count} students submitted'**
+  String newExerciseCreatedDescription(String title, String count);
 
   /// No description provided for @pleaseSelectDueDate.
   ///
