@@ -7,6 +7,7 @@ import 'package:edusync/screens/exercises/exercis_screen.dart';
 import 'package:edusync/screens/profile/profile_screen.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/blocs/auth/auth_state.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -63,11 +64,23 @@ class _MainScreenState extends State<MainScreen> {
                   duration: const Duration(milliseconds: 400),
                   tabBackgroundColor: primaryColor[600]!,
                   color: Colors.grey[600],
-                  tabs: const [
-                    GButton(icon: Icons.home_rounded, text: 'Trang chủ'),
-                    GButton(icon: Icons.class_, text: 'Lớp học'),
-                    GButton(icon: Icons.assignment_rounded, text: 'Bài tập'),
-                    GButton(icon: Icons.person_rounded, text: 'Cá nhân'),
+                  tabs: [
+                    GButton(
+                      icon: Icons.home_rounded,
+                      text: AppLocalizations.of(context)!.home,
+                    ),
+                    GButton(
+                      icon: Icons.class_,
+                      text: AppLocalizations.of(context)!.classes,
+                    ),
+                    GButton(
+                      icon: Icons.assignment_rounded,
+                      text: AppLocalizations.of(context)!.exercises,
+                    ),
+                    GButton(
+                      icon: Icons.person_rounded,
+                      text: AppLocalizations.of(context)!.profile,
+                    ),
                   ],
                   selectedIndex: _selectedIndex,
                   onTabChange: (index) {

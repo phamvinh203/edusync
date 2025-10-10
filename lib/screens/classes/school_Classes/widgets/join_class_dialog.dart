@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'join_class_form.dart';
 
 class JoinClassDialog extends StatelessWidget {
@@ -7,20 +8,20 @@ class JoinClassDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.qr_code_2, color: Colors.blue),
-          SizedBox(width: 8),
-          Text('Nhập mã lớp học'),
+          const Icon(Icons.qr_code_2, color: Colors.blue),
+          const SizedBox(width: 8),
+          Text(AppLocalizations.of(context)!.enterClassCode),
         ],
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Nhập mã lớp do giáo viên cung cấp để tham gia lớp học chính khóa.',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
+          Text(
+            AppLocalizations.of(context)!.enterClassCodeDescription,
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
           const SizedBox(height: 16),
           // Use the reusable form. When successful, close the dialog.

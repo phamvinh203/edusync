@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/repositories/auth_repository.dart';
 import 'package:edusync/blocs/user/user_bloc.dart';
@@ -10,8 +11,12 @@ import 'package:edusync/blocs/exercise/exercise_bloc.dart';
 import 'package:edusync/repositories/exercise_repository.dart';
 import 'package:edusync/blocs/AvailableClasses/availableClasses_bloc.dart';
 import 'package:edusync/blocs/RegisteredClasses/registeredClasses_bloc.dart';
+import 'package:edusync/blocs/locale/locale_bloc.dart';
+import 'package:edusync/blocs/locale/locale_event.dart';
+import 'package:edusync/blocs/locale/locale_state.dart';
 import 'package:edusync/core/services/notification_service.dart';
 import 'package:edusync/core/services/notification_manager.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'screens/auth/login_screen.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -65,6 +70,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
+            create: (context) => LocaleBloc()..add(const LocaleLoaded()),
+          ),
+          BlocProvider(
             create:
                 (context) =>
                     AuthBloc(repository: context.read<AuthRepository>()),
@@ -98,14 +106,26 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 ),
           ),
         ],
-        child: MaterialApp(
-          title: 'EduSync',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue[200]!),
-            useMaterial3: true,
-          ),
-          home: const LoginScreen(),
+        child: BlocBuilder<LocaleBloc, LocaleState>(
+          builder: (context, localeState) {
+            return MaterialApp(
+              title: 'EduSync',
+              debugShowCheckedModeBanner: false,
+              locale: localeState.locale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('vi'), Locale('en')],
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue[200]!),
+                useMaterial3: true,
+              ),
+              home: const LoginScreen(),
+            );
+          },
         ),
       ),
     );

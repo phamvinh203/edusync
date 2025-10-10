@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/models/class_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import '../widgets/subject_card.dart';
 
 class TeacherSubjectView extends StatefulWidget {
@@ -30,7 +31,7 @@ class _TeacherSubjectViewState extends State<TeacherSubjectView> {
 
     if (teacherId == null || teacherId.isEmpty) {
       setState(() {
-        _loadError = 'Không tìm thấy Teacher ID. Vui lòng đăng nhập lại.';
+        _loadError = AppLocalizations.of(context)!.noTeacherIdError;
         _isLoading = false;
       });
       return;
@@ -87,15 +88,17 @@ class _TeacherSubjectViewState extends State<TeacherSubjectView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Môn học trường',
+                        AppLocalizations.of(context)!.schoolSubjects,
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         hasClasses
-                            ? '${_classes.length} lớp học đã tạo'
-                            : 'Chưa có lớp học nào',
+                            ? AppLocalizations.of(
+                              context,
+                            )!.classesCreated(_classes.length)
+                            : AppLocalizations.of(context)!.noClassesYet,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -104,9 +107,7 @@ class _TeacherSubjectViewState extends State<TeacherSubjectView> {
                   ),
                 ),
               ],
-            ),
-
-            // Content
+            ), // Content
             if (_isLoading)
               const Center(
                 child: Padding(
@@ -134,7 +135,7 @@ class _TeacherSubjectViewState extends State<TeacherSubjectView> {
           const Icon(Icons.error_outline, size: 64, color: Colors.red),
           const SizedBox(height: 16),
           Text(
-            'Lỗi tải dữ liệu',
+            AppLocalizations.of(context)!.dataLoadError,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -154,7 +155,7 @@ class _TeacherSubjectViewState extends State<TeacherSubjectView> {
           ElevatedButton.icon(
             onPressed: _loadClasses,
             icon: const Icon(Icons.refresh),
-            label: const Text('Thử lại'),
+            label: Text(AppLocalizations.of(context)!.retry),
           ),
         ],
       ),
@@ -180,7 +181,7 @@ class _TeacherSubjectViewState extends State<TeacherSubjectView> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Chưa có lớp học nào',
+            AppLocalizations.of(context)!.noClassesYet,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.grey[700],
@@ -190,7 +191,7 @@ class _TeacherSubjectViewState extends State<TeacherSubjectView> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'Bạn chưa tạo lớp học chính khóa nào. Tạo lớp học mới để bắt đầu.',
+              AppLocalizations.of(context)!.createFirstClass,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,

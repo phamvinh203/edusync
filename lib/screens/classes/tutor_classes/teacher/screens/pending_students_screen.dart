@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:edusync/models/users_model.dart';
 import 'package:edusync/repositories/class_repository.dart';
 
@@ -24,14 +25,16 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Xác nhận xóa'),
+            title: Text(AppLocalizations.of(context)!.confirmDelete),
             content: Text(
-              'Bạn có chắc chắn muốn xóa học sinh "${student.username}" khỏi danh sách chờ duyệt?',
+              AppLocalizations.of(
+                context,
+              )!.confirmRemoveStudent(student.username ?? ''),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -45,7 +48,7 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Xóa'),
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
           ),
@@ -63,7 +66,7 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Đã xóa học sinh $studentName khỏi danh sách chờ duyệt',
+              AppLocalizations.of(context)!.studentRemoved(studentName),
             ),
             backgroundColor: Colors.red,
           ),
@@ -75,7 +78,9 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Lỗi xóa: ${e.toString().replaceFirst('Exception: ', '')}',
+              AppLocalizations.of(context)!.errorRemovingStudent(
+                e.toString().replaceFirst('Exception: ', ''),
+              ),
             ),
             backgroundColor: Colors.red,
           ),
@@ -133,7 +138,9 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Đã duyệt học sinh ${response.approvedStudent.username}',
+              AppLocalizations.of(
+                context,
+              )!.studentApproved(response.approvedStudent.username ?? ''),
             ),
             backgroundColor: Colors.green,
           ),
@@ -159,7 +166,9 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Lỗi: ${e.toString().replaceFirst('Exception: ', '')}',
+              AppLocalizations.of(context)!.errorApprovingStudent(
+                e.toString().replaceFirst('Exception: ', ''),
+              ),
             ),
             backgroundColor: Colors.red,
           ),
@@ -173,14 +182,17 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Xác nhận duyệt'),
+            title: Text(AppLocalizations.of(context)!.confirmApprove),
             content: Text(
-              'Bạn có chắc chắn muốn duyệt học sinh "${student.username}" vào lớp học?',
+              AppLocalizations.of(context)!.confirmApproveMessage.replaceAll(
+                '{studentName}',
+                student.username ?? '',
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -191,7 +203,7 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Duyệt'),
+                child: Text(AppLocalizations.of(context)!.approve),
               ),
             ],
           ),
@@ -205,8 +217,8 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Học sinh chờ duyệt',
+            Text(
+              AppLocalizations.of(context)!.pendingStudentsTitle,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             Text(
@@ -228,13 +240,13 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Đang tải danh sách học sinh chờ duyệt...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.of(context)!.loadingPendingStudents),
           ],
         ),
       );
@@ -248,14 +260,14 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
             Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
             const SizedBox(height: 16),
             Text(
-              'Lỗi: $_error',
+              '${AppLocalizations.of(context)!.errorPrefix}: $_error',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16, color: Colors.red),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadPendingStudents,
-              child: const Text('Thử lại'),
+              child: Text(AppLocalizations.of(context)!.tryAgain),
             ),
           ],
         ),
@@ -270,14 +282,16 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
             Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Không có học sinh nào chờ duyệt',
+              AppLocalizations.of(context)!.noPendingStudents,
               style: TextStyle(fontSize: 18, color: Colors.grey[600]),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             Text(
-              'Tất cả học sinh đã được duyệt hoặc chưa có ai đăng ký',
-              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-              textAlign: TextAlign.center,
+              widget.className,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ],
         ),
@@ -305,7 +319,9 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${_pendingStudents!.totalPending} học sinh chờ duyệt',
+                        AppLocalizations.of(
+                          context,
+                        )!.pendingStudentsCount(_pendingStudents!.totalPending),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -313,7 +329,7 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
                         ),
                       ),
                       Text(
-                        'Nhấn vào nút "Duyệt" để xác nhận học sinh vào lớp',
+                        AppLocalizations.of(context)!.approveInstruction,
                         style: TextStyle(fontSize: 12, color: Colors.blue[600]),
                       ),
                     ],
@@ -409,9 +425,9 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
                               onPressed:
                                   () => _showApproveConfirmation(student),
                               icon: const Icon(Icons.check, size: 16),
-                              label: const Text(
-                                'Duyệt',
-                                style: TextStyle(fontSize: 12),
+                              label: Text(
+                                AppLocalizations.of(context)!.approve,
+                                style: const TextStyle(fontSize: 12),
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
@@ -429,9 +445,9 @@ class _PendingStudentsScreenState extends State<PendingStudentsScreen> {
                             ElevatedButton.icon(
                               onPressed: () => _showRemoveConfirmation(student),
                               icon: const Icon(Icons.delete, size: 16),
-                              label: const Text(
-                                'Xóa',
-                                style: TextStyle(fontSize: 12),
+                              label: Text(
+                                AppLocalizations.of(context)!.delete,
+                                style: const TextStyle(fontSize: 12),
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,

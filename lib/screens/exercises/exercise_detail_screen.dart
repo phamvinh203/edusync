@@ -4,6 +4,7 @@ import 'package:edusync/screens/exercises/student/essay_exercise_section.dart';
 import 'package:edusync/screens/exercises/student/mcq_exercise_section.dart';
 import 'package:edusync/screens/exercises/teacher/teacher_section.dart';
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/exercise/exercise_bloc.dart';
 import 'package:edusync/blocs/exercise/exercise_event.dart';
@@ -83,7 +84,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chi tiết bài tập')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.exerciseDetailTitle),
+      ),
       body: MultiBlocListener(
         listeners: [
           BlocListener<ExerciseBloc, ExerciseState>(
@@ -159,13 +162,20 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                         spacing: 8,
                         runSpacing: -6,
                         children: [
-                          _chip(_typeLabel(ex.type), _typeColor(ex.type)),
                           _chip(
-                            _statusLabel(ex.status),
+                            _typeLabel(context, ex.type),
+                            _typeColor(ex.type),
+                          ),
+                          _chip(
+                            _statusLabel(context, ex.status),
                             _statusColor(ex.status),
                           ),
                           if ((ex.subject ?? '').isNotEmpty)
-                            _chip('Môn: ${ex.subject}', Colors.teal),
+                            _chip(
+                              AppLocalizations.of(context)!.subjectPrefix +
+                                  ' ${ex.subject}',
+                              Colors.teal,
+                            ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -175,11 +185,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Tạo lúc: ${_formatDate(ex.createdAt ?? ex.startDate ?? DateTime.now())}",
+                            '${AppLocalizations.of(context)!.createdAt}: ${_formatDate(ex.createdAt ?? ex.startDate ?? DateTime.now())}',
                             style: const TextStyle(fontSize: 14),
                           ),
                           Text(
-                            "Hạn: ${_formatDate(ex.dueDate)}",
+                            '${AppLocalizations.of(context)!.deadline}: ${_formatDate(ex.dueDate)}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.orange,
@@ -201,8 +211,12 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                             if (userSubmission?.grade != null) {
                               final g = userSubmission!.grade!;
                               final max = ex.maxScore ?? 10;
-                              final text =
-                                  'Điểm của bạn: ${g.toStringAsFixed(1)}/$max';
+                              final text = AppLocalizations.of(
+                                context,
+                              )!.yourScore(
+                                g.toStringAsFixed(1),
+                                max.toString(),
+                              );
                               return Text(
                                 text,
                                 style: const TextStyle(
@@ -212,9 +226,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                 ),
                               );
                             } else if (userSubmission != null) {
-                              return const Text(
-                                'Bài nộp của bạn: Chưa chấm',
-                                style: TextStyle(
+                              return Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.yourSubmissionNotGraded,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.orange,
@@ -238,9 +254,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
                       // Mô tả
                       if ((ex.description ?? '').isNotEmpty) ...[
-                        const Text(
-                          'Mô tả',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.descriptionLabel,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           ),
@@ -252,9 +268,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
                       // Tệp đính kèm
                       if (ex.attachments.isNotEmpty) ...[
-                        const Text(
-                          'Tệp đính kèm',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.attachments,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           ),
@@ -425,14 +441,6 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                               size: 20,
                                             ),
                                             const SizedBox(width: 8),
-                                            Text(
-                                              '🏆 Điểm: ${userSubmission!.grade!.toStringAsFixed(1)} / ${ex.maxScore ?? 10}',
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.blue,
-                                              ),
-                                            ),
                                           ],
                                         ),
                                       ),
@@ -445,7 +453,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                         width: double.infinity,
                                         child: ElevatedButton.icon(
                                           icon: const Icon(Icons.refresh),
-                                          label: const Text('Làm lại bài tập'),
+                                          label: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.redoExercise,
+                                          ),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
                                                 Colors.orange.shade600,
@@ -490,15 +502,15 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     );
   }
 
-  String _typeLabel(String type) {
+  String _typeLabel(BuildContext context, String type) {
     switch (type) {
       case 'multiple_choice':
-        return 'Trắc nghiệm';
+        return AppLocalizations.of(context)!.multipleChoice;
       case 'file_upload':
-        return 'Nộp file';
+        return AppLocalizations.of(context)!.fileUpload;
       case 'essay':
       default:
-        return 'Tự luận';
+        return AppLocalizations.of(context)!.essayExercise;
     }
   }
 
@@ -513,11 +525,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     }
   }
 
-  String _statusLabel(String status) {
+  String _statusLabel(BuildContext context, String status) {
     final s = status.toLowerCase();
-    if (s == 'closed') return 'Đã đóng';
-    if (s == 'graded') return 'Đã chấm';
-    return 'Đang mở';
+    if (s == 'closed') return AppLocalizations.of(context)!.statusClosed;
+    if (s == 'graded') return AppLocalizations.of(context)!.graded;
+    return AppLocalizations.of(context)!.statusOpen;
   }
 
   Color _statusColor(String status) {
@@ -608,7 +620,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            title: const Row(
+            title: Row(
               children: [
                 Icon(
                   Icons.warning_amber_rounded,
@@ -616,21 +628,21 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   size: 28,
                 ),
                 SizedBox(width: 12),
-                Text('Làm lại bài tập'),
+                Text(AppLocalizations.of(context)!.redoExercise),
               ],
             ),
-            content: const Text(
-              'Bạn có chắc chắn muốn làm lại?\n\nBài nộp trước đó sẽ bị xóa hoàn toàn.',
-              style: TextStyle(fontSize: 15),
+            content: Text(
+              AppLocalizations.of(context)!.redoConfirmationContent,
+              style: const TextStyle(fontSize: 15),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Hủy'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton.icon(
                 icon: const Icon(Icons.check),
-                label: const Text('Xác nhận'),
+                label: Text(AppLocalizations.of(context)!.confirm),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
@@ -643,8 +655,10 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
                   if (userSubmission?.id == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Không tìm thấy bài nộp để xóa'),
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.submissionNotFound,
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -662,10 +676,10 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
                   // Hiển thị thông báo đang xử lý
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                       content: Row(
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -675,11 +689,13 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 12),
-                          Text('Đang xóa bài nộp cũ...'),
+                          const SizedBox(width: 12),
+                          Text(
+                            AppLocalizations.of(context)!.deletingOldSubmission,
+                          ),
                         ],
                       ),
-                      duration: Duration(seconds: 2),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 },

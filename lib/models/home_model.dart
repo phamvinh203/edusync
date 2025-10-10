@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:edusync/models/exercise_model.dart';
+import 'package:flutter/widgets.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:edusync/models/class_model.dart';
 
 // Model cho bài tập hôm nay
@@ -79,13 +81,19 @@ class RecentActivity {
     required Submission submission,
     required String exerciseTitle,
     required String? className,
+    BuildContext? context,
   }) {
+    final loc = context != null ? AppLocalizations.of(context) : null;
+    final title = loc != null ? loc.submission : 'Submission';
+    final descriptionPrefix = loc != null ? loc.submissionContent : 'Submitted';
+    final description =
+        '$descriptionPrefix "$exerciseTitle"${className != null ? ' - $className' : ''}';
+
     return RecentActivity(
       id: submission.id ?? '',
       type: 'submission',
-      title: 'Bài tập đã nộp',
-      description:
-          'Đã nộp bài tập "$exerciseTitle"${className != null ? ' - $className' : ''}',
+      title: title,
+      description: description,
       timestamp: submission.submittedAt ?? DateTime.now(),
       exerciseId: submission.id,
       className: className,
@@ -93,6 +101,8 @@ class RecentActivity {
         'grade': submission.grade,
         'hasGrade': submission.hasGrade,
         'isLate': submission.isLate,
+        'exerciseTitle': exerciseTitle,
+        'className': className,
       },
     );
   }
@@ -102,12 +112,17 @@ class RecentActivity {
     required DateTime scheduleTime,
     required String dayOfWeek,
     required String timeRange,
+    BuildContext? context,
   }) {
+    final loc = context != null ? AppLocalizations.of(context) : null;
+    final title = loc != null ? loc.upcomingClassTitle : 'Upcoming class';
+    final description = '${classModel.nameClass} - $dayOfWeek $timeRange';
+
     return RecentActivity(
       id: '${classModel.id}_${scheduleTime.millisecondsSinceEpoch}',
       type: 'class_schedule',
-      title: 'Lớp học sắp diễn ra',
-      description: '${classModel.nameClass} - $dayOfWeek $timeRange',
+      title: title,
+      description: description,
       timestamp: scheduleTime,
       classId: classModel.id,
       className: classModel.nameClass,
@@ -115,6 +130,8 @@ class RecentActivity {
         'subject': classModel.subject,
         'location': classModel.location,
         'teacherName': classModel.teacherName,
+        'timeRange': timeRange,
+        'dayOfWeek': dayOfWeek,
       },
     );
   }
@@ -122,12 +139,23 @@ class RecentActivity {
   factory RecentActivity.fromDueAssignment({
     required Exercise exercise,
     required int hoursUntilDue,
+    BuildContext? context,
   }) {
+    final loc = context != null ? AppLocalizations.of(context) : null;
+    final title = loc != null ? loc.assignmentDueTitle : 'Assignment due';
+    final description =
+        loc != null
+            ? loc.assignmentDueDescription(
+              exercise.title,
+              hoursUntilDue.toString(),
+            )
+            : '${exercise.title} - due in $hoursUntilDue hours';
+
     return RecentActivity(
       id: '${exercise.id}_due',
       type: 'assignment_due',
-      title: 'Bài tập sắp hết hạn',
-      description: '${exercise.title} - còn $hoursUntilDue giờ',
+      title: title,
+      description: description,
       timestamp: exercise.dueDate,
       classId: exercise.classId.id,
       className: exercise.classId.nameClass,
@@ -136,6 +164,7 @@ class RecentActivity {
         'subject': exercise.subject,
         'type': exercise.type,
         'maxScore': exercise.maxScore,
+        'hoursUntilDue': hoursUntilDue,
       },
     );
   }
@@ -143,12 +172,24 @@ class RecentActivity {
   factory RecentActivity.fromCreatedExercise({
     required Exercise exercise,
     required int submissionCount,
+    BuildContext? context,
   }) {
+    final loc = context != null ? AppLocalizations.of(context) : null;
+    final title =
+        loc != null ? loc.newExerciseCreatedTitle : 'New exercise created';
+    final description =
+        loc != null
+            ? loc.newExerciseCreatedDescription(
+              exercise.title,
+              submissionCount.toString(),
+            )
+            : '${exercise.title} - $submissionCount students submitted';
+
     return RecentActivity(
       id: '${exercise.id}_created',
       type: 'exercise_created',
-      title: 'Bài tập vừa tạo',
-      description: '${exercise.title} - $submissionCount học sinh đã nộp',
+      title: title,
+      description: description,
       timestamp: exercise.createdAt ?? DateTime.now(),
       classId: exercise.classId.id,
       className: exercise.classId.nameClass,
@@ -156,6 +197,7 @@ class RecentActivity {
       metadata: {
         'subject': exercise.subject,
         'submissionCount': submissionCount,
+        'exerciseTitle': exercise.title,
         'totalStudents':
             exercise.classId.id != null ? 0 : 0, // Will be populated
         'dueDate': exercise.dueDate.toIso8601String(),

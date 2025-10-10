@@ -2,6 +2,7 @@ import 'package:edusync/utils/class_info_helper.dart';
 import 'package:edusync/utils/day_of_week.dart';
 import 'package:flutter/material.dart';
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class RegisterClassDialog extends StatelessWidget {
   final ClassModel classItem;
@@ -26,20 +27,20 @@ class RegisterClassDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Đăng ký lớp gia sư'),
+      title: Text(AppLocalizations.of(context)!.registerTutorClass),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bạn có muốn đăng ký vào lớp "${classItem.nameClass}"?',
+            AppLocalizations.of(context)!.confirmRegister(classItem.nameClass),
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           Text(
-            'Thông tin lớp:',
+            AppLocalizations.of(context)!.classInfo,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.grey[700],
@@ -47,21 +48,27 @@ class RegisterClassDialog extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           if (classItem.teacherName != null)
-            Text('- Giáo viên: ${classItem.teacherName}'),
-          Text('- Lịch học:'),
+            Text(
+              '- ${AppLocalizations.of(context)!.teacherLabel}: ${classItem.teacherName}',
+            ),
+          Text('- ${AppLocalizations.of(context)!.scheduleLabel}'),
           if (classItem.schedule.isNotEmpty)
-            ..._getScheduleDetails(classItem.schedule),
+            ..._getScheduleDetails(context, classItem.schedule)
+          else
+            Text('  ${AppLocalizations.of(context)!.noScheduleYet}'),
           if (classItem.pricePerSession != null)
             Text(
-              '- Học phí: ${ClassInfoHelper.formatCurrency(classItem.pricePerSession!)} VNĐ/buổi',
+              '- ${AppLocalizations.of(context)!.tuitionFee}: ${ClassInfoHelper.formatCurrency(classItem.pricePerSession!)} ${AppLocalizations.of(context)!.perSession}',
             ),
           if (classItem.location != null)
-            Text('- Địa chỉ: ${classItem.location}'),
+            Text(
+              '- ${AppLocalizations.of(context)!.addressLabel}: ${classItem.location}',
+            ),
           if (classItem.description != null &&
               classItem.description!.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
-              'Mô tả:',
+              '${AppLocalizations.of(context)!.descriptionLabel}:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.grey[700],
@@ -76,7 +83,7 @@ class RegisterClassDialog extends StatelessWidget {
               ),
             ),
           ],
-          if (isRegistered) _buildRegisteredStatus(),
+          if (isRegistered) _buildRegisteredStatus(context),
         ],
       ),
       actions: [
@@ -86,7 +93,7 @@ class RegisterClassDialog extends StatelessWidget {
             if (onCancel != null) onCancel!();
             Navigator.pop(context);
           },
-          child: const Text('Hủy'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         if (!isRegistered)
           ElevatedButton.icon(
@@ -107,7 +114,11 @@ class RegisterClassDialog extends StatelessWidget {
                       ),
                     )
                     : const Icon(Icons.person_add),
-            label: Text(isRegistering ? 'Đang đăng ký...' : 'Đăng ký'),
+            label: Text(
+              isRegistering
+                  ? AppLocalizations.of(context)!.registering
+                  : AppLocalizations.of(context)!.register,
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: subjectColor,
               foregroundColor: Colors.white,
@@ -117,8 +128,10 @@ class RegisterClassDialog extends StatelessWidget {
     );
   }
 
-  List<Widget> _getScheduleDetails(List<Schedule> schedule) {
-    if (schedule.isEmpty) return [const Text('Chưa có lịch học')];
+  List<Widget> _getScheduleDetails(
+    BuildContext context,
+    List<Schedule> schedule,
+  ) {
     return schedule
         .map(
           (s) => Text(
@@ -128,7 +141,7 @@ class RegisterClassDialog extends StatelessWidget {
         .toList();
   }
 
-  Widget _buildRegisteredStatus() {
+  Widget _buildRegisteredStatus(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -142,7 +155,7 @@ class RegisterClassDialog extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Bạn đã đăng ký lớp này',
+              AppLocalizations.of(context)!.alreadyRegistered,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.green[700],

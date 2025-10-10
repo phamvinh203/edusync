@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class CreateExerciseScreen extends StatefulWidget {
   final String classId;
@@ -24,15 +25,15 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
   final _descriptionController = TextEditingController();
   final _subjectController = TextEditingController();
   final _maxScoreController = TextEditingController();
-  
+
   late TabController _tabController;
   DateTime? _dueDate;
   String _selectedType = 'essay';
   List<PlatformFile> _attachments = [];
-  
+
   // Trắc nghiệm
   final List<Question> _mcQuestions = [];
-  
+
   @override
   void initState() {
     super.initState();
@@ -62,18 +63,18 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
       firstDate: now,
       lastDate: DateTime(now.year + 1),
     );
-    
+
     if (date == null) return;
     if (!mounted) return;
-    
+
     final time = await showTimePicker(
       context: context,
       initialTime: const TimeOfDay(hour: 23, minute: 59),
     );
-    
+
     if (time == null) return;
     if (!mounted) return;
-    
+
     setState(() {
       _dueDate = DateTime(
         date.year,
@@ -90,7 +91,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
       allowMultiple: true,
       withData: false,
     );
-    
+
     if (result != null) {
       setState(() {
         _attachments = result.files;
@@ -107,27 +108,29 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
   void _addMCQuestion() {
     showDialog(
       context: context,
-      builder: (context) => _MCQuestionDialog(
-        onAdd: (question) {
-          setState(() {
-            _mcQuestions.add(question);
-          });
-        },
-      ),
+      builder:
+          (context) => _MCQuestionDialog(
+            onAdd: (question) {
+              setState(() {
+                _mcQuestions.add(question);
+              });
+            },
+          ),
     );
   }
 
   void _editMCQuestion(int index) {
     showDialog(
       context: context,
-      builder: (context) => _MCQuestionDialog(
-        question: _mcQuestions[index],
-        onAdd: (question) {
-          setState(() {
-            _mcQuestions[index] = question;
-          });
-        },
-      ),
+      builder:
+          (context) => _MCQuestionDialog(
+            question: _mcQuestions[index],
+            onAdd: (question) {
+              setState(() {
+                _mcQuestions[index] = question;
+              });
+            },
+          ),
     );
   }
 
@@ -139,11 +142,12 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
 
   Future<List<MultipartFile>?> _convertToMultipartFiles() async {
     if (_attachments.isEmpty) return null;
-    
+
     final List<MultipartFile> multipartFiles = [];
     for (final file in _attachments) {
       if (file.path != null) {
-        final mimeType = lookupMimeType(file.path!) ?? 'application/octet-stream';
+        final mimeType =
+            lookupMimeType(file.path!) ?? 'application/octet-stream';
         multipartFiles.add(
           await MultipartFile.fromFile(
             file.path!,
@@ -158,40 +162,49 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
 
   void _submitExercise() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     if (_dueDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng chọn hạn nộp bài')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.pleaseSelectDueDate),
+        ),
       );
       return;
     }
-    
+
     if (_selectedType == 'multiple_choice' && _mcQuestions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng thêm ít nhất một câu hỏi trắc nghiệm')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.pleaseAddAtLeastOneQuestion,
+          ),
+        ),
       );
       return;
     }
 
     final request = CreateExerciseRequest(
       title: _titleController.text.trim(),
-      description: _descriptionController.text.trim().isEmpty 
-          ? null 
-          : _descriptionController.text.trim(),
+      description:
+          _descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim(),
       type: _selectedType,
       questions: _selectedType == 'multiple_choice' ? _mcQuestions : [],
       attachments: [], // Sẽ được xử lý bởi server từ files
-      maxScore: _maxScoreController.text.trim().isEmpty 
-          ? null 
-          : int.tryParse(_maxScoreController.text.trim()),
-      subject: _subjectController.text.trim().isEmpty 
-          ? null 
-          : _subjectController.text.trim(),
+      maxScore:
+          _maxScoreController.text.trim().isEmpty
+              ? null
+              : int.tryParse(_maxScoreController.text.trim()),
+      subject:
+          _subjectController.text.trim().isEmpty
+              ? null
+              : _subjectController.text.trim(),
       dueDate: _dueDate!,
     );
 
     final files = await _convertToMultipartFiles();
-    
+
     if (!mounted) return;
     context.read<ExerciseBloc>().add(
       CreateExerciseEvent(
@@ -202,7 +215,6 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,12 +223,9 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
-        title: const Text(
-          'Tạo bài tập mới',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+        title: Text(
+          AppLocalizations.of(context)!.createExercise,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         centerTitle: true,
       ),
@@ -224,8 +233,10 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
         listener: (context, state) {
           if (state is ExerciseCreateSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Tạo bài tập thành công!'),
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(context)!.createExerciseSuccess,
+                ),
                 backgroundColor: Colors.green,
               ),
             );
@@ -241,7 +252,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
         },
         builder: (context, state) {
           final isLoading = state is ExerciseLoading;
-          
+
           return Form(
             key: _formKey,
             child: Column(
@@ -264,28 +275,19 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                     indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
                     tabs: const [
-                      Tab(
-                        icon: Icon(Icons.edit_note),
-                        text: 'Tự luận',
-                      ),
-                      Tab(
-                        icon: Icon(Icons.quiz),
-                        text: 'Trắc nghiệm',
-                      ),
+                      Tab(icon: Icon(Icons.edit_note), text: 'Tự luận'),
+                      Tab(icon: Icon(Icons.quiz), text: 'Trắc nghiệm'),
                     ],
                   ),
                 ),
-                
+
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
-                    children: [
-                      _buildEssayTab(),
-                      _buildMultipleChoiceTab(),
-                    ],
+                    children: [_buildEssayTab(), _buildMultipleChoiceTab()],
                   ),
                 ),
-                
+
                 // Submit button
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -313,22 +315,27 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                         ),
                         elevation: 2,
                       ),
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      child:
+                          isLoading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                              : Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.createExerciseButton,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            )
-                          : const Text(
-                              'Tạo bài tập',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                     ),
                   ),
                 ),
@@ -398,7 +405,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
               ],
             ),
             const SizedBox(height: 20),
-            
+
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
@@ -418,9 +425,9 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                 return null;
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             TextFormField(
               controller: _descriptionController,
               maxLines: 4,
@@ -435,9 +442,9 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                 fillColor: Colors.grey[50],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             TextFormField(
               controller: _subjectController,
               decoration: InputDecoration(
@@ -481,7 +488,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
               ],
             ),
             const SizedBox(height: 20),
-            
+
             Row(
               children: [
                 Expanded(
@@ -530,9 +537,10 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                                   ? 'Chọn hạn nộp'
                                   : '${_dueDate!.day}/${_dueDate!.month}/${_dueDate!.year} ${_dueDate!.hour}:${_dueDate!.minute.toString().padLeft(2, '0')}',
                               style: TextStyle(
-                                color: _dueDate == null 
-                                    ? Colors.grey[600] 
-                                    : Colors.black87,
+                                color:
+                                    _dueDate == null
+                                        ? Colors.grey[600]
+                                        : Colors.black87,
                                 fontSize: 16,
                               ),
                             ),
@@ -591,7 +599,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
               ],
             ),
             const SizedBox(height: 16),
-            
+
             if (_mcQuestions.isEmpty)
               Container(
                 width: double.infinity,
@@ -616,10 +624,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                     const SizedBox(height: 4),
                     Text(
                       'Nhấn "Thêm câu hỏi" để bắt đầu',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -629,7 +634,8 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _mcQuestions.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                separatorBuilder:
+                    (context, index) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final question = _mcQuestions[index];
                   return Container(
@@ -682,14 +688,18 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                         ...question.options.asMap().entries.map((entry) {
                           final optionIndex = entry.key;
                           final option = entry.value;
-                          final isCorrect = question.correctAnswers.contains(optionIndex);
-                          
+                          final isCorrect = question.correctAnswers.contains(
+                            optionIndex,
+                          );
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Row(
                               children: [
                                 Icon(
-                                  isCorrect ? Icons.check_circle : Icons.radio_button_unchecked,
+                                  isCorrect
+                                      ? Icons.check_circle
+                                      : Icons.radio_button_unchecked,
                                   color: isCorrect ? Colors.green : Colors.grey,
                                   size: 20,
                                 ),
@@ -698,8 +708,14 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                                   '${String.fromCharCode(65 + optionIndex)}. $option',
                                   style: TextStyle(
                                     fontSize: 14,
-                                    fontWeight: isCorrect ? FontWeight.w600 : FontWeight.normal,
-                                    color: isCorrect ? Colors.green[800] : Colors.grey[700],
+                                    fontWeight:
+                                        isCorrect
+                                            ? FontWeight.w600
+                                            : FontWeight.normal,
+                                    color:
+                                        isCorrect
+                                            ? Colors.green[800]
+                                            : Colors.grey[700],
                                   ),
                                 ),
                               ],
@@ -758,7 +774,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
               ],
             ),
             const SizedBox(height: 16),
-            
+
             if (_attachments.isEmpty)
               Container(
                 width: double.infinity,
@@ -783,10 +799,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                     const SizedBox(height: 4),
                     Text(
                       'Đính kèm tài liệu, hình ảnh... (tùy chọn)',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -808,7 +821,10 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen>
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.insert_drive_file, color: Colors.purple[600]),
+                        Icon(
+                          Icons.insert_drive_file,
+                          color: Colors.purple[600],
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -853,10 +869,7 @@ class _MCQuestionDialog extends StatefulWidget {
   final Question? question;
   final Function(Question) onAdd;
 
-  const _MCQuestionDialog({
-    this.question,
-    required this.onAdd,
-  });
+  const _MCQuestionDialog({this.question, required this.onAdd});
 
   @override
   State<_MCQuestionDialog> createState() => _MCQuestionDialogState();
@@ -870,13 +883,16 @@ class _MCQuestionDialogState extends State<_MCQuestionDialog> {
   @override
   void initState() {
     super.initState();
-    _questionController = TextEditingController(text: widget.question?.question ?? '');
+    _questionController = TextEditingController(
+      text: widget.question?.question ?? '',
+    );
     _optionControllers = List.generate(
       4,
       (index) => TextEditingController(
-        text: (widget.question?.options.length ?? 0) > index 
-            ? widget.question!.options[index] 
-            : '',
+        text:
+            (widget.question?.options.length ?? 0) > index
+                ? widget.question!.options[index]
+                : '',
       ),
     );
     _correctAnswers = widget.question?.correctAnswers.toSet() ?? <int>{};
@@ -903,24 +919,27 @@ class _MCQuestionDialogState extends State<_MCQuestionDialog> {
 
   void _addQuestion() {
     final questionText = _questionController.text.trim();
-    final options = _optionControllers
-        .map((controller) => controller.text.trim())
-        .where((text) => text.isNotEmpty)
-        .toList();
-    
+    final options =
+        _optionControllers
+            .map((controller) => controller.text.trim())
+            .where((text) => text.isNotEmpty)
+            .toList();
+
     if (questionText.isEmpty || options.length < 2 || _correctAnswers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vui lòng nhập câu hỏi, ít nhất 2 lựa chọn và chọn đáp án đúng'),
+          content: Text(
+            'Vui lòng nhập câu hỏi, ít nhất 2 lựa chọn và chọn đáp án đúng',
+          ),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    final validCorrectAnswers = _correctAnswers
-        .where((index) => index < options.length)
-        .toList()..sort();
+    final validCorrectAnswers =
+        _correctAnswers.where((index) => index < options.length).toList()
+          ..sort();
 
     final question = Question(
       question: questionText,
@@ -994,9 +1013,9 @@ class _MCQuestionDialogState extends State<_MCQuestionDialog> {
                         fillColor: Colors.grey[50],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     Text(
                       'Các lựa chọn:',
                       style: TextStyle(
@@ -1005,9 +1024,9 @@ class _MCQuestionDialogState extends State<_MCQuestionDialog> {
                         color: Colors.grey[800],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 12),
-                    
+
                     ...List.generate(4, (index) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -1021,22 +1040,25 @@ class _MCQuestionDialogState extends State<_MCQuestionDialog> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: _correctAnswers.contains(index)
-                                        ? Colors.green
-                                        : Colors.grey,
+                                    color:
+                                        _correctAnswers.contains(index)
+                                            ? Colors.green
+                                            : Colors.grey,
                                     width: 2,
                                   ),
-                                  color: _correctAnswers.contains(index)
-                                      ? Colors.green
-                                      : Colors.transparent,
+                                  color:
+                                      _correctAnswers.contains(index)
+                                          ? Colors.green
+                                          : Colors.transparent,
                                 ),
-                                child: _correctAnswers.contains(index)
-                                    ? const Icon(
-                                        Icons.check,
-                                        size: 16,
-                                        color: Colors.white,
-                                      )
-                                    : null,
+                                child:
+                                    _correctAnswers.contains(index)
+                                        ? const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: Colors.white,
+                                        )
+                                        : null,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -1044,14 +1066,16 @@ class _MCQuestionDialogState extends State<_MCQuestionDialog> {
                               child: TextFormField(
                                 controller: _optionControllers[index],
                                 decoration: InputDecoration(
-                                  labelText: 'Lựa chọn ${String.fromCharCode(65 + index)}',
+                                  labelText:
+                                      'Lựa chọn ${String.fromCharCode(65 + index)}',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   filled: true,
-                                  fillColor: _correctAnswers.contains(index)
-                                      ? Colors.green[50]
-                                      : Colors.grey[50],
+                                  fillColor:
+                                      _correctAnswers.contains(index)
+                                          ? Colors.green[50]
+                                          : Colors.grey[50],
                                 ),
                               ),
                             ),
@@ -1059,9 +1083,9 @@ class _MCQuestionDialogState extends State<_MCQuestionDialog> {
                         ),
                       );
                     }),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -1071,7 +1095,11 @@ class _MCQuestionDialogState extends State<_MCQuestionDialog> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.info_outline, color: Colors.amber[700], size: 20),
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.amber[700],
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(

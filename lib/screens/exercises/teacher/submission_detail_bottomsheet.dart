@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:edusync/models/exercise_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:edusync/repositories/exercise_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,8 +43,8 @@ class SubmissionDetailBottomSheet {
               final maxScore = exercise.maxScore;
               if (parsed == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Vui lòng nhập điểm hợp lệ'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.invalidGrade),
                     backgroundColor: Colors.orange,
                   ),
                 );
@@ -52,7 +53,11 @@ class SubmissionDetailBottomSheet {
               if (maxScore != null && (parsed < 0 || parsed > maxScore)) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Điểm phải nằm trong khoảng 0 - $maxScore'),
+                    content: Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.gradeRange(maxScore.toString()),
+                    ),
                     backgroundColor: Colors.orange,
                   ),
                 );
@@ -78,7 +83,7 @@ class SubmissionDetailBottomSheet {
                           const Icon(Icons.check_circle, color: Colors.white),
                           const SizedBox(width: 8),
                           Text(
-                            'Đã chấm điểm: ${parsed.toStringAsFixed(1)}${maxScore != null ? '/$maxScore' : ''} điểm',
+                            '${AppLocalizations.of(context)!.graded}: ${parsed.toStringAsFixed(1)}${maxScore != null ? '/$maxScore' : ''} ${AppLocalizations.of(context)!.points}',
                           ),
                         ],
                       ),
@@ -96,7 +101,11 @@ class SubmissionDetailBottomSheet {
                         children: [
                           const Icon(Icons.error_outline, color: Colors.white),
                           const SizedBox(width: 8),
-                          Expanded(child: Text('Lỗi chấm điểm: $e')),
+                          Expanded(
+                            child: Text(
+                              '${AppLocalizations.of(context)!.gradeError}: $e',
+                            ),
+                          ),
                         ],
                       ),
                       backgroundColor: Colors.red,
@@ -141,14 +150,14 @@ class SubmissionDetailBottomSheet {
                                 Text(
                                   submission.student?.username ??
                                       submission.studentId ??
-                                      'Học sinh',
+                                      AppLocalizations.of(context)!.student,
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 Text(
-                                  'Nộp lúc: ${submission.submittedAt != null ? _formatDate(submission.submittedAt!) : 'Không rõ'}',
+                                  '${AppLocalizations.of(context)!.submittedAt}: ${submission.submittedAt != null ? _formatDate(submission.submittedAt!) : AppLocalizations.of(context)!.unknown}',
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Colors.grey[700],
@@ -167,9 +176,9 @@ class SubmissionDetailBottomSheet {
                                 color: Colors.red.shade100,
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: const Text(
-                                'Nộp muộn',
-                                style: TextStyle(
+                              child: Text(
+                                AppLocalizations.of(context)!.lateSubmission,
+                                style: const TextStyle(
                                   color: Colors.red,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -183,9 +192,9 @@ class SubmissionDetailBottomSheet {
 
                     // Nội dung văn bản
                     if ((submission.content ?? '').isNotEmpty) ...[
-                      const Text(
-                        'Nội dung bài làm',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      Text(
+                        AppLocalizations.of(context)!.submissionContent,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 6),
                       Container(
@@ -206,9 +215,9 @@ class SubmissionDetailBottomSheet {
 
                     // Tệp đính kèm
                     if ((submission.fileUrl ?? '').isNotEmpty) ...[
-                      const Text(
-                        'Tệp đính kèm',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      Text(
+                        AppLocalizations.of(context)!.attachments,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 6),
                       ListTile(

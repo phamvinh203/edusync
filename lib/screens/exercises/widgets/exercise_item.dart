@@ -1,5 +1,6 @@
 import 'package:edusync/screens/exercises/exercise_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:edusync/models/exercise_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/exercise/exercise_bloc.dart';
@@ -38,12 +39,12 @@ class ExerciseItem extends StatelessWidget {
     }
   }
 
-  String _getTypeLabel(String type) {
+  String _getTypeLabel(BuildContext context, String type) {
     switch (type.toLowerCase()) {
       case 'essay':
-        return 'Tự luận';
+        return AppLocalizations.of(context)!.essay;
       case 'multiple_choice':
-        return 'Trắc nghiệm';
+        return AppLocalizations.of(context)!.multipleChoice;
       default:
         return type;
     }
@@ -60,31 +61,31 @@ class ExerciseItem extends StatelessWidget {
   Color _getPriorityColor() {
     final now = DateTime.now();
     final timeLeft = exercise.dueDate.difference(now).inHours;
-    
+
     if (timeLeft < 0) return Colors.red; // Overdue
     if (timeLeft < 24) return Colors.orange; // Due soon
     if (timeLeft < 72) return Colors.amber; // Due in 3 days
     return Colors.green; // Good time left
   }
 
-  String _getTimeLeftText() {
+  String _getTimeLeftText(BuildContext context) {
     final now = DateTime.now();
     final difference = exercise.dueDate.difference(now);
-    
+
     if (difference.isNegative) {
-      return 'Đã quá hạn';
+      return AppLocalizations.of(context)!.overdue;
     }
-    
+
     final days = difference.inDays;
     final hours = difference.inHours % 24;
     final minutes = difference.inMinutes % 60;
-    
+
     if (days > 0) {
-      return 'Còn $days ngày';
+      return AppLocalizations.of(context)!.timeLeftDays(days);
     } else if (hours > 0) {
-      return 'Còn $hours giờ';
+      return AppLocalizations.of(context)!.timeLeftHours(hours);
     } else {
-      return 'Còn $minutes phút';
+      return AppLocalizations.of(context)!.timeLeftMinutes(minutes);
     }
   }
 
@@ -92,28 +93,27 @@ class ExerciseItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final typeColor = _getTypeColor(exercise.type);
     final isOverdue = _isOverdue(exercise.dueDate);
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Card(
         elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => BlocProvider(
-                  create: (_) => ExerciseBloc(),
-                  child: ExerciseDetailScreen(
-                    classId: exercise.classId.id!,
-                    exerciseId: exercise.id!,
-                    role: isTeacher ? "teacher" : "student",
-                    // exercise: exercise,
-                  ),
-                ),
+                builder:
+                    (_) => BlocProvider(
+                      create: (_) => ExerciseBloc(),
+                      child: ExerciseDetailScreen(
+                        classId: exercise.classId.id!,
+                        exerciseId: exercise.id!,
+                        role: isTeacher ? "teacher" : "student",
+                        // exercise: exercise,
+                      ),
+                    ),
               ),
             );
           },
@@ -127,7 +127,10 @@ class ExerciseItem extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: typeColor,
                         borderRadius: BorderRadius.circular(20),
@@ -142,7 +145,7 @@ class ExerciseItem extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            _getTypeLabel(exercise.type),
+                            _getTypeLabel(context, exercise.type),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -155,7 +158,10 @@ class ExerciseItem extends StatelessWidget {
                     const Spacer(),
                     if (submitted)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.green[100],
                           borderRadius: BorderRadius.circular(12),
@@ -164,10 +170,14 @@ class ExerciseItem extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.check_circle, size: 14, color: Colors.green[700]),
+                            Icon(
+                              Icons.check_circle,
+                              size: 14,
+                              color: Colors.green[700],
+                            ),
                             const SizedBox(width: 4),
                             Text(
-                              'Đã nộp',
+                              AppLocalizations.of(context)!.submitted,
                               style: TextStyle(
                                 color: Colors.green[700],
                                 fontSize: 11,
@@ -179,9 +189,9 @@ class ExerciseItem extends StatelessWidget {
                       ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Title
                 Text(
                   exercise.title,
@@ -193,13 +203,16 @@ class ExerciseItem extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Class name
                 if (exercise.classId.nameClass != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.blue[50],
                       borderRadius: BorderRadius.circular(8),
@@ -221,9 +234,9 @@ class ExerciseItem extends StatelessWidget {
                       ],
                     ),
                   ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Due date and time left
                 Row(
                   children: [
@@ -243,14 +256,17 @@ class ExerciseItem extends StatelessWidget {
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: _getPriorityColor().withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: _getPriorityColor()),
                       ),
                       child: Text(
-                        _getTimeLeftText(),
+                        _getTimeLeftText(context),
                         style: TextStyle(
                           color: _getPriorityColor(),
                           fontSize: 11,
@@ -260,9 +276,9 @@ class ExerciseItem extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Teacher stats
                 if (isTeacher) ...[
                   Row(
@@ -270,7 +286,7 @@ class ExerciseItem extends StatelessWidget {
                       Icon(Icons.people, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
                       Text(
-                        'Đã nộp: ${exercise.submissionCount ?? 0}',
+                        '${AppLocalizations.of(context)!.submitted}: ${exercise.submissionCount ?? 0}',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[700],
@@ -278,10 +294,14 @@ class ExerciseItem extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Icon(Icons.assignment_turned_in, size: 16, color: Colors.grey[600]),
+                      Icon(
+                        Icons.assignment_turned_in,
+                        size: 16,
+                        color: Colors.grey[600],
+                      ),
                       const SizedBox(width: 4),
                       Text(
-                        'Chưa chấm: ${exercise.ungradedCount ?? 0}',
+                        '${AppLocalizations.of(context)!.pendingGrading}: ${exercise.ungradedCount ?? 0}',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[700],
@@ -292,7 +312,7 @@ class ExerciseItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                 ],
-                
+
                 // Action button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -302,46 +322,57 @@ class ExerciseItem extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => BlocProvider(
-                              create: (_) => ExerciseBloc(),
-                              child: ExerciseDetailScreen(
-                                classId: exercise.classId.id!,
-                                exerciseId: exercise.id!,
-                                role: isTeacher ? "teacher" : "student",
-                                // exercise: exercise,
-                              ),
-                            ),
+                            builder:
+                                (_) => BlocProvider(
+                                  create: (_) => ExerciseBloc(),
+                                  child: ExerciseDetailScreen(
+                                    classId: exercise.classId.id!,
+                                    exerciseId: exercise.id!,
+                                    role: isTeacher ? "teacher" : "student",
+                                    // exercise: exercise,
+                                  ),
+                                ),
                           ),
                         );
                       },
                       icon: Icon(
                         isTeacher
                             ? Icons.manage_accounts
-                            : (submitted 
-                                ? Icons.visibility 
+                            : (submitted
+                                ? Icons.visibility
                                 : (isOverdue ? Icons.visibility : Icons.edit)),
                         size: 18,
                       ),
                       label: Text(
                         isTeacher
-                            ? "Quản lý"
-                            : (submitted 
-                                ? "Xem kết quả" 
-                                : (isOverdue ? "Xem chi tiết" : "Làm bài")),
+                            ? AppLocalizations.of(context)!.manage
+                            : (submitted
+                                ? AppLocalizations.of(context)!.viewResult
+                                : (isOverdue
+                                    ? AppLocalizations.of(context)!.viewDetail
+                                    : AppLocalizations.of(
+                                      context,
+                                    )!.doExercise)),
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isTeacher
-                            ? Colors.blue
-                            : (submitted 
-                                ? Colors.green 
-                                : (isOverdue ? Colors.grey : Colors.orange)),
+                        backgroundColor:
+                            isTeacher
+                                ? Colors.blue
+                                : (submitted
+                                    ? Colors.green
+                                    : (isOverdue
+                                        ? Colors.grey
+                                        : Colors.orange)),
                         foregroundColor: Colors.white,
                         elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                       ),
                     ),
                   ],

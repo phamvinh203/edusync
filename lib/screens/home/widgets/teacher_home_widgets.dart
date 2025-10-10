@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:edusync/models/home_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class TeacherStatsRow extends StatelessWidget {
   final TeacherClassStats classStats;
@@ -14,7 +15,7 @@ class TeacherStatsRow extends StatelessWidget {
         children: [
           Expanded(
             child: _StatCard(
-              title: 'Lớp phụ trách',
+              title: AppLocalizations.of(context)!.managedClasses,
               value: classStats.totalClasses.toString(),
               icon: Icons.class_,
               color: Colors.blue,
@@ -23,7 +24,7 @@ class TeacherStatsRow extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: _StatCard(
-              title: 'Học sinh',
+              title: AppLocalizations.of(context)!.students,
               value: classStats.totalStudents.toString(),
               icon: Icons.people,
               color: Colors.green,
@@ -53,7 +54,7 @@ class TeacherPendingGradingRow extends StatelessWidget {
         children: [
           Expanded(
             child: _StatCard(
-              title: 'Bài tập chờ chấm',
+              title: AppLocalizations.of(context)!.pendingGrading,
               value: gradingStats.totalPendingGrading.toString(),
               icon: Icons.grade,
               color: Colors.orange,
@@ -62,7 +63,7 @@ class TeacherPendingGradingRow extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: _StatCard(
-              title: 'Tiết học hôm nay',
+              title: AppLocalizations.of(context)!.todayClasses,
               value: todaySchedule.totalClassesToday.toString(),
               icon: Icons.today,
               color: Colors.purple,
@@ -143,11 +144,11 @@ class QuickActionsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Text(
-            'Thao tác nhanh',
-            style: TextStyle(
+            AppLocalizations.of(context)!.quickActions,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -160,7 +161,7 @@ class QuickActionsSection extends StatelessWidget {
             children: [
               Expanded(
                 child: _QuickActionCard(
-                  title: 'Tạo bài tập',
+                  title: AppLocalizations.of(context)!.createExercise,
                   icon: Icons.add_task,
                   color: Colors.blue,
                   onTap: onCreateExercise,
@@ -169,7 +170,7 @@ class QuickActionsSection extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _QuickActionCard(
-                  title: 'Điểm danh',
+                  title: AppLocalizations.of(context)!.takeAttendance,
                   icon: Icons.how_to_reg,
                   color: Colors.green,
                   onTap: onTakeAttendance,
@@ -255,7 +256,9 @@ class TodayScheduleWidget extends StatelessWidget {
                 Icon(Icons.today, color: Colors.purple[600]),
                 const SizedBox(width: 8),
                 Text(
-                  'Lịch dạy hôm nay (${todaySchedule.totalClassesToday})',
+                  AppLocalizations.of(
+                    context,
+                  )!.todaySchedule(todaySchedule.totalClassesToday),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -346,7 +349,9 @@ class TodayClassItem extends StatelessWidget {
               Icon(Icons.people, size: 16, color: Colors.grey[600]),
               const SizedBox(width: 4),
               Text(
-                '${todayClass.studentCount} học sinh',
+                AppLocalizations.of(
+                  context,
+                )!.studentCount(todayClass.studentCount),
                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ],
@@ -367,11 +372,11 @@ class TeacherRecentActivitiesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Text(
-            'Hoạt động gần đây',
-            style: TextStyle(
+            AppLocalizations.of(context)!.recentActivities,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -379,12 +384,12 @@ class TeacherRecentActivitiesSection extends StatelessWidget {
           ),
         ),
         if (activities.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Text(
-                'Chưa có hoạt động nào',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+                AppLocalizations.of(context)!.noActivities,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ),
           )
@@ -410,6 +415,50 @@ class TeacherRecentActivityItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // compute localized title/description when metadata present
+    final loc = AppLocalizations.of(context);
+    String title = activity.title;
+    String description = activity.description;
+    if (loc != null) {
+      switch (activity.type) {
+        case 'submission':
+          title = loc.submission;
+          description =
+              activity.metadata?['exerciseTitle'] != null
+                  ? '${loc.submissionContent} "${activity.metadata!['exerciseTitle']}"${activity.metadata!['className'] != null ? ' - ${activity.metadata!['className']}' : ''}'
+                  : activity.description;
+          break;
+        case 'class_schedule':
+          title = loc.upcomingClassTitle;
+          description =
+              activity.metadata?['dayOfWeek'] != null &&
+                      activity.metadata?['timeRange'] != null
+                  ? '${activity.className} - ${activity.metadata!['dayOfWeek']} ${activity.metadata!['timeRange']}'
+                  : activity.description;
+          break;
+        case 'assignment_due':
+          title = loc.assignmentDueTitle;
+          if (activity.metadata?['hoursUntilDue'] != null &&
+              activity.metadata?['exerciseTitle'] != null) {
+            description = loc.assignmentDueDescription(
+              activity.metadata!['exerciseTitle'].toString(),
+              activity.metadata!['hoursUntilDue'].toString(),
+            );
+          }
+          break;
+        case 'exercise_created':
+          title = loc.newExerciseCreatedTitle;
+          if (activity.metadata?['submissionCount'] != null &&
+              activity.metadata?['exerciseTitle'] != null) {
+            description = loc.newExerciseCreatedDescription(
+              activity.metadata!['exerciseTitle'].toString(),
+              activity.metadata!['submissionCount'].toString(),
+            );
+          }
+          break;
+      }
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -427,19 +476,19 @@ class TeacherRecentActivityItem extends StatelessWidget {
       child: ListTile(
         leading: _getActivityIcon(),
         title: Text(
-          activity.title,
+          title,
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              activity.description,
+              description,
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
             const SizedBox(height: 4),
             Text(
-              _formatTimestamp(),
+              _formatTimestamp(context),
               style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ],
@@ -492,7 +541,7 @@ class TeacherRecentActivityItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
-          '$submissionCount bài nộp',
+          AppLocalizations.of(context)!.submissionCount(submissionCount),
           style: TextStyle(
             color: Colors.orange[700],
             fontSize: 11,
@@ -504,18 +553,18 @@ class TeacherRecentActivityItem extends StatelessWidget {
     return null;
   }
 
-  String _formatTimestamp() {
+  String _formatTimestamp(BuildContext context) {
     final now = DateTime.now();
     final difference = now.difference(activity.timestamp);
 
     if (difference.inMinutes < 1) {
-      return 'Vừa xong';
+      return AppLocalizations.of(context)!.justNow;
     } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} phút trước';
+      return AppLocalizations.of(context)!.minutesAgo(difference.inMinutes);
     } else if (difference.inHours < 24) {
-      return '${difference.inHours} giờ trước';
+      return AppLocalizations.of(context)!.hoursAgo(difference.inHours);
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} ngày trước';
+      return AppLocalizations.of(context)!.daysAgo(difference.inDays);
     } else {
       return '${activity.timestamp.day}/${activity.timestamp.month}/${activity.timestamp.year}';
     }

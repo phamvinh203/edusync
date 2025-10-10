@@ -1,5 +1,6 @@
 // phần danh sách + chấm điểm của giáo viên
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:edusync/models/exercise_model.dart';
 import 'package:edusync/repositories/exercise_repository.dart';
 import 'submission_detail_bottomsheet.dart';
@@ -44,14 +45,14 @@ class _TeacherSectionState extends State<TeacherSection> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              "Danh sách học sinh đã nộp",
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            Text(
+              AppLocalizations.of(context)!.submittedStudentsTitle,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
             ),
             IconButton(
               icon: const Icon(Icons.refresh, size: 20),
               onPressed: _reloadSubmissions,
-              tooltip: 'Tải lại',
+              tooltip: AppLocalizations.of(context)!.reload,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
@@ -85,7 +86,7 @@ class _TeacherSectionState extends State<TeacherSection> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Lỗi tải danh sách: ${snap.error}',
+                        '${AppLocalizations.of(context)!.errorLoadingList}: ${snap.error}',
                         style: TextStyle(color: Colors.red[700]),
                       ),
                     ),
@@ -107,7 +108,7 @@ class _TeacherSectionState extends State<TeacherSection> {
                     Icon(Icons.info_outline, color: Colors.grey[600]),
                     const SizedBox(width: 8),
                     Text(
-                      'Chưa có học sinh nào nộp',
+                      AppLocalizations.of(context)!.noSubmissionsYet,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ],
@@ -131,17 +132,18 @@ class _TeacherSectionState extends State<TeacherSection> {
                   final studentName =
                       (sub.student?.username ?? '').isNotEmpty
                           ? sub.student!.username!
-                          : (sub.studentId ?? 'Không rõ');
+                          : (sub.studentId ??
+                              AppLocalizations.of(context)!.unknownStudent);
                   final submittedAt =
                       sub.submittedAt != null
                           ? _formatDate(sub.submittedAt!)
-                          : 'Không rõ thời gian';
+                          : AppLocalizations.of(context)!.unknownTime;
                   final gradeText =
                       sub.grade != null
-                          ? 'Điểm: ${sub.grade!.toStringAsFixed(1)}${widget.exercise.maxScore != null ? '/${widget.exercise.maxScore}' : ''}'
+                          ? '${AppLocalizations.of(context)!.scorePrefix}: ${sub.grade!.toStringAsFixed(1)}${widget.exercise.maxScore != null ? '/${widget.exercise.maxScore}' : ''}'
                           : (sub.feedback != null
-                              ? 'Đã nhận xét'
-                              : 'Chưa chấm');
+                              ? AppLocalizations.of(context)!.hasFeedback
+                              : AppLocalizations.of(context)!.notGraded);
 
                   return ListTile(
                     leading: CircleAvatar(

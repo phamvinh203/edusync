@@ -4,6 +4,7 @@ import 'package:edusync/blocs/RegisteredClasses/registeredClasses_bloc.dart';
 import 'package:edusync/blocs/RegisteredClasses/registeredClasses_state.dart';
 import 'package:edusync/blocs/RegisteredClasses/registeredClasses_event.dart';
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import '../widgets/join_class_dialog.dart';
 import '../widgets/subject_card.dart';
 
@@ -53,7 +54,7 @@ class StudentSubjectView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Môn học trường',
+                          AppLocalizations.of(context)!.schoolSubjects,
                           style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
@@ -71,7 +72,7 @@ class StudentSubjectView extends StatelessWidget {
                   FilledButton.icon(
                     onPressed: () => _showJoinClassDialog(context),
                     icon: const Icon(Icons.add, size: 20),
-                    label: const Text('Nhập mã'),
+                    label: Text(AppLocalizations.of(context)!.enterClassCode),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -125,7 +126,7 @@ class StudentSubjectView extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Chưa có môn học nào',
+            AppLocalizations.of(context)!.noSubjectsYet,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.grey[700],
@@ -135,7 +136,7 @@ class StudentSubjectView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'Nhập mã lớp do giáo viên cung cấp để bắt đầu tham gia các môn học chính khóa',
+              AppLocalizations.of(context)!.enterCodeToJoin,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -146,7 +147,7 @@ class StudentSubjectView extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () => _showJoinClassDialog(context),
             icon: const Icon(Icons.qr_code_2),
-            label: const Text('Nhập mã lớp học'),
+            label: Text(AppLocalizations.of(context)!.enterClassCodeButton),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             ),

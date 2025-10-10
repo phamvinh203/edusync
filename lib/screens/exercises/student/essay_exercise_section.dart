@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/exercise/exercise_bloc.dart';
 import 'package:edusync/screens/exercises/student/submit_exercise_screen.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class EssayExerciseSection extends StatelessWidget {
   final String classId;
@@ -28,13 +29,13 @@ class EssayExerciseSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.green.withOpacity(0.3)),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.edit_note, color: Colors.green),
-              SizedBox(width: 8),
+              const Icon(Icons.edit_note, color: Colors.green),
+              const SizedBox(width: 8),
               Text(
-                'Bài tập tự luận',
-                style: TextStyle(
+                AppLocalizations.of(context)!.essayExercise,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Colors.green,
@@ -66,7 +67,7 @@ class EssayExerciseSection extends StatelessWidget {
               }
             },
             icon: const Icon(Icons.upload_file),
-            label: const Text('Nộp bài'),
+            label: Text(AppLocalizations.of(context)!.submitExercise),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
               backgroundColor: Colors.green,

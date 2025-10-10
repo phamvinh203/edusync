@@ -1,6 +1,7 @@
 // Widget hiển thị trạng thái trống khi không có lớp học nào.
 
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final String userRole;
@@ -17,16 +18,12 @@ class EmptyStateWidget extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.class_outlined,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
+                Icon(Icons.class_outlined, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
                   userRole.toLowerCase() == 'student'
-                      ? 'Chưa đăng ký lớp gia sư nào'
-                      : 'Chưa có lớp gia sư nào',
+                      ? AppLocalizations.of(context)!.noTutorRegistered
+                      : AppLocalizations.of(context)!.noTutorCreated,
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[600],
@@ -36,12 +33,9 @@ class EmptyStateWidget extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   userRole.toLowerCase() == 'student'
-                      ? 'Tìm và đăng ký lớp gia sư phù hợp'
-                      : 'Tạo lớp gia sư đầu tiên của bạn',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
+                      ? AppLocalizations.of(context)!.findTutorClasses
+                      : AppLocalizations.of(context)!.createFirstTutorClass,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                 ),
               ],
             ),
