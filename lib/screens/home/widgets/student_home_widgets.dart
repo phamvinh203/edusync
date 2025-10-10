@@ -155,29 +155,41 @@ class RecentActivityItem extends StatelessWidget {
     if (loc != null) {
       switch (activity.type) {
         case 'submission':
-          title = activity.metadata?['exerciseTitle'] != null
-              ? loc.submission
-              : activity.title;
-          description = activity.metadata?['exerciseTitle'] != null
-              ? '${loc.submissionContent} "${activity.metadata!['exerciseTitle']}"${activity.metadata!['className'] != null ? ' - ${activity.metadata!['className']}' : ''}'
-              : activity.description;
+          title =
+              activity.metadata?['exerciseTitle'] != null
+                  ? loc.submission
+                  : activity.title;
+          description =
+              activity.metadata?['exerciseTitle'] != null
+                  ? '${loc.submissionContent} "${activity.metadata!['exerciseTitle']}"${activity.metadata!['className'] != null ? ' - ${activity.metadata!['className']}' : ''}'
+                  : activity.description;
           break;
         case 'class_schedule':
           title = loc.upcomingClassTitle;
-          description = activity.metadata?['dayOfWeek'] != null && activity.metadata?['timeRange'] != null
-              ? '${activity.className} - ${activity.metadata!['dayOfWeek']} ${activity.metadata!['timeRange']}'
-              : activity.description;
+          description =
+              activity.metadata?['dayOfWeek'] != null &&
+                      activity.metadata?['timeRange'] != null
+                  ? '${activity.className} - ${activity.metadata!['dayOfWeek']} ${activity.metadata!['timeRange']}'
+                  : activity.description;
           break;
         case 'assignment_due':
           title = loc.assignmentDueTitle;
-          if (activity.metadata?['hoursUntilDue'] != null && activity.metadata?['exerciseTitle'] != null) {
-            description = loc.assignmentDueDescription(activity.metadata!['exerciseTitle'].toString(), activity.metadata!['hoursUntilDue'].toString());
+          if (activity.metadata?['hoursUntilDue'] != null &&
+              activity.metadata?['exerciseTitle'] != null) {
+            description = loc.assignmentDueDescription(
+              activity.metadata!['exerciseTitle'].toString(),
+              activity.metadata!['hoursUntilDue'].toString(),
+            );
           }
           break;
         case 'exercise_created':
           title = loc.newExerciseCreatedTitle;
-          if (activity.metadata?['submissionCount'] != null && activity.metadata?['exerciseTitle'] != null) {
-            description = loc.newExerciseCreatedDescription(activity.metadata!['exerciseTitle'].toString(), activity.metadata!['submissionCount'].toString());
+          if (activity.metadata?['submissionCount'] != null &&
+              activity.metadata?['exerciseTitle'] != null) {
+            description = loc.newExerciseCreatedDescription(
+              activity.metadata!['exerciseTitle'].toString(),
+              activity.metadata!['submissionCount'].toString(),
+            );
           }
           break;
       }

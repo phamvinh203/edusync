@@ -143,9 +143,13 @@ class RecentActivity {
   }) {
     final loc = context != null ? AppLocalizations.of(context) : null;
     final title = loc != null ? loc.assignmentDueTitle : 'Assignment due';
-    final description = loc != null
-        ? loc.assignmentDueDescription(exercise.title, hoursUntilDue.toString())
-        : '${exercise.title} - due in $hoursUntilDue hours';
+    final description =
+        loc != null
+            ? loc.assignmentDueDescription(
+              exercise.title,
+              hoursUntilDue.toString(),
+            )
+            : '${exercise.title} - due in $hoursUntilDue hours';
 
     return RecentActivity(
       id: '${exercise.id}_due',
@@ -171,10 +175,15 @@ class RecentActivity {
     BuildContext? context,
   }) {
     final loc = context != null ? AppLocalizations.of(context) : null;
-    final title = loc != null ? loc.newExerciseCreatedTitle : 'New exercise created';
-    final description = loc != null
-        ? loc.newExerciseCreatedDescription(exercise.title, submissionCount.toString())
-        : '${exercise.title} - $submissionCount students submitted';
+    final title =
+        loc != null ? loc.newExerciseCreatedTitle : 'New exercise created';
+    final description =
+        loc != null
+            ? loc.newExerciseCreatedDescription(
+              exercise.title,
+              submissionCount.toString(),
+            )
+            : '${exercise.title} - $submissionCount students submitted';
 
     return RecentActivity(
       id: '${exercise.id}_created',
