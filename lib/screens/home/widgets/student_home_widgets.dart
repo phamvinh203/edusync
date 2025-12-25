@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:edusync/models/home_model.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class StudentStatsRow extends StatelessWidget {
   final int todayAssignmentsCount;
@@ -19,7 +20,7 @@ class StudentStatsRow extends StatelessWidget {
         children: [
           Expanded(
             child: _StatCard(
-              title: 'Bài tập hôm nay',
+              title: AppLocalizations.of(context)!.todayAssignments,
               value: todayAssignmentsCount.toString(),
               icon: Icons.assignment,
               color: Colors.orange,
@@ -28,7 +29,7 @@ class StudentStatsRow extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: _StatCard(
-              title: 'Lớp học tham gia',
+              title: AppLocalizations.of(context)!.classesJoined,
               value: totalClassesJoined.toString(),
               icon: Icons.school,
               color: Colors.blue,
@@ -104,11 +105,11 @@ class RecentActivitiesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Text(
-            'Hoạt động gần đây',
-            style: TextStyle(
+            AppLocalizations.of(context)!.recentActivities,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -116,12 +117,12 @@ class RecentActivitiesSection extends StatelessWidget {
           ),
         ),
         if (activities.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Text(
-                'Chưa có hoạt động nào',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+                AppLocalizations.of(context)!.noActivities,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ),
           )
@@ -147,6 +148,52 @@ class RecentActivityItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // compute localized title/description when metadata present
+    final loc = AppLocalizations.of(context);
+    String title = activity.title;
+    String description = activity.description;
+    if (loc != null) {
+      switch (activity.type) {
+        case 'submission':
+          title =
+              activity.metadata?['exerciseTitle'] != null
+                  ? loc.submission
+                  : activity.title;
+          description =
+              activity.metadata?['exerciseTitle'] != null
+                  ? '${loc.submissionContent} "${activity.metadata!['exerciseTitle']}"${activity.metadata!['className'] != null ? ' - ${activity.metadata!['className']}' : ''}'
+                  : activity.description;
+          break;
+        case 'class_schedule':
+          title = loc.upcomingClassTitle;
+          description =
+              activity.metadata?['dayOfWeek'] != null &&
+                      activity.metadata?['timeRange'] != null
+                  ? '${activity.className} - ${activity.metadata!['dayOfWeek']} ${activity.metadata!['timeRange']}'
+                  : activity.description;
+          break;
+        case 'assignment_due':
+          title = loc.assignmentDueTitle;
+          if (activity.metadata?['hoursUntilDue'] != null &&
+              activity.metadata?['exerciseTitle'] != null) {
+            description = loc.assignmentDueDescription(
+              activity.metadata!['exerciseTitle'].toString(),
+              activity.metadata!['hoursUntilDue'].toString(),
+            );
+          }
+          break;
+        case 'exercise_created':
+          title = loc.newExerciseCreatedTitle;
+          if (activity.metadata?['submissionCount'] != null &&
+              activity.metadata?['exerciseTitle'] != null) {
+            description = loc.newExerciseCreatedDescription(
+              activity.metadata!['exerciseTitle'].toString(),
+              activity.metadata!['submissionCount'].toString(),
+            );
+          }
+          break;
+      }
+    }
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -164,19 +211,19 @@ class RecentActivityItem extends StatelessWidget {
       child: ListTile(
         leading: _getActivityIcon(),
         title: Text(
-          activity.title,
+          title,
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              activity.description,
+              description,
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
             const SizedBox(height: 4),
             Text(
-              _formatTimestamp(),
+              _formatTimestamp(context),
               style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ],
@@ -222,18 +269,18 @@ class RecentActivityItem extends StatelessWidget {
     );
   }
 
-  String _formatTimestamp() {
+  String _formatTimestamp(BuildContext context) {
     final now = DateTime.now();
     final difference = now.difference(activity.timestamp);
 
     if (difference.inMinutes < 1) {
-      return 'Vừa xong';
+      return AppLocalizations.of(context)!.justNow;
     } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} phút trước';
+      return AppLocalizations.of(context)!.minutesAgo(difference.inMinutes);
     } else if (difference.inHours < 24) {
-      return '${difference.inHours} giờ trước';
+      return AppLocalizations.of(context)!.hoursAgo(difference.inHours);
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} ngày trước';
+      return AppLocalizations.of(context)!.daysAgo(difference.inDays);
     } else {
       return '${activity.timestamp.day}/${activity.timestamp.month}/${activity.timestamp.year}';
     }
@@ -268,7 +315,9 @@ class TodayAssignmentsWidget extends StatelessWidget {
                 Icon(Icons.today, color: Colors.blue[600]),
                 const SizedBox(width: 8),
                 Text(
-                  'Bài tập hôm nay (${assignments.length})',
+                  AppLocalizations.of(
+                    context,
+                  )!.todayAssignmentsCount(assignments.length),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -322,7 +371,7 @@ class TodayAssignmentItem extends StatelessWidget {
                   ),
                 ),
               ),
-              _getStatusChip(),
+              _getStatusChip(context),
             ],
           ),
           if (assignment.className != null) ...[
@@ -338,7 +387,7 @@ class TodayAssignmentItem extends StatelessWidget {
               Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
               const SizedBox(width: 4),
               Text(
-                'Hạn: ${_formatDueDate()}',
+                '${AppLocalizations.of(context)!.deadline}: ${_formatDueDate()}',
                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ],
@@ -348,21 +397,21 @@ class TodayAssignmentItem extends StatelessWidget {
     );
   }
 
-  Widget _getStatusChip() {
+  Widget _getStatusChip(BuildContext context) {
     String text;
     Color backgroundColor;
     Color textColor;
 
     if (assignment.isSubmitted) {
-      text = 'Đã nộp';
+      text = AppLocalizations.of(context)!.submitted;
       backgroundColor = Colors.green;
       textColor = Colors.white;
     } else if (assignment.isOverdue) {
-      text = 'Quá hạn';
+      text = AppLocalizations.of(context)!.overdue;
       backgroundColor = Colors.red;
       textColor = Colors.white;
     } else {
-      text = 'Chưa nộp';
+      text = AppLocalizations.of(context)!.notSubmitted;
       backgroundColor = Colors.orange;
       textColor = Colors.white;
     }

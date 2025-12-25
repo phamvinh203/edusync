@@ -12,6 +12,7 @@ import 'package:edusync/blocs/home/home_event.dart';
 import 'package:edusync/blocs/home/home_state.dart';
 import 'package:edusync/screens/home/widgets/student_home_widgets.dart';
 import 'package:edusync/screens/home/widgets/teacher_home_widgets.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -115,7 +116,9 @@ class _HomeScreenState extends State<HomeScreen>
                         if (state.status == UserStatus.failure) {
                           return Text(
                             state.errorMessage ??
-                                'Lỗi tải thông tin người dùng',
+                                AppLocalizations.of(
+                                  context,
+                                )!.errorLoadingUserInfo,
                             style: theme.bodyMedium?.copyWith(
                               color: Colors.red,
                             ),
@@ -135,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Xin chào!',
+                                  AppLocalizations.of(context)!.hello,
                                   style: theme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey[800],
@@ -201,9 +204,11 @@ class _HomeScreenState extends State<HomeScreen>
                                     color: Colors.red[300],
                                   ),
                                   const SizedBox(height: 16),
-                                  const Text(
-                                    'Không thể tải dữ liệu',
-                                    style: TextStyle(
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.cannotLoadData,
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -226,7 +231,9 @@ class _HomeScreenState extends State<HomeScreen>
                                       return ElevatedButton.icon(
                                         onPressed: () => _manualRefresh(role),
                                         icon: const Icon(Icons.refresh),
-                                        label: const Text('Tải lại'),
+                                        label: Text(
+                                          AppLocalizations.of(context)!.reload,
+                                        ),
                                       );
                                     },
                                   ),
@@ -311,15 +318,23 @@ class _HomeScreenState extends State<HomeScreen>
         QuickActionsSection(
           onCreateExercise: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Chức năng tạo bài tập đang được phát triển'),
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.createExerciseFeatureInDevelopment,
+                ),
               ),
             );
           },
           onTakeAttendance: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Chức năng điểm danh đang được phát triển'),
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.takeAttendanceFeatureInDevelopment,
+                ),
               ),
             );
           },

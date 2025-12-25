@@ -16,17 +16,16 @@ class ExerciseRepository {
     try {
       final url = ApiUrl.createExercise.replaceAll(':classId', classId);
       Response resp;
-      // Always use multipart/form-data to match backend expectations
-      final map = Map<String, dynamic>.from(payload.toMap());
+      // If there are files, use multipart; otherwise send clean JSON body.
       if (files != null && files.isNotEmpty) {
+        final map = Map<String, dynamic>.from(payload.toMap());
+        // Remove attachments array from JSON map because we will send real files
         map.remove('attachments');
+        final form = FormData.fromMap({...map, 'attachments': files});
+        resp = await client.post(url, data: form);
+      } else {
+        resp = await client.post(url, data: payload.toMap());
       }
-      final form = FormData.fromMap({
-        ...map,
-        if (files != null && files.isNotEmpty) 'attachments': files,
-      });
-      // Let Dio set proper multipart boundary automatically
-      resp = await client.post(url, data: form);
       return ExerciseResponse.fromMap(resp.data as Map<String, dynamic>);
     } on DioException catch (e) {
       final msg = _extractMessage(e);
@@ -109,6 +108,7 @@ class ExerciseRepository {
     required String exerciseId,
     String? content,
     MultipartFile? file,
+    List<int>? answers,
   }) async {
     try {
       if ((content == null || content.trim().isEmpty) && file == null) {
@@ -120,6 +120,7 @@ class ExerciseRepository {
       final form = FormData.fromMap({
         if (content != null && content.trim().isNotEmpty) 'content': content,
         if (file != null) 'file': file,
+        if (answers != null) 'answers': answers,
       });
       final Response resp = await client.post(url, data: form);
       return SubmitExerciseResponse.fromMap(resp.data as Map<String, dynamic>);
@@ -261,6 +262,25 @@ class ExerciseRepository {
       }
       if (map == null) throw Exception('Dữ liệu chấm điểm không hợp lệ');
       return Submission.fromMap(map);
+    } on DioException catch (e) {
+      final msg = _extractMessage(e);
+      throw Exception(msg);
+    }
+  }
+
+  // Xóa bài nộp (học sinh muốn làm lại hoặc huỷ bài nộp)
+  Future<void> deleteSubmission({
+    required String classId,
+    required String exerciseId,
+    required String submissionId,
+  }) async {
+    try {
+      final url = ApiUrl.deleteSubmission
+          .replaceAll(':classId', classId)
+          .replaceAll(':exerciseId', exerciseId)
+          .replaceAll(':submissionId', submissionId);
+      await client.delete(url);
+      return;
     } on DioException catch (e) {
       final msg = _extractMessage(e);
       throw Exception(msg);

@@ -28,6 +28,10 @@ class ApiUrl {
   // lớp học học sinh đang chờ duyệt
   static const getMyPendingClasses = 'classes/my-pending-classes';
 
+  // xóa học sinh chờ duyệt
+  static const removePendingStudent =
+      'classes/:classId/removePendingStudent/:studentId';
+
   static const getStudentClass = 'classes/getStudentsByClass/:classId';
   static const getPendingStudentClass =
       'classes/:classId/getPendingStudentsByClass';
@@ -35,6 +39,12 @@ class ApiUrl {
       'classes/:classId/approveStudent/:studentId';
   // học sinh rời khỏi lớp học
   static const postLeaveClass = 'classes/leave-class/:classId';
+
+  // học sinh tham gia lớp học chính khóa bằng mã lớp
+  static const joinRegularClass = 'classes/join-by-code';
+
+  // giáo viên lấy danh sách lớp học do admin tạo
+  static const getMyCreatedClasses = 'admin/classes-by-teacher/:teacherId';
 
   // lịch học endpoints
   static const createSchedule = 'classes/schedules';
@@ -58,6 +68,10 @@ class ApiUrl {
   // chấm điểm bài nộp
   static const gradeSubmission =
       'exercises/:classId/:exerciseId/submissions/:submissionId/grade';
+
+  // xóa bài nộp (học sinh làm lại / huỷ bài nộp)
+  static const deleteSubmission =
+      'exercises/:classId/:exerciseId/submissions/:submissionId';
 
   // danh sách bài tập đã nộp của học sinh
   static const getMySubmissions = 'exercises/my-submissions/all';

@@ -4,7 +4,6 @@ import 'package:edusync/repositories/schedule_repository.dart';
 import 'package:edusync/screens/schedule/schedule_event.dart';
 import 'package:edusync/screens/schedule/widgets/week_header.dart';
 import 'package:edusync/screens/schedule/widgets/week_list.dart';
-// Month view removed; only week view retained
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -18,8 +17,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   List<ClassSchedule> _classSchedules = [];
   bool _isLoading = true;
   String? _errorMessage;
-  // Keep only week view
-  late DateTime _weekStart; // Monday of the current week
+  late DateTime _weekStart; 
 
   @override
   void initState() {
@@ -28,7 +26,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     _loadSchedules();
   }
 
-  // No extra resources to dispose
 
   Future<void> _loadSchedules() async {
     try {
@@ -54,8 +51,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   // --- Helpers for week view ---
   DateTime _getWeekStart(DateTime date) {
-    // Make Monday the start of week
-    final int weekday = date.weekday; // Mon=1..Sun=7
+    final int weekday = date.weekday; 
     return DateTime(
       date.year,
       date.month,

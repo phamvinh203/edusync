@@ -6,6 +6,7 @@ import 'package:edusync/blocs/exercise/exercise_state.dart';
 import 'package:edusync/models/exercise_model.dart';
 import 'package:edusync/screens/exercises/teacher/create_exercise_screen.dart';
 import 'package:edusync/screens/exercises/exercise_detail_screen.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 
 class ExercisesTab extends StatefulWidget {
   final String classId;
@@ -141,7 +142,9 @@ class _ExercisesTabState extends State<ExercisesTab>
                                     const SizedBox(height: 20),
                                     Center(
                                       child: Text(
-                                        'Chưa có bài tập nào',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.noExercises,
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.grey[700],
@@ -155,7 +158,9 @@ class _ExercisesTabState extends State<ExercisesTab>
                                             top: 8.0,
                                           ),
                                           child: Text(
-                                            'Nhấn nút "Tạo bài tập" để thêm bài mới cho lớp học',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.createExerciseFeatureInDevelopment,
                                             style: TextStyle(
                                               color: Colors.grey[600],
                                             ),
@@ -208,12 +213,16 @@ class _ExercisesTabState extends State<ExercisesTab>
                   if (created != null) {
                     _refresh();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Tạo bài tập thành công')),
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.createExerciseSuccess,
+                        ),
+                      ),
                     );
                   }
                 },
                 icon: const Icon(Icons.add),
-                label: const Text('Tạo bài tập'),
+                label: Text(AppLocalizations.of(context)!.createExerciseButton),
               ),
             ),
         ],
@@ -246,7 +255,6 @@ class _ExercisesTabState extends State<ExercisesTab>
                     child: ExerciseDetailScreen(
                       classId: widget.classId,
                       exerciseId: id,
-                      exercise: ex, // viết thêm
                       role: widget.role,
                     ),
                   ),

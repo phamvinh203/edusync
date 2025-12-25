@@ -1,4 +1,10 @@
+import 'dart:io';
+
+import 'package:edusync/screens/exercises/student/essay_exercise_section.dart';
+import 'package:edusync/screens/exercises/student/mcq_exercise_section.dart';
+import 'package:edusync/screens/exercises/teacher/teacher_section.dart';
 import 'package:flutter/material.dart';
+import 'package:edusync/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/exercise/exercise_bloc.dart';
 import 'package:edusync/blocs/exercise/exercise_event.dart';
@@ -6,23 +12,20 @@ import 'package:edusync/blocs/exercise/exercise_state.dart';
 import 'package:edusync/blocs/auth/auth_bloc.dart';
 import 'package:edusync/blocs/auth/auth_state.dart';
 import 'package:edusync/models/exercise_model.dart';
-import 'package:edusync/repositories/exercise_repository.dart';
-
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:edusync/screens/exercises/submit_exercise_screen.dart';
 
 class ExerciseDetailScreen extends StatefulWidget {
   final String classId;
   final String exerciseId;
-  final String role; // 👈 Thêm role
+  final String role;
 
   const ExerciseDetailScreen({
     super.key,
     required this.classId,
     required this.exerciseId,
-    required this.role, required Exercise exercise,
+    required this.role,
   });
 
   @override
@@ -30,27 +33,20 @@ class ExerciseDetailScreen extends StatefulWidget {
 }
 
 class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
-  bool _disposed = false; // Track disposal state
-  ExerciseBloc? _exerciseBloc; // Store bloc reference
+  late ExerciseBloc _exerciseBloc;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _exerciseBloc ??= context.read<ExerciseBloc>();
-  }
-
-  @override
-  void dispose() {
-    _disposed = true; // Mark as disposed
-    super.dispose();
+    _exerciseBloc = context.read<ExerciseBloc>();
   }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_disposed || !mounted || _exerciseBloc == null) return;
-      _exerciseBloc!.add(
+      if (!mounted) return;
+      _exerciseBloc.add(
         LoadExerciseDetailEvent(
           classId: widget.classId,
           exerciseId: widget.exerciseId,
@@ -61,7 +57,6 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
   Submission? _getUserSubmission(Exercise exercise, String? currentUserId) {
     if (currentUserId == null || currentUserId.isEmpty) return null;
-
     // Tìm exact match trước
     for (var sub in exercise.submissions) {
       if (sub.studentId == currentUserId) {
@@ -89,17 +84,41 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chi tiết bài tập')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.exerciseDetailTitle),
+      ),
       body: MultiBlocListener(
         listeners: [
           BlocListener<ExerciseBloc, ExerciseState>(
             listener: (context, state) {
-              if (_disposed || !mounted || _exerciseBloc == null) return;
+              if (!mounted) return;
+
+              // Reload khi nộp bài thành công
               if (state is ExerciseSubmitSuccess) {
-                _exerciseBloc!.add(
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.response.message.isNotEmpty
+                          ? state.response.message
+                          : 'Nộp bài thành công',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                _exerciseBloc.add(
                   LoadExerciseDetailEvent(
                     classId: widget.classId,
                     exerciseId: widget.exerciseId,
+                  ),
+                );
+              }
+
+              // Hiển thị lỗi nếu có
+              if (state is ExerciseError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
                   ),
                 );
               }
@@ -136,7 +155,6 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
                       const SizedBox(height: 12),
 
                       // Chips thông tin
@@ -144,16 +162,22 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                         spacing: 8,
                         runSpacing: -6,
                         children: [
-                          _chip(_typeLabel(ex.type), _typeColor(ex.type)),
                           _chip(
-                            _statusLabel(ex.status),
+                            _typeLabel(context, ex.type),
+                            _typeColor(ex.type),
+                          ),
+                          _chip(
+                            _statusLabel(context, ex.status),
                             _statusColor(ex.status),
                           ),
                           if ((ex.subject ?? '').isNotEmpty)
-                            _chip('Môn: ${ex.subject}', Colors.teal),
+                            _chip(
+                              AppLocalizations.of(context)!.subjectPrefix +
+                                  ' ${ex.subject}',
+                              Colors.teal,
+                            ),
                         ],
                       ),
-
                       const SizedBox(height: 16),
 
                       // Thời gian
@@ -161,11 +185,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Tạo lúc: ${_formatDate(ex.createdAt ?? ex.startDate ?? DateTime.now())}",
+                            '${AppLocalizations.of(context)!.createdAt}: ${_formatDate(ex.createdAt ?? ex.startDate ?? DateTime.now())}',
                             style: const TextStyle(fontSize: 14),
                           ),
                           Text(
-                            "Hạn: ${_formatDate(ex.dueDate)}",
+                            '${AppLocalizations.of(context)!.deadline}: ${_formatDate(ex.dueDate)}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.orange,
@@ -174,7 +198,6 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 12),
 
                       // Điểm
@@ -187,11 +210,13 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                             );
                             if (userSubmission?.grade != null) {
                               final g = userSubmission!.grade!;
-                              final max = ex.maxScore;
-                              final text =
-                                  max != null
-                                      ? 'Điểm của bạn: ${g.toStringAsFixed(1)}/$max'
-                                      : 'Điểm của bạn: ${g.toStringAsFixed(1)}';
+                              final max = ex.maxScore ?? 10;
+                              final text = AppLocalizations.of(
+                                context,
+                              )!.yourScore(
+                                g.toStringAsFixed(1),
+                                max.toString(),
+                              );
                               return Text(
                                 text,
                                 style: const TextStyle(
@@ -201,9 +226,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                 ),
                               );
                             } else if (userSubmission != null) {
-                              return const Text(
-                                'Bài nộp của bạn: Chưa chấm',
-                                style: TextStyle(
+                              return Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.yourSubmissionNotGraded,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.orange,
@@ -223,14 +250,13 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                           ),
                         ),
                       ],
-
                       const SizedBox(height: 16),
 
                       // Mô tả
                       if ((ex.description ?? '').isNotEmpty) ...[
-                        const Text(
-                          'Mô tả',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.descriptionLabel,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           ),
@@ -242,9 +268,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
                       // Tệp đính kèm
                       if (ex.attachments.isNotEmpty) ...[
-                        const Text(
-                          'Tệp đính kèm',
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.attachments,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           ),
@@ -264,192 +290,50 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                 '${a.mimeType ?? ''} · ${(a.fileSize ?? 0) ~/ 1024} KB',
                               ),
                               trailing: const Icon(Icons.download),
-                              onTap: () {
-                                _downloadFile(a.fileUrl, a.fileName);
-                              },
+                              onTap: () => _downloadFile(a.fileUrl, a.fileName),
                             );
                           },
                         ),
                         const SizedBox(height: 16),
                       ],
 
-                      // 👇 Nếu role là teacher => hiển thị danh sách nộp
+                      // Phần giáo viên
                       if (widget.role == 'teacher') ...[
-                        const Text(
-                          "Danh sách học sinh đã nộp",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        FutureBuilder<List<Submission>>(
-                          future: () async {
-                            // Gọi API submissions trực tiếp từ repository
-                            return ExerciseRepository().getSubmissions(
-                              classId: widget.classId,
-                              exerciseId: widget.exerciseId,
-                            );
-                          }(),
-                          builder: (context, snap) {
-                            if (snap.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: LinearProgressIndicator(minHeight: 2),
-                              );
-                            }
-                            if (snap.hasError) {
-                              return Text(
-                                'Lỗi tải danh sách: ${snap.error}',
-                                style: const TextStyle(color: Colors.red),
-                              );
-                            }
-                            final list = snap.data ?? const [];
-                            if (list.isEmpty) {
-                              return const Text(
-                                'Chưa có học sinh nào nộp',
-                                style: TextStyle(color: Colors.grey),
-                              );
-                            }
-                            return ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: list.length,
-                              separatorBuilder:
-                                  (_, __) => const Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                final sub = list[index];
-                                final studentName =
-                                    (sub.student?.username ?? '').isNotEmpty
-                                        ? sub.student!.username!
-                                        : (sub.studentId ?? 'Không rõ');
-                                final submittedAt =
-                                    sub.submittedAt != null
-                                        ? _formatDate(sub.submittedAt!)
-                                        : 'Không rõ thời gian';
-                                final gradeText =
-                                    sub.grade != null
-                                        ? 'Điểm: ${sub.grade!.toStringAsFixed(1)}${ex.maxScore != null ? '/${ex.maxScore}' : ''}'
-                                        : (sub.feedback != null
-                                            ? 'Đã nhận xét'
-                                            : 'Chưa chấm');
-                                // Nội dung chi tiết và file sẽ xem ở màn chi tiết
-
-                                return ListTile(
-                                  leading: const CircleAvatar(
-                                    child: Icon(Icons.person),
-                                  ),
-                                  title: Text(
-                                    studentName,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Nộp lúc: $submittedAt'),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        gradeText,
-                                        style: TextStyle(
-                                          color:
-                                              sub.grade != null
-                                                  ? Colors.green[700]
-                                                  : Colors.orange[700],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  trailing: const Icon(Icons.chevron_right),
-                                  onTap: () async {
-                                    final graded = await _openSubmissionDetail(
-                                      context,
-                                      ex,
-                                      sub,
-                                    );
-                                    if (graded == true) {
-                                      if (mounted) setState(() {});
-                                    }
-                                  },
-                                );
-                              },
-                            );
-                          },
+                        TeacherSection(
+                          classId: widget.classId,
+                          exerciseId: widget.exerciseId,
+                          exercise: ex,
                         ),
                       ],
 
-                      // 👇 Nếu role là student => hiển thị nút nộp bài
+                      // Phần học sinh
+                      // Phần học sinh
                       if (widget.role == 'student') ...[
                         const SizedBox(height: 20),
-
-                        SizedBox(
-                          width: double.infinity,
-                          child: () {
+                        Builder(
+                          builder: (ctx) {
                             final userSubmission = _getUserSubmission(
                               ex,
                               currentUserId,
                             );
                             final hasSubmitted = userSubmission != null;
+                            final now = DateTime.now();
+                            final stillInDeadline = ex.dueDate.isAfter(now);
+                            final graded =
+                                userSubmission?.grade !=
+                                null; // Đã chấm điểm hay chưa
 
-                            if (hasSubmitted) {
-                              return Column(
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed: null, // Disable button
-                                    icon: const Icon(Icons.check_circle),
-                                    label: const Text("Đã nộp bài thành công"),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
-                                      foregroundColor: Colors.white,
-                                      disabledBackgroundColor: Colors.green,
-                                      disabledForegroundColor: Colors.white,
-                                    ),
-                                  ),
-                                  if (userSubmission.submittedAt != null) ...[
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Đã nộp lúc: ${_formatDate(userSubmission.submittedAt!)}',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              );
-                            } else {
-                              return ElevatedButton.icon(
-                                onPressed: () async {
-                                  if (_disposed ||
-                                      !mounted ||
-                                      _exerciseBloc == null)
-                                    return;
-
-                                  final result = await Navigator.of(
-                                    context,
-                                  ).push(
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => BlocProvider.value(
-                                            value: _exerciseBloc!,
-                                            child: SubmitExerciseScreen(
-                                              classId: widget.classId,
-                                              exerciseId: widget.exerciseId,
-                                            ),
-                                          ),
-                                    ),
-                                  );
-
-                                  // Refresh exercise detail if submission was successful
-                                  if (result == true &&
-                                      !_disposed &&
-                                      mounted &&
-                                      _exerciseBloc != null) {
-                                    _exerciseBloc!.add(
+                            // Nếu chưa nộp
+                            if (!hasSubmitted &&
+                                ex.type == 'multiple_choice' &&
+                                ex.questions.isNotEmpty) {
+                              return McqExerciseSection(
+                                exercise: ex,
+                                classId: widget.classId,
+                                exerciseId: widget.exerciseId,
+                                onSubmitted: () {
+                                  if (mounted) {
+                                    _exerciseBloc.add(
                                       LoadExerciseDetailEvent(
                                         classId: widget.classId,
                                         exerciseId: widget.exerciseId,
@@ -457,11 +341,154 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                     );
                                   }
                                 },
-                                icon: const Icon(Icons.upload_file),
-                                label: const Text("Nộp bài"),
+                              );
+                            } else if (!hasSubmitted && ex.type == 'essay') {
+                              return EssayExerciseSection(
+                                classId: widget.classId,
+                                exerciseId: widget.exerciseId,
+                                onSubmitted: () {
+                                  if (mounted) {
+                                    _exerciseBloc.add(
+                                      LoadExerciseDetailEvent(
+                                        classId: widget.classId,
+                                        exerciseId: widget.exerciseId,
+                                      ),
+                                    );
+                                  }
+                                },
                               );
                             }
-                          }(),
+
+                            // Nếu đã nộp
+                            return Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: Colors.green.shade200,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green.withOpacity(
+                                              0.15,
+                                            ),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green,
+                                            size: 28,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            'Bạn đã nộp bài thành công',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    if (userSubmission?.submittedAt !=
+                                        null) ...[
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        '⏰ Đã nộp lúc: ${_formatDate(userSubmission!.submittedAt!)}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                    ],
+
+                                    // Hiển thị điểm nếu đã chấm
+                                    if (graded) ...[
+                                      const SizedBox(height: 10),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.blue.shade300,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.grade,
+                                              color: Colors.blue,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+
+                                    // Nếu chưa chấm và còn hạn thì cho phép làm lại
+                                    if (!graded && stillInDeadline) ...[
+                                      const Divider(height: 24),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton.icon(
+                                          icon: const Icon(Icons.refresh),
+                                          label: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.redoExercise,
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.orange.shade600,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 14,
+                                            ),
+                                            textStyle: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            elevation: 2,
+                                          ),
+                                          onPressed: () {
+                                            _showRedoConfirmationDialog(
+                                              context,
+                                              userSubmission,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ],
@@ -475,15 +502,15 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     );
   }
 
-  String _typeLabel(String type) {
+  String _typeLabel(BuildContext context, String type) {
     switch (type) {
       case 'multiple_choice':
-        return 'Trắc nghiệm';
+        return AppLocalizations.of(context)!.multipleChoice;
       case 'file_upload':
-        return 'Nộp file';
+        return AppLocalizations.of(context)!.fileUpload;
       case 'essay':
       default:
-        return 'Tự luận';
+        return AppLocalizations.of(context)!.essayExercise;
     }
   }
 
@@ -498,11 +525,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     }
   }
 
-  String _statusLabel(String status) {
+  String _statusLabel(BuildContext context, String status) {
     final s = status.toLowerCase();
-    if (s == 'closed') return 'Đã đóng';
-    if (s == 'graded') return 'Đã chấm';
-    return 'Đang mở';
+    if (s == 'closed') return AppLocalizations.of(context)!.statusClosed;
+    if (s == 'graded') return AppLocalizations.of(context)!.graded;
+    return AppLocalizations.of(context)!.statusOpen;
   }
 
   Color _statusColor(String status) {
@@ -529,30 +556,47 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     return '${two(d.day)}/${two(d.month)}/${d.year} ${two(d.hour)}:${two(d.minute)}';
   }
 
-  // Hàm tải file
   Future<void> _downloadFile(String url, String fileName) async {
+    final messenger = ScaffoldMessenger.of(context);
     try {
-      final dio = Dio();
-
-      // Lấy thư mục tạm (có thể đổi thành thư mục Downloads)
-      final dir = await getApplicationDocumentsDirectory();
-      final savePath = '${dir.path}/$fileName';
-
-      await dio.download(
-        url,
-        savePath,
-        onReceiveProgress: (count, total) {
-          // Download progress tracking could be added here if needed
-        },
+      String fullUrl = url;
+      final client = Dio();
+      final Response resp = await client.get(
+        fullUrl,
+        options: Options(
+          responseType: ResponseType.bytes,
+          followRedirects: true,
+          validateStatus: (s) => s != null && s < 500,
+        ),
       );
 
+      if (resp.statusCode != null && resp.statusCode! >= 400) {
+        throw Exception('Mã lỗi ${resp.statusCode}');
+      }
+
+      final data = resp.data;
+      if (data is! List<int>) {
+        throw Exception('Phản hồi không phải dữ liệu tệp');
+      }
+
+      final dir = await getApplicationDocumentsDirectory();
+      final safeName = (fileName.isNotEmpty
+              ? fileName
+              : _fileNameFromUrl(fullUrl))
+          .replaceAll('..', '.');
+      final savePath = '${dir.path}/$safeName';
+      final file = File(savePath);
+      await file.writeAsBytes(data);
+
+      messenger.showSnackBar(
+        SnackBar(content: Text('Đã tải xuống: $safeName')),
+      );
       await OpenFilex.open(savePath);
     } catch (e) {
-      // Download error handling
+      messenger.showSnackBar(SnackBar(content: Text('Lỗi tải tệp: $e')));
     }
   }
 
-  // Suy luận tên file từ URL nếu không có sẵn
   String _fileNameFromUrl(String url) {
     try {
       final uri = Uri.tryParse(url);
@@ -565,237 +609,99 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     return 'submission_$ts.bin';
   }
 
-  // BottomSheet: Chi tiết bài làm + chấm điểm
-  Future<bool> _openSubmissionDetail(
+  void _showRedoConfirmationDialog(
     BuildContext context,
-    Exercise ex,
-    Submission sub,
-  ) async {
-    final gradeController = TextEditingController(
-      text: sub.grade != null ? sub.grade!.toString() : '',
-    );
-    final feedbackController = TextEditingController(text: sub.feedback ?? '');
-
-    bool graded = false;
-
-    await showModalBottomSheet(
+    Submission? userSubmission,
+  ) {
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-      ),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            bool loading = false;
-
-            Future<void> submitGrade() async {
-              final text = gradeController.text.trim();
-              final parsed = double.tryParse(text);
-              final maxScore = ex.maxScore;
-              if (parsed == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Vui lòng nhập điểm hợp lệ')),
-                );
-                return;
-              }
-              if (maxScore != null && (parsed < 0 || parsed > maxScore)) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Điểm phải nằm trong khoảng 0 - $maxScore'),
-                  ),
-                );
-                return;
-              }
-              setSheetState(() => loading = true);
-              try {
-                final repo = ExerciseRepository();
-                await repo.gradeSubmission(
-                  classId: widget.classId,
-                  exerciseId: widget.exerciseId,
-                  submissionId: sub.id ?? '',
-                  grade: parsed,
-                  feedback: feedbackController.text.trim(),
-                );
-                graded = true;
-                if (mounted) {
-                  Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Chấm điểm thành công')),
-                  );
-                }
-              } catch (e) {
-                setSheetState(() => loading = false);
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Lỗi chấm điểm: $e')));
-              }
-            }
-
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
-                top: 8,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Bài nộp của ${sub.student?.username ?? sub.studentId ?? 'Học sinh'}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Nộp lúc: ${sub.submittedAt != null ? _formatDate(sub.submittedAt!) : 'Không rõ'}',
-                        ),
-                        if (sub.isLate)
-                          const Text(
-                            'Nộp muộn',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Nội dung văn bản
-                    if ((sub.content ?? '').isNotEmpty) ...[
-                      const Text(
-                        'Nội dung bài làm',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 6),
-                      Container(
-                        width: double.infinity,
-                        constraints: const BoxConstraints(maxHeight: 240),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: SingleChildScrollView(
-                          child: Text(sub.content ?? ''),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-
-                    // Tệp đính kèm
-                    if ((sub.fileUrl ?? '').isNotEmpty) ...[
-                      const Text(
-                        'Tệp đính kèm',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 6),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: const Icon(Icons.insert_drive_file),
-                        title: Text(_fileNameFromUrl(sub.fileUrl!)),
-                        trailing: const Icon(Icons.download),
-                        onTap: () {
-                          final url = sub.fileUrl!;
-                          final name = _fileNameFromUrl(url);
-                          _downloadFile(url, name);
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-
-                    const Divider(height: 24),
-
-                    // Nhập điểm
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: gradeController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Điểm',
-                              hintText:
-                                  ex.maxScore != null
-                                      ? '0 - ${ex.maxScore}'
-                                      : 'Nhập điểm',
-                              border: const OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                        if (ex.maxScore != null) ...[
-                          const SizedBox(width: 8),
-                          Text('/ ${ex.maxScore}'),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Nhận xét
-                    TextField(
-                      controller: feedbackController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nhận xét',
-                        border: OutlineInputBorder(),
-                      ),
-                      minLines: 2,
-                      maxLines: 4,
-                    ),
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed:
-                              loading
-                                  ? null
-                                  : () {
-                                    // Phê duyệt: tạm thời chỉ đóng BottomSheet
-                                    Navigator.of(ctx).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Đã phê duyệt bài nộp'),
-                                      ),
-                                    );
-                                  },
-                          child: const Text('Phê duyệt'),
-                        ),
-                        const Spacer(),
-                        ElevatedButton.icon(
-                          onPressed: loading ? null : submitGrade,
-                          icon:
-                              loading
-                                  ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                  : const Icon(Icons.check),
-                          label: const Text('Chấm điểm'),
-                        ),
-                      ],
-                    ),
-                  ],
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 28,
                 ),
+                SizedBox(width: 12),
+                Text(AppLocalizations.of(context)!.redoExercise),
+              ],
+            ),
+            content: Text(
+              AppLocalizations.of(context)!.redoConfirmationContent,
+              style: const TextStyle(fontSize: 15),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
-            );
-          },
-        );
-      },
-    );
+              ElevatedButton.icon(
+                icon: const Icon(Icons.check),
+                label: Text(AppLocalizations.of(context)!.confirm),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
 
-    return graded;
+                  if (userSubmission?.id == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.submissionNotFound,
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Gửi event xóa submission cũ
+                  _exerciseBloc.add(
+                    RedoSubmissionEvent(
+                      classId: widget.classId,
+                      exerciseId: widget.exerciseId,
+                      submissionId: userSubmission!.id,
+                    ),
+                  );
+
+                  // Hiển thị thông báo đang xử lý
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            AppLocalizations.of(context)!.deletingOldSubmission,
+                          ),
+                        ],
+                      ),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+    );
   }
 }
