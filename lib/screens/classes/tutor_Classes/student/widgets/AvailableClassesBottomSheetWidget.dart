@@ -3,10 +3,11 @@ import 'package:edusync/screens/classes/tutor_Classes/available_class_card.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/models/class_model.dart';
-import 'package:edusync/repositories/class_repository.dart';
-import 'package:edusync/blocs/class/class_bloc.dart';
-import 'package:edusync/blocs/class/class_state.dart';
-import 'package:edusync/blocs/class/class_event.dart';
+import 'package:edusync/blocs/available_classes/available_classes_bloc.dart';
+import 'package:edusync/blocs/available_classes/available_classes_state.dart';
+import 'package:edusync/blocs/available_classes/available_classes_event.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_bloc.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_event.dart';
 import 'package:edusync/screens/classes/tutor_Classes/student/widgets/show_register_dialog.dart';
 
 class AvailableClassesBottomSheet extends StatefulWidget {
@@ -79,13 +80,21 @@ class _AvailableClassesBottomSheetState
                 ),
               ),
               Expanded(
-                child: FutureBuilder<List<ClassModel>>(
-                  future: ClassRepository().getAllClasses(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                child: BlocBuilder<AvailableClassesBloc, AvailableClassesState>(
+                  builder: (context, state) {
+                    // Lần đầu vào sheet -> yêu cầu load nếu chưa có
+                    if (state is AvailableClassesInitial) {
+                      context.read<AvailableClassesBloc>().add(
+                        LoadAvailableClassesEvent(),
+                      );
                       return const Center(child: CircularProgressIndicator());
                     }
-                    if (snapshot.hasError) {
+
+                    if (state is AvailableClassesLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (state is AvailableClassesError) {
                       return Center(
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -98,8 +107,17 @@ class _AvailableClassesBottomSheetState
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Không thể tải danh sách lớp: ${snapshot.error}',
+                                'Không thể tải danh sách lớp: ${state.message}',
                                 textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton.icon(
+                                onPressed:
+                                    () => context
+                                        .read<AvailableClassesBloc>()
+                                        .add(LoadAvailableClassesEvent()),
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Thử lại'),
                               ),
                             ],
                           ),
@@ -107,15 +125,13 @@ class _AvailableClassesBottomSheetState
                       );
                     }
 
-                    final allClasses = snapshot.data ?? [];
-                    final availableClasses =
-                        allClasses.where((classItem) {
-                          final currentStudents = classItem.students.length;
-                          final maxStudents = classItem.maxStudents ?? 0;
-                          return currentStudents < maxStudents;
-                        }).toList();
+                    if (state is! AvailableClassesLoaded) {
+                      return const SizedBox.shrink();
+                    }
 
-                    // Cập nhật danh sách grade options từ DB (độc nhất)
+                    final availableClasses = state.availableClasses;
+
+                    // Cập nhật danh sách grade options từ data đã có trong bloc
                     final newOptions =
                         availableClasses
                             .map((c) => (c.gradeLevel ?? '').trim())
@@ -123,19 +139,17 @@ class _AvailableClassesBottomSheetState
                             .toSet()
                             .toList()
                           ..sort();
+
                     if (newOptions.join('|') != _gradeOptions.join('|')) {
-                      // Cập nhật sau frame để tránh setState trong build của FutureBuilder
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) {
-                          setState(() {
-                            _gradeOptions = newOptions;
-                            // Nếu giá trị đang chọn không còn trong options thì reset về null
-                            if (_selectedGrade != null &&
-                                !_gradeOptions.contains(_selectedGrade)) {
-                              _selectedGrade = null;
-                            }
-                          });
-                        }
+                        if (!mounted) return;
+                        setState(() {
+                          _gradeOptions = newOptions;
+                          if (_selectedGrade != null &&
+                              !_gradeOptions.contains(_selectedGrade)) {
+                            _selectedGrade = null;
+                          }
+                        });
                       });
                     }
 
@@ -181,57 +195,119 @@ class _AvailableClassesBottomSheetState
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final classItem = filtered[index];
-                        return AvailableClassCard(
-                          classItem: classItem,
-                          onRegister: (classItem, color) {
-                            showDialog(
-                              context: context,
-                              builder: (dialogContext) {
-                                return BlocListener<ClassBloc, ClassState>(
-                                  listener: (context, state) {
-                                    if (state is ClassJoinSuccess) {
-                                      Navigator.pop(dialogContext);
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Đăng ký lớp thành công! Vui lòng chờ giáo viên duyệt.',
-                                          ),
-                                          backgroundColor: Colors.green,
-                                          duration: Duration(seconds: 4),
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            AvailableClassCard(
+                              classItem: classItem,
+                              onRegister: (classItem, color) async {
+                                await showDialog<bool>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return BlocProvider.value(
+                                      value:
+                                          context.read<AvailableClassesBloc>(),
+                                      child: BlocListener<
+                                        AvailableClassesBloc,
+                                        AvailableClassesState
+                                      >(
+                                        listener: (blocCtx, state) {
+                                          if (state
+                                              is ClassRegistrationSuccess) {
+                                            Navigator.of(
+                                              dialogContext,
+                                            ).pop(true);
+                                            // Sử dụng context từ BottomSheet thay vì dialogContext
+                                            if (mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Đăng ký lớp thành công! Vui lòng chờ giáo viên duyệt.',
+                                                  ),
+                                                  backgroundColor: Colors.green,
+                                                  duration: Duration(
+                                                    seconds: 4,
+                                                  ),
+                                                ),
+                                              );
+                                              // Refresh dữ liệu để cập nhật trạng thái
+                                              context
+                                                  .read<AvailableClassesBloc>()
+                                                  .add(
+                                                    RefreshAvailableClassesEvent(),
+                                                  );
+                                              // Cũng refresh RegisteredClassesBloc để cập nhật danh sách lớp đã đăng ký
+                                              try {
+                                                context
+                                                    .read<
+                                                      RegisteredClassesBloc
+                                                    >()
+                                                    .add(
+                                                      LoadRegisteredClassesEvent(),
+                                                    );
+                                              } catch (e) {
+                                                // Có thể RegisteredClassesBloc không available trong context này
+                                                print(
+                                                  'Could not refresh RegisteredClassesBloc: $e',
+                                                );
+                                              }
+                                            }
+                                          } else if (state
+                                              is ClassRegistrationError) {
+                                            Navigator.of(
+                                              dialogContext,
+                                            ).pop(false);
+                                            if (mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'Lỗi: ${state.message}',
+                                                  ),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        },
+                                        child: BlocBuilder<
+                                          AvailableClassesBloc,
+                                          AvailableClassesState
+                                        >(
+                                          builder: (context, currentState) {
+                                            return RegisterClassDialog(
+                                              classItem: classItem,
+                                              subjectColor: color,
+                                              isRegistering:
+                                                  currentState
+                                                      is RegisteringForClass,
+                                              isRegistered:
+                                                  false, // Sẽ được kiểm tra từ server data
+                                              onRegister: () {
+                                                context
+                                                    .read<
+                                                      AvailableClassesBloc
+                                                    >()
+                                                    .add(
+                                                      RegisterForClassEvent(
+                                                        classItem.id ?? '',
+                                                      ),
+                                                    );
+                                              },
+                                            );
+                                          },
                                         ),
-                                      );
-                                    } else if (state is ClassError ||
-                                        state is ClassJoinError) {
-                                      Navigator.pop(dialogContext);
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Lỗi: ${state is ClassError ? state.message : (state as ClassJoinError).message}',
-                                          ),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
+                                      ),
+                                    );
                                   },
-                                  child: RegisterClassDialog(
-                                    classItem: classItem,
-                                    subjectColor: color,
-                                    isRegistering: false,
-                                    isRegistered: false,
-                                    onRegister: () {
-                                      context.read<ClassBloc>().add(
-                                        JoinClassEvent(classItem.id ?? ''),
-                                      );
-                                    },
-                                  ),
                                 );
                               },
-                            );
-                          },
+                            ),
+                          ],
                         );
                       },
                     );

@@ -18,6 +18,20 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
     // Xử lý sự kiện load danh sách lớp học
     on<LoadClassesEvent>((event, emit) async {
       print('LoadClassesEvent triggered');
+      // Nếu đang loading thì bỏ qua để tránh gọi API trùng
+      if (state is ClassLoading) return;
+
+      // Nếu đã có cache thì dùng lại, không gọi API
+      if (_classes.isNotEmpty) {
+        emit(
+          ClassLoaded(
+            List.from(_classes),
+            registeredClassesCount: _registeredClassesCount,
+          ),
+        );
+        return;
+      }
+
       emit(ClassLoading());
       try {
         // Gọi API lấy danh sách lớp học từ server

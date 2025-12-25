@@ -81,7 +81,7 @@ class RegisterClassDialog extends StatelessWidget {
             ),
           ],
 
-          // Hiển thị trạng thái đã đăng ký
+          // Hiển thị trạng thái đã đăng ký (nếu parent đã báo)
           if (isRegistered) _buildRegisteredStatus(),
         ],
       ),
@@ -96,8 +96,9 @@ class RegisterClassDialog extends StatelessWidget {
                 isRegistering
                     ? null
                     : () {
-                      // Không đóng Navigator.pop(context) ở đây, mà để callback đăng ký xử lý
-                      onRegister(); // gọi callback thực hiện đăng ký
+                      // Gọi callback để parent gửi event lên Bloc.
+                      // KHÔNG pop dialog ở đây -> để BlocListener xử lý pop khi success/error.
+                      onRegister();
                     },
             icon:
                 isRegistering

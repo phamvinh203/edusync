@@ -8,20 +8,54 @@ import 'package:edusync/blocs/auth/auth_state.dart';
 import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_event.dart';
 import 'package:edusync/blocs/class/class_state.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_bloc.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_state.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_event.dart';
+import 'package:edusync/blocs/available_classes/available_classes_bloc.dart';
+import 'package:edusync/repositories/class_repository.dart';
 import 'package:edusync/screens/classes/tutor_Classes/create_class_screen.dart';
 import 'package:edusync/screens/schedule/schedule_screen.dart';
 import 'package:edusync/screens/classes/school_Classes/school_subject_tab.dart';
 import 'package:edusync/screens/classes/tutor_Classes/tutor_class_tab.dart';
 import 'package:edusync/models/class_model.dart';
 
-class ClassScreen extends StatefulWidget {
+class ClassScreen extends StatelessWidget {
   const ClassScreen({super.key});
 
   @override
-  State<ClassScreen> createState() => _ClassScreenState();
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<RegisteredClassesBloc>(
+          create:
+              (context) => RegisteredClassesBloc(
+                classRepository: context.read<ClassRepository>(),
+              ),
+        ),
+        BlocProvider<AvailableClassesBloc>(
+          create: (context) {
+            final authState = context.read<AuthBloc>().state;
+            final currentUserId = authState.user?.id;
+            return AvailableClassesBloc(
+              classRepository: context.read<ClassRepository>(),
+              currentUserId: currentUserId,
+            );
+          },
+        ),
+      ],
+      child: const _ClassScreenContent(),
+    );
+  }
 }
 
-class _ClassScreenState extends State<ClassScreen>
+class _ClassScreenContent extends StatefulWidget {
+  const _ClassScreenContent();
+
+  @override
+  State<_ClassScreenContent> createState() => _ClassScreenContentState();
+}
+
+class _ClassScreenContentState extends State<_ClassScreenContent>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
@@ -39,7 +73,9 @@ class _ClassScreenState extends State<ClassScreen>
         final authState = context.read<AuthBloc>().state;
         final userRole = authState.user?.role ?? '';
         if (userRole.toLowerCase() == 'student') {
-          context.read<ClassBloc>().add(LoadRegisteredClassesCountEvent());
+          context.read<RegisteredClassesBloc>().add(
+            LoadRegisteredClassesEvent(),
+          );
         }
       }
     });
@@ -72,157 +108,174 @@ class _ClassScreenState extends State<ClassScreen>
 
             return BlocBuilder<ClassBloc, ClassState>(
               builder: (context, classState) {
-                // Lấy số lượng dựa theo role
-                int classCount = 0;
-                String classLabel = '';
+                // Cần sử dụng RegisteredClassesBloc cho student count
+                return BlocBuilder<
+                  RegisteredClassesBloc,
+                  RegisteredClassesState
+                >(
+                  builder: (context, registeredState) {
+                    // Lấy số lượng dựa theo role
+                    int classCount = 0;
+                    String classLabel = '';
 
-                if (userRole.toLowerCase() == 'student') {
-                  // Học sinh: hiển thị số lớp đã đăng ký
-                  if (classState is ClassLoaded) {
-                    classCount = classState.registeredClassesCount;
-                  }
-                  classLabel = 'lớp gia sư';
-                } else if (userRole.toLowerCase() == 'teacher') {
-                  // Giáo viên: hiển thị số lớp đã tạo
-                  if (classState is ClassLoaded) {
-                    classCount = classState.classes.length;
-                  }
-                  classLabel = 'lớp đã tạo';
-                } else {
-                  // Role khác hoặc chưa xác định
-                  classLabel = 'lớp học';
-                }
+                    if (userRole.toLowerCase() == 'student') {
+                      // Học sinh: hiển thị số lớp đã đăng ký
+                      if (registeredState is RegisteredClassesLoaded) {
+                        classCount = registeredState.registeredClasses.length;
+                      }
+                      classLabel = 'lớp gia sư';
+                    } else if (userRole.toLowerCase() == 'teacher') {
+                      // Giáo viên: hiển thị số lớp đã tạo
+                      if (classState is ClassLoaded) {
+                        classCount = classState.classes.length;
+                      }
+                      classLabel = 'lớp đã tạo';
+                    } else {
+                      // Role khác hoặc chưa xác định
+                      classLabel = 'lớp học';
+                    }
 
-                return Scaffold(
-                  body: SafeArea(
-                    child: Column(
-                      children: [
-                        // thông tin lớp học
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 16.0),
-                              // Quick info card
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: QuickInfoCard(
-                                  userClass: userClass,
-                                  userSchool: userSchool,
-                                  classCount: classCount,
-                                  classLabel: classLabel,
-                                  userRole: userRole,
-                                  onCreateClass: () async {
-                                    final result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                const CreateClassScreen(),
-                                      ),
-                                    );
-
-                                    if (result is ClassModel && mounted) {
-                                      context.read<ClassBloc>().add(
-                                        RefreshClassesEvent(),
-                                      );
-
-                                      if (userRole.toLowerCase() == 'student') {
-                                        context.read<ClassBloc>().add(
-                                          LoadRegisteredClassesCountEvent(),
-                                        );
-                                      }
-
-                                      _tabController.animateTo(1);
-
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Đã tạo lớp "${result.nameClass}" thành công!',
-                                          ),
-                                          backgroundColor: Colors.green,
-                                          duration: const Duration(seconds: 3),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-
-                              // Tab bar and schedule button
-                              Row(
+                    return Scaffold(
+                      body: SafeArea(
+                        child: Column(
+                          children: [
+                            // thông tin lớp học
+                            Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
                                 children: [
-                                  Expanded(
-                                    child: TabBar(
-                                      controller: _tabController,
-                                      labelColor: Colors.blue[600],
-                                      unselectedLabelColor: Colors.grey,
-                                      indicatorColor: Colors.blue[600],
-                                      tabs: const [
-                                        Tab(
-                                          text: 'Môn học trường',
-                                          icon: Icon(Icons.school, size: 20),
-                                        ),
-                                        Tab(
-                                          text: 'Lớp gia sư',
-                                          icon: Icon(Icons.person, size: 20),
-                                        ),
-                                        // Tab(
-                                        //   text: 'Lớp đã đăng ký',
-                                        //   icon: Icon(Icons.person, size: 20),
-                                        // ),
-                                      ],
+                                  const SizedBox(height: 16.0),
+                                  // Quick info card
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: QuickInfoCard(
+                                      userClass: userClass,
+                                      userSchool: userSchool,
+                                      classCount: classCount,
+                                      classLabel: classLabel,
+                                      userRole: userRole,
+                                      onCreateClass: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    const CreateClassScreen(),
+                                          ),
+                                        );
+
+                                        if (result is ClassModel && mounted) {
+                                          if (mounted) {
+                                            context.read<ClassBloc>().add(
+                                              RefreshClassesEvent(),
+                                            );
+
+                                            if (userRole.toLowerCase() ==
+                                                'student') {
+                                              context
+                                                  .read<RegisteredClassesBloc>()
+                                                  .add(
+                                                    RefreshRegisteredClassesEvent(),
+                                                  );
+                                            }
+
+                                            _tabController.animateTo(1);
+
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Đã tạo lớp "${result.nameClass}" thành công!',
+                                                ),
+                                                backgroundColor: Colors.green,
+                                                duration: const Duration(
+                                                  seconds: 3,
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
                                     ),
                                   ),
-                                  const SizedBox(width: 16),
-                                  TextButton.icon(
-                                    onPressed: () {
-                                      if (!mounted) return;
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  const ScheduleScreen(),
+                                  const SizedBox(height: 24),
+
+                                  // Tab bar and schedule button
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TabBar(
+                                          controller: _tabController,
+                                          labelColor: Colors.blue[600],
+                                          unselectedLabelColor: Colors.grey,
+                                          indicatorColor: Colors.blue[600],
+                                          tabs: const [
+                                            Tab(
+                                              text: 'Môn học trường',
+                                              icon: Icon(
+                                                Icons.school,
+                                                size: 20,
+                                              ),
+                                            ),
+                                            Tab(
+                                              text: 'Lớp gia sư',
+                                              icon: Icon(
+                                                Icons.person,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.calendar_today,
-                                      size: 16,
-                                    ),
-                                    label: const Text('Lịch học'),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      TextButton.icon(
+                                        onPressed: () {
+                                          if (!mounted) return;
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      const ScheduleScreen(),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.calendar_today,
+                                          size: 16,
+                                        ),
+                                        label: const Text('Lịch học'),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
 
-                        // TabBarView - Nội dung các tab
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: [
-                              // Tab môn học trường với PageStorageKey
-                              Container(
-                                key: const PageStorageKey('school_tab'),
-                                child: const SchoolSubjectTab(),
+                            // TabBarView - Nội dung các tab
+                            Expanded(
+                              child: TabBarView(
+                                controller: _tabController,
+                                children: [
+                                  // Tab môn học trường với PageStorageKey
+                                  Container(
+                                    key: const PageStorageKey('school_tab'),
+                                    child: const SchoolSubjectTab(),
+                                  ),
+                                  // Tab lớp gia sư với PageStorageKey
+                                  Container(
+                                    key: const PageStorageKey('tutor_tab'),
+                                    child: const TutorClassTab(),
+                                  ),
+                                ],
                               ),
-                              // Tab lớp gia sư với PageStorageKey
-                              Container(
-                                key: const PageStorageKey('tutor_tab'),
-                                child: const TutorClassTab(),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 );
               },
             );

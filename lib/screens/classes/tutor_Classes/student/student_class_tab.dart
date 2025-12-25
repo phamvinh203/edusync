@@ -7,9 +7,10 @@ import 'package:edusync/screens/classes/tutor_Classes/widgets/ErrorStateWidget.d
 import 'package:edusync/screens/classes/tutor_Classes/widgets/LoadingWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:edusync/blocs/class/class_bloc.dart';
-import 'package:edusync/blocs/class/class_state.dart';
-import 'package:edusync/blocs/class/class_event.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_bloc.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_state.dart';
+import 'package:edusync/blocs/available_classes/available_classes_bloc.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_event.dart';
 import 'package:edusync/models/class_model.dart';
 
 class StudentClassTab extends StatefulWidget {
@@ -19,54 +20,62 @@ class StudentClassTab extends StatefulWidget {
   State<StudentClassTab> createState() => _StudentClassTabState();
 }
 
-class _StudentClassTabState extends State<StudentClassTab> with AutomaticKeepAliveClientMixin {
+class _StudentClassTabState extends State<StudentClassTab>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    context.read<ClassBloc>().add(GetRegisteredClassesEvent());
+    context.read<RegisteredClassesBloc>().add(LoadRegisteredClassesEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return BlocBuilder<ClassBloc, ClassState>(
+    return BlocBuilder<RegisteredClassesBloc, RegisteredClassesState>(
       builder: (context, state) {
-        if (state is ClassLoading) {
+        if (state is RegisteredClassesLoading) {
           return const LoadingWidget();
         }
-        if (state is ClassError) {
+        if (state is RegisteredClassesError) {
           return ErrorStateWidget(
             message: state.message,
             onRetry: () {
-              context.read<ClassBloc>().add(GetRegisteredClassesEvent());
+              context.read<RegisteredClassesBloc>().add(
+                LoadRegisteredClassesEvent(),
+              );
             },
           );
         }
 
         List<ClassModel> classes = [];
-        if (state is ClassLoaded) {
-          classes = state.classes;
-        } else if (state is ClassCreateSuccess) {
-          classes = state.allClasses;
+        if (state is RegisteredClassesLoaded) {
+          classes = state.registeredClasses;
         }
 
         return RefreshIndicator(
           onRefresh: () async {
-            context.read<ClassBloc>().add(GetRegisteredClassesEvent());
+            context.read<RegisteredClassesBloc>().add(
+              RefreshRegisteredClassesEvent(),
+            );
           },
           child: Column(
             children: [
               StudentActionButtonsWidget(
-                onFindClasses: () => _showAvailableClassesBottomSheet(context, classes),
+                onFindClasses:
+                    () => _showAvailableClassesBottomSheet(context, classes),
                 onViewPending: () => _showPendingClassesBottomSheet(context),
               ),
               Expanded(
-                child: classes.isEmpty
-                    ? const EmptyStateWidget(userRole: 'student')
-                    : ClassListWidget(classes: classes, userRole: 'student'),
+                child:
+                    classes.isEmpty
+                        ? const EmptyStateWidget(userRole: 'student')
+                        : ClassListWidget(
+                          classes: classes,
+                          userRole: 'student',
+                        ),
               ),
             ],
           ),
@@ -75,7 +84,10 @@ class _StudentClassTabState extends State<StudentClassTab> with AutomaticKeepAli
     );
   }
 
-  void _showAvailableClassesBottomSheet(BuildContext context, List<ClassModel> classes) {
+  void _showAvailableClassesBottomSheet(
+    BuildContext context,
+    List<ClassModel> classes,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -83,7 +95,10 @@ class _StudentClassTabState extends State<StudentClassTab> with AutomaticKeepAli
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext bottomSheetContext) {
-        return AvailableClassesBottomSheet(classes: classes);
+        return BlocProvider.value(
+          value: context.read<AvailableClassesBloc>(),
+          child: AvailableClassesBottomSheet(classes: classes),
+        );
       },
     );
   }

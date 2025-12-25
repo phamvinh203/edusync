@@ -18,9 +18,6 @@ class AvailableClassCard extends StatefulWidget {
 }
 
 class _AvailableClassCardState extends State<AvailableClassCard> {
-  // Trạng thái local để chuyển ngay sang "Đang chờ" sau khi bấm đăng ký
-  bool _localPending = false;
-
   @override
   Widget build(BuildContext context) {
     final currentStudents = widget.classItem.students.length;
@@ -34,10 +31,9 @@ class _AvailableClassCardState extends State<AvailableClassCard> {
     final isJoined =
         currentUserId.isNotEmpty &&
         widget.classItem.students.contains(currentUserId);
-    final isPendingFromServer =
+    final isPending =
         currentUserId.isNotEmpty &&
         widget.classItem.pendingStudents.contains(currentUserId);
-    final isPending = isPendingFromServer || _localPending;
     final canRegister = isOpen && !isJoined && !isPending;
 
     return Container(
@@ -176,9 +172,6 @@ class _AvailableClassCardState extends State<AvailableClassCard> {
               onPressed:
                   canRegister
                       ? () {
-                        setState(() {
-                          _localPending = true;
-                        });
                         widget.onRegister(widget.classItem, subjectColor);
                       }
                       : null,

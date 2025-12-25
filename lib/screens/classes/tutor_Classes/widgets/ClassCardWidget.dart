@@ -1,8 +1,8 @@
-// Widget hiển thị thông tin từng lớp học dưới dạng thẻ (Card)
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/models/class_model.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_bloc.dart';
+import 'package:edusync/blocs/registered_classes/registered_classes_event.dart';
 import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_event.dart';
 import 'package:edusync/screens/classes/tutor_Classes/class_detail_screen.dart';
@@ -39,7 +39,9 @@ class ClassCardWidget extends StatelessWidget {
           );
           if (result == true) {
             if (userRole.toLowerCase() == 'student') {
-              context.read<ClassBloc>().add(GetRegisteredClassesEvent());
+              context.read<RegisteredClassesBloc>().add(
+                RefreshRegisteredClassesEvent(),
+              );
             } else {
               context.read<ClassBloc>().add(RefreshClassesEvent());
             }
@@ -154,8 +156,8 @@ class ClassCardWidget extends StatelessWidget {
                         );
                         if (result == true) {
                           if (userRole.toLowerCase() == 'student') {
-                            context.read<ClassBloc>().add(
-                              GetRegisteredClassesEvent(),
+                            context.read<RegisteredClassesBloc>().add(
+                              RefreshRegisteredClassesEvent(),
                             );
                           } else {
                             context.read<ClassBloc>().add(
