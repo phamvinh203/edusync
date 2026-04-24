@@ -5,7 +5,7 @@ import 'package:edusync/blocs/registered_classes/registered_classes_bloc.dart';
 import 'package:edusync/blocs/registered_classes/registered_classes_event.dart';
 import 'package:edusync/blocs/class/class_bloc.dart';
 import 'package:edusync/blocs/class/class_event.dart';
-import 'package:edusync/screens/classes/tutor_Classes/class_detail_screen.dart';
+import 'package:edusync/screens/classes/tutor_Classes/teacher/screens/class_detail_screen.dart';
 
 class ClassCardWidget extends StatelessWidget {
   final ClassModel classItem;

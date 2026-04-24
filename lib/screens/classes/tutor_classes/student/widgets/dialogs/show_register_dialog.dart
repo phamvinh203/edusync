@@ -83,13 +83,8 @@ class RegisterClassDialog extends StatelessWidget {
               ),
             ),
           ],
-<<<<<<< HEAD:lib/screens/classes/tutor_Classes/student/widgets/show_register_dialog.dart
-
           // Hiển thị trạng thái đã đăng ký (nếu parent đã báo)
-          if (isRegistered) _buildRegisteredStatus(),
-=======
           if (isRegistered) _buildRegisteredStatus(context),
->>>>>>> 73aecbacdb1ec8be33a24a60c40dbfb4fb115cfd:lib/screens/classes/tutor_classes/student/widgets/dialogs/show_register_dialog.dart
         ],
       ),
       actions: [
@@ -107,11 +102,8 @@ class RegisterClassDialog extends StatelessWidget {
                 isRegistering
                     ? null
                     : () {
-<<<<<<< HEAD:lib/screens/classes/tutor_Classes/student/widgets/show_register_dialog.dart
                       // Gọi callback để parent gửi event lên Bloc.
                       // KHÔNG pop dialog ở đây -> để BlocListener xử lý pop khi success/error.
-=======
->>>>>>> 73aecbacdb1ec8be33a24a60c40dbfb4fb115cfd:lib/screens/classes/tutor_classes/student/widgets/dialogs/show_register_dialog.dart
                       onRegister();
                     },
             icon:

@@ -1,10 +1,4 @@
 import 'package:edusync/screens/classes/tutor_Classes/student/widgets/AvailableClassesBottomSheetWidget.dart';
-import 'package:edusync/screens/classes/tutor_Classes/student/widgets/PendingClassesBottomSheetWidget.dart';
-import 'package:edusync/screens/classes/tutor_Classes/student/widgets/StudentActionButtonsWidget.dart';
-import 'package:edusync/screens/classes/tutor_Classes/student/widgets/ClassListWidget.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/EmptyStateWidget.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/ErrorStateWidget.dart';
-import 'package:edusync/screens/classes/tutor_Classes/widgets/LoadingWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:edusync/blocs/registered_classes/registered_classes_bloc.dart';
@@ -12,6 +6,13 @@ import 'package:edusync/blocs/registered_classes/registered_classes_state.dart';
 import 'package:edusync/blocs/available_classes/available_classes_bloc.dart';
 import 'package:edusync/blocs/registered_classes/registered_classes_event.dart';
 import 'package:edusync/models/class_model.dart';
+
+import '../shared/widgets/states/empty_state_widget.dart';
+import '../shared/widgets/states/error_state_widget.dart';
+import '../shared/widgets/states/loading_widget.dart';
+import 'widgets/bottom_sheets/pending_classes_bottom_sheet.dart';
+import 'widgets/buttons/student_action_buttons_widget.dart';
+import 'widgets/lists/class_list_widget.dart';
 
 class StudentClassTab extends StatefulWidget {
   const StudentClassTab({super.key});

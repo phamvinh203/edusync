@@ -8,7 +8,8 @@ import 'package:edusync/blocs/available_classes/available_classes_state.dart';
 import 'package:edusync/blocs/available_classes/available_classes_event.dart';
 import 'package:edusync/blocs/registered_classes/registered_classes_bloc.dart';
 import 'package:edusync/blocs/registered_classes/registered_classes_event.dart';
-import 'package:edusync/screens/classes/tutor_Classes/student/widgets/show_register_dialog.dart';
+
+import 'dialogs/show_register_dialog.dart';
 
 class AvailableClassesBottomSheet extends StatefulWidget {
   final List<ClassModel> classes;
